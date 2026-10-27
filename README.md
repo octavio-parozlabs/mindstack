@@ -12,7 +12,7 @@ flowchart LR
     class A,OK,PR,M persona
 ```
 
-Naranja: la persona. Todo lo demás lo hacen los roles, de a uno (`/mindstack:<fase>`) o encadenados (`/mindstack:orchestrate`).
+Naranja: la persona. Todo lo demás lo hacen los roles, de a uno (`/mindstack:<fase>`) o encadenados (`/mindstack:orchestrate`). Cada tarea corre en su worktree y, si hay Compose, en su propio entorno en `localhost` con copia de tu DB: probás ahí antes de la revisión. Nada se publica.
 
 ## Instalar
 
@@ -64,7 +64,7 @@ docs/plans/
 | `/mindstack:analyze <tema>` | entrevista, supuestos, un diagrama por caso borde → `SPEC.md` | commit por ronda |
 | `/mindstack:plan <slug>` | acoplamiento, tajadas verticales, tareas con rol, fechas, Done → `PLAN.md` | commit por ronda |
 | `/mindstack:approve <slug>` | congela, deriva `TODO.md`, mueve a `1-pending` | commit |
-| `/mindstack:implement <slug>` | `ralph-loop`: una tarea por vuelta, `qa` después de cada una, consenso ante ambigüedades | commit del estado; el código queda sin commitear |
+| `/mindstack:implement <slug>` | `ralph-loop`: una tarea por vuelta, `qa` después de cada una, consenso ante ambigüedades; al terminar levanta el entorno local de la tarea | commit del estado; el código queda sin commitear |
 | `/mindstack:review <slug>` | `qa` + `code-reviewer` + `security-auditor` en paralelo → tres `REVIEW-*.md` | commit solo de los REVIEW |
 | `/mindstack:fix <slug>` | `fixer`: fix, deuda con vencimiento, o rechazo con motivo; `qa` testea | sin commit |
 | `/mindstack:pr <slug>` | **único commit del código**, `PR.md`, push, `gh pr create` | commit + push |

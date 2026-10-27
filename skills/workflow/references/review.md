@@ -23,6 +23,7 @@ Por qué tres agentes y no uno: un revisor que mira todo mira todo por encima. T
 - Carpeta en `2-in-progress/` (ronda 1) o `3-in-review/` (ronda ≥ 2). Si está en otra, pará.
 - Todas las líneas de `TODO.md` con `[x]`. Si no, pará: la revisión es de la tarea entera.
 - Done de `PLAN.md` pasa ahora. Si no, pará y decí qué falla.
+- La persona probó en el entorno de la tarea (la URL está en `CHANGELOG › Cambios`). Si no está seguro, preguntá antes de lanzar revisores: lo que quiera cambiar después de ver la feature es más barato acá que como ronda.
 - Ronda = última fila de `CHANGELOG › Revisión` + 1; sin filas, 1.
 
 ## Pasos

@@ -50,7 +50,7 @@ Tres líneas: tu directorio, el checkout principal, las tareas pendientes. Si la
 1. Rama de la tarea (`rama:` del PLAN); si no existe, crearla desde HEAD. Es la única rama que el flujo crea, y la crea porque el PLAN la nombra.
 2. `git mv docs/plans/1-pending/<slug> docs/plans/2-in-progress/<slug>`, commit propio `plan(<slug>): implement`.
 3. Si hay `graphify-out/`: `/graphify . --update --no-viz`.
-4. Si hay `docker-compose.yml` y `$CI` está vacío: `${CLAUDE_PLUGIN_ROOT}/scripts/env-up.sh <slug> db`. Levanta solo la DB de la tarea, aislada.
+4. Si hay `docker-compose.yml` y `$CI` está vacío: `${CLAUDE_PLUGIN_ROOT}/scripts/env-up.sh <slug> db`. Levanta solo la DB de la tarea, aislada, con copia de la tuya (`skills/workflow/references/environment.md`). Sin compose, el stack dice cómo se corre; nada se levanta todavía.
 
 ## El loop
 
@@ -73,7 +73,7 @@ Reglas dentro del loop:
 ## Al terminar
 
 - Done pasó entero: dejalo en la salida con comando y resultado.
-- Si hay compose y `$CI` vacío: `env-up.sh <slug>` levanta api y web de la rama. Decí la URL.
-- La carpeta se queda en `2-in-progress/`. Terminá diciendo: Done verde, dónde probar, y que la revisión arranca con `/mindstack:review <slug>`.
+- Si hay compose y `$CI` vacío: `env-up.sh <slug>` levanta api y web de la rama en `localhost`, en los puertos de la tarea. Fila en `CHANGELOG › Cambios`: "entorno levantado: `http://localhost:52xx`". Sin compose: el comando del stack para levantar y la URL, en la misma fila. Es local; no se publica en ningún lado (`skills/workflow/references/environment.md`).
+- La carpeta se queda en `2-in-progress/`. Terminá diciendo: Done verde, la URL donde probar, y que la revisión arranca con `/mindstack:review <slug>` cuando la persona probó.
 
 Lo que la persona pida después en la sesión ("el botón dice Guardar, no Enviar") se hace acá con las mismas reglas: sin commit, fila en Cambios, tests al agente `qa`.

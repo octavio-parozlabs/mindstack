@@ -19,7 +19,7 @@ stateDiagram-v2
    - PR: #n.
    - Qué quedó distinto de lo planeado: resumen de Decisiones, en dos o tres líneas.
    - Deuda que sigue abierta: cada issue de Deuda técnica, con su vencimiento.
-3. Si hay compose: `${CLAUDE_PLUGIN_ROOT}/scripts/env-down.sh <slug>`.
+3. Si hay compose: `${CLAUDE_PLUGIN_ROOT}/scripts/env-down.sh <slug>`. Baja el stack de la tarea y borra sus volúmenes y seed (`skills/workflow/references/environment.md`).
 4. `git mv docs/plans/3-in-review/<slug> docs/plans/4-done/<slug>`.
 5. Commit `plan(<slug>): finalize`. Solo docs. El push a main lo hace la persona.
 6. Si hay `graphify-out/`: `/graphify . --update --no-viz`, para que el grafo del principal vea lo mergeado.

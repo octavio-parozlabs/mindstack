@@ -15,7 +15,7 @@ El checklist "Estado final" de `PLAN.md`, con cada casilla marcada y el comando 
 
 ## Cómo probarlo
 
-Cómo levantarlo y qué tocar para ver cada caso borde (CB-n) del SPEC.
+La URL del entorno local de la tarea (`CHANGELOG › Cambios`, la levanta `env-up.sh <slug>` desde el worktree) o el comando del stack para levantarlo, y qué tocar para ver cada caso borde (CB-n) del SPEC. Es localhost: quien revisa el PR lo levanta en su máquina.
 
 ## Revisión
 

@@ -69,7 +69,7 @@ flowchart TD
         C -. sin acuerdo .-> HU([persona decide])
     end
     S2 --> IMPL
-    IMPL -->|Done verde| PRUEBA([persona prueba])
+    IMPL -->|Done verde, entorno en localhost| PRUEBA([persona prueba])
     PRUEBA -->|/review| S3["3-in-review"]
     subgraph REV["revisión: 3 agentes en un turno"]
         R1[qa verificar → REVIEW-qa]
@@ -136,6 +136,7 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 | `references/orchestrate.md` | detección de estado, el grafo con sus paradas | `/orchestrate` |
 | `references/roles-and-artifacts.md` | diagramas de clases: artefactos y roles; quién invoca a quién y cuándo; qué itera cada fase y hasta cuándo; skills externas | al escribir o cambiar un agente, al preguntarse quién llama a quién |
 | `references/worktree.md` | qué arma el hook `WorktreeCreate` y por qué | al abrir una sesión, al tocar el hook |
+| `references/environment.md` | el entorno local por tarea: `env-up.sh`, puertos por slug, copia de la DB, dónde queda la URL, por qué no se publica | al probar una tarea, al tocar `env-up.sh` o el compose |
 | `references/git.md` | ramas, commits, prefijos, `.gitignore` | al tocar ramas, commits, `.gitignore` |
 | `templates/` | `SPEC.md`, `PLAN.md`, `TODO.md`, `CHANGELOG.md`, `REVIEW.md`, `PR.md`, `CLAUDE.md`, `gitignore` | cada comando que crea un archivo |
 
