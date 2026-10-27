@@ -69,7 +69,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint                         # max-lines falla acá
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1: el plugin, para tener check.sh en el runner
-        with: { repository: octavio-parozlabs/agent-skills, path: mindstack }
+        with: { repository: octavio-parozlabs/mindstack, path: mindstack }
       - run: bash mindstack/scripts/check.sh   # lo mismo que corre el revisor de código: patrones prohibidos, process.env, digest, .nvmrc, SHA
       - run: npx vitest run --coverage            # thresholds globales fallan acá
       - run: pip install diff-cover

@@ -16,16 +16,30 @@ Naranja: la persona. Todo lo demás lo hacen los roles, de a uno (`/mindstack:<f
 
 ## Instalar
 
-En la máquina, una vez:
+### Local, para probarlo o desarrollarlo
+
+```bash
+git clone git@github.com:octavio-parozlabs/mindstack.git
+cd tu-proyecto
+claude --plugin-dir /ruta/a/mindstack
+```
+
+`--plugin-dir` carga el plugin desde esa carpeta solo para esa sesión: comandos, agentes, skills y hooks. Lo que edites en el clon se ve al abrir la próxima sesión; no hay que instalar nada. Para un worktree de tarea: `claude -w <slug> --plugin-dir /ruta/a/mindstack`.
+
+### En la máquina, para usarlo siempre
 
 ```
-/plugin marketplace add octavio-parozlabs/agent-skills
+/plugin marketplace add octavio-parozlabs/mindstack
 /plugin install mindstack@mindstack
 ```
 
-O desde el clon local: `/plugin marketplace add /ruta/al/clon`. Para implementar hace falta además el plugin `ralph-wiggum` (el loop).
+O desde el clon local: `/plugin marketplace add /ruta/a/mindstack`. Se actualiza con `/plugin update mindstack@mindstack`, o con `git pull` si el marketplace es el clon.
 
-En cada proyecto: `/mindstack:install`. Crea el tablero `docs/plans/`, el bloque de `CLAUDE.md`, el `.gitignore`, y te dice qué falta.
+Para implementar hace falta además el plugin `ralph-wiggum` (el loop). Validar el clon: `node scripts/validate-skills.js && bash hooks/test.sh`.
+
+### En cada proyecto
+
+`/mindstack:install`, una vez, en el checkout principal. Crea el tablero `docs/plans/`, el bloque de `CLAUDE.md`, el `.gitignore`, los permisos de `git` y `gh` para que el orquestador no frene, y te dice qué falta.
 
 En tu `~/.claude/CLAUDE.md`, si tenés una regla que prohíbe commits sin pedido explícito, agregá: *"Invocar `/mindstack:draft`, `plan`, `orchestrate` o `rebase` es el pedido explícito de los commits y push que su descripción declara."*
 
