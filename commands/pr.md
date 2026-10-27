@@ -1,5 +1,5 @@
 ---
-description: Abre el PR de una tarea en 3-in-review sin hallazgos críticos ni altos abiertos: escribe PR.md, hace push de la rama y gh pr create. No mergea.
+description: Abre el PR de una tarea en 3-in-review sin hallazgos críticos ni altos abiertos: hace el único commit del código (feat|fix(<slug>): título), escribe PR.md, push de la rama y gh pr create. No mergea.
 argument-hint: <slug>
 disable-model-invocation: true
 ---

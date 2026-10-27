@@ -40,6 +40,10 @@ flowchart TD
 | Nunca mergea, nunca finaliza, nunca pushea a `main` | el merge es el único punto donde una persona ve el cambio entero |
 | Cada parada dice: estado actual, qué falta, qué comando sigue | la persona retoma sin leer el historial |
 
+## Libertad para terminar
+
+El orquestador no pide permiso entre fases ni dentro de ellas: solo para en los nodos de la persona del diagrama. Commitea cada ronda de borrador y cada movimiento de estado sin preguntar, lanza los agentes que cada fase pide, repite revisar ↔ corregir hasta el tope, y abre el PR. Si el host le pide confirmación por cada `git`, el proyecto no está instalado del todo: `/mindstack:install` deja la lista de permisos en `.claude/settings.json`.
+
 ## Commits y push
 
 Invocar `/mindstack:orchestrate` es el pedido explícito de todos los commits y push que las fases por las que pasa declaran (`aprobar`, `implementar`, `revisar`, `corregir`, `pr`, `conflictos`). Lo dice la `description` del comando; si la persona no quiere eso, usa los comandos de a uno.

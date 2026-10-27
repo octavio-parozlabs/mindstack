@@ -6,11 +6,11 @@ Quién: `analyst` · `planner` · `developer` · `qa` · `code-reviewer` · `sec
 
 ## Cambios
 
-Una fila por tarea del TODO o por commit. Lo que se hizo, no lo que se planeó.
+Una fila por tarea del TODO. Lo que se hizo, no lo que se planeó. Evidencia = comando y salida, no un sha: el código no se commitea hasta que pasa la revisión.
 
 | Fecha | Quién | Qué | Evidencia |
 |---|---|---|---|
-| 2026-10-20 | developer | tarea 2: reintento con backoff en `pagos.service` | `a1b2c3`, `npm test -- pagos` 12 verdes |
+| 2026-10-20 | developer | tarea 2: reintento con backoff en `pagos.service` | `npm test -- pagos` 12 verdes |
 
 ## Observaciones
 
@@ -38,11 +38,11 @@ Lo que se dejó a propósito. Sin issue no es deuda, es olvido. Sin vencimiento 
 
 ## Revisión
 
-Una fila por hallazgo por ronda. La escribe el corrector al cerrar la ronda. Resultado: `corregido <sha>` · `deuda #issue` · `rechazado: <motivo>` · `fuera de alcance: <motivo>`.
+Una fila por hallazgo por ronda. La escribe el corrector al cerrar la ronda. Resultado: `corregido` · `deuda #issue` · `rechazado: <motivo>` · `fuera de alcance: <motivo>`.
 
 | Ronda | Rol | ID | Severidad | Resultado |
 |---|---|---|---|---|
-| 1 | code-reviewer | CODE-1 | alta | corregido `d4e5f6` |
+| 1 | code-reviewer | CODE-1 | alta | corregido |
 
 ## Conflictos
 

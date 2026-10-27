@@ -8,7 +8,7 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 - `commands/*.md` no tienen lógica propia: cinco líneas que apuntan a su `references/<fase>.md`. `/orchestrate` lee las mismas referencias. Si un comando necesita algo nuevo, va a la reference, no al comando.
 - `agents/*.md`: un rol cada uno, con `hooks:` que limita qué escribe (`hooks/write-scope.sh`). Cambiar qué escribe un rol es cambiar su regex ahí y su caso en `hooks/test.sh`.
 - `hooks/`: `plan-immutable.sh` (global), `write-scope.sh` (por agente), `session-start.sh`, `worktree-create.sh`, `test.sh`.
-- `skills/{tdd,debugging,code-review,security,git}`: prácticas agnósticas. `skills/{typescript,react,node-api,nestjs,architecture,web-security,docker-ci,auth-jwt-sessions}`: stack.
+- `skills/{tdd,debugging,code-review,security,git,simplification,performance,api-design,migration,observability,documentation,ci-cd}`: prácticas agnósticas; el PLAN de cada tarea dice cuáles carga el developer (`tipo:`, `skills:`). `skills/{typescript,react,node-api,nestjs,architecture,web-security,docker-ci,auth-jwt-sessions}`: stack.
 - `references/PRINCIPLES.md`: lo que desempata. Toda regla nueva cita uno; si no cita ninguno, es preferencia.
 
 ## Convenciones

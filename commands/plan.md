@@ -1,5 +1,5 @@
 ---
-description: Lee el SPEC de una tarea en 0-draft y el código que toca, y escribe PLAN.md (acoplamiento, tareas con rol, fechas, Done) y el CHANGELOG.md vacío. No implementa, no commitea.
+description: Lee el SPEC de una tarea en 0-draft y el código que toca, y escribe PLAN.md (acoplamiento, tareas con rol, fechas, Done) y el CHANGELOG.md vacío. Un commit por ronda (plan(<slug>): ronda n). No implementa.
 argument-hint: <slug>
 disable-model-invocation: true
 ---

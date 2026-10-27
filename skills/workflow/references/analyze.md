@@ -44,6 +44,27 @@ Lo que está arriba de 80% se afirma y se deja corregir; lo que está abajo se p
 - **Cada respuesta genera o descarta casos borde.** Anotalos al momento, numerados. Un caso borde es una entrada o situación donde el camino feliz no alcanza: vacío, duplicado, timeout, concurrencia, permiso, cantidad cero o enorme, estado intermedio.
 - **Pedido grande.** Si el pedido junta varias capacidades que se prueban por separado (identidad + facturación + notificaciones), antes del SPEC proponé un mapa: una tabla `módulo | responsabilidad | depende de` y un orden. La persona lo aprueba y se hace un SPEC por módulo, en orden de dependencia, cada uno con su slug y `padre:` en el PLAN apuntando al primero. Un pedido normal no pasa por acá.
 
+## Si es un fix
+
+Para arreglar algo, entender el problema es localizarlo. El analista baja a archivo, pero como hipótesis; la confirmación es del planificador y la prueba es de `qa`.
+
+```mermaid
+flowchart TD
+    S[síntoma: qué se ve, error exacto] --> H[hipótesis de causa: archivo:línea, confianza %]
+    H --> Q[Agent qa: reproducir slug]
+    Q --> R{¿reproduce?}
+    R -- no, ni manual --> P([persona: sin reproducción no hay tarea])
+    R -- sí --> D[SPEC › Diagnóstico: nivel, test o pasos, salida]
+    D --> CB[casos borde alrededor del síntoma]
+    CB --> OK["/mindstack:plan: el planificador confirma la causa"]
+```
+
+1. **Síntoma antes que causa.** Qué se ve, dónde, el error textual. Si la persona ya trae la causa, se anota como hipótesis igual.
+2. **Hipótesis con evidencia.** Leé el flujo donde pega (grep, graphify, logs si hay). `archivo:línea`, por qué, confianza en %. Lo que miraste y descartaste también se anota.
+3. **Encargá la reproducción a `qa`** con `Agent` (`subagent_type: qa`, prompt `reproducir <slug>` más el síntoma y el punto de entrada: endpoint, función exportada o pantalla). **No le pases la hipótesis de causa**: QA trabaja en caja negra y una reproducción que sabe dónde está el bug prueba la hipótesis, no el síntoma. QA sube por la escalera unitario → integración → e2e → manual y se queda en el primer nivel que reproduce. Deja `notes/repro.md` y el working tree limpio; no commitea.
+4. **Sin reproducción no se aprueba.** `REPRO: NO` termina la entrevista: la persona decide si consigue más datos o cierra la tarea. `REPRO: manual` alcanza para aprobar; el test automático llega como tarea 1 del plan, al nivel de la causa raíz confirmada.
+5. Los casos borde de un fix son las variantes del síntoma: misma entrada con otro estado, el camino vecino que no debe cambiar, la condición de carrera si la hay.
+
 ## Qué va al SPEC
 
 Plantilla: `../templates/SPEC.md`. Lo que no se negocia:
@@ -55,11 +76,16 @@ Plantilla: `../templates/SPEC.md`. Lo que no se negocia:
 | Qué se hace | un párrafo y el diagrama propuesto, del mismo tipo que el de "hoy" |
 | Qué no se hace | lo que la persona dijo que no, y lo que vos ves que alguien va a querer meter |
 | Supuestos | los que quedaron arriba de 80% sin confirmar |
+| Diagnóstico | solo en un fix: síntoma, reproducción (de `qa`, con nivel), causa probable con confianza, descartado |
 | Casos borde | **uno por sección, `CB-n`, cada uno con diagrama.** Es la red para QA: el tester no habló con la persona y tiene que reproducir el caso solo con esto |
 | Criterios de aceptación | verificables por comando o test, cada uno citando los CB que cubre |
 | Preguntas abiertas | lo que no cerró. Si al aprobar queda alguna, es riesgo del plan |
 
 Diagramas: si dudás entre texto y diagrama, diagrama. Si el diagrama no se entiende sin el texto, rehacelo.
+
+## Commits
+
+Cada vuelta de la entrevista que cambia el SPEC termina en un commit: `spec(<slug>): ronda n` (la primera crea la carpeta). Es un borrador y se commitea igual: el historial de `0-draft/` es el historial de cómo se entendió el pedido, y permite retomar en otra sesión sin perder nada. En un fix, `notes/repro.md` entra en el mismo commit que la ronda que lo pidió.
 
 ## Slug
 
@@ -69,4 +95,5 @@ Kebab-case, tres palabras máximo, del objetivo y no de la solución: `reintento
 
 - Decidir cómo se implementa. Eso es el PLAN. Si la persona lo pregunta, "va en el plan".
 - Un SPEC con un solo caso borde. Si no encontraste más, no buscaste.
+- Dejar una ronda sin commit. Sin commit no hay historial del borrador.
 - Avanzar a `/mindstack:plan` solo. Terminá diciendo que el SPEC quedó en `0-draft/` y que el siguiente paso es `/mindstack:plan <slug>` cuando la persona lo lea.

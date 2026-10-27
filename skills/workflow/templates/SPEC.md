@@ -50,6 +50,20 @@ Lo que se asume y no se verificó. Si uno resulta falso durante la implementaci�
 
 - ASUMO que ...
 
+## Diagnóstico (solo si es un fix)
+
+Si la tarea arregla algo, antes de los casos borde va esto. Sin reproducción no se aprueba la tarea.
+
+- **Síntoma**: qué se ve, dónde, desde cuándo. Textual, con el error exacto si lo hay.
+- **Reproducción** (la escribe `qa` por encargo del analista, en caja negra, sin conocer la causa probable; ver `notes/repro.md`): nivel `unit` / `integration` / `e2e` / `manual`. La entrada mínima, el test o los pasos, y la salida observada frente a la esperada.
+- **Causa probable**: `archivo:línea`, por qué, confianza en %. Es hipótesis del analista; la confirma o refuta el planificador en `PLAN.md › Acoplamiento`.
+- **Descartado**: qué se miró y no es.
+
+```mermaid
+flowchart LR
+    E[POST /checkout con timeout] --> H[pagos.service.ts:42 reintenta sin consultar estado] --> D[cobro duplicado]
+```
+
 ## Casos borde
 
 Uno por sección, numerados `CB-n`. El id es estable: QA lo busca en los tests y lo cita en `REVIEW-qa.md`. Cada uno con su diagrama: es lo que QA va a reproducir sin preguntarle al analista.

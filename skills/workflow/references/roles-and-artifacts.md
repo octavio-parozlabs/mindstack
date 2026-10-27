@@ -123,6 +123,37 @@ classDiagram
     Orquestador ..> Persona : AskUserQuestion
 ```
 
+## Quién invoca a quién
+
+Los roles no se llaman entre sí: los invoca la sesión principal (un comando o `/mindstack:orchestrate`), que es la única que puede lanzar `Agent` y hablar con la persona. Claude Code elige la skill por su `description` (por eso toda description dice "Usar cuando …"); los agentes se eligen por nombre, acá:
+
+| Quién invoca | A quién | Cuándo | Con qué |
+|---|---|---|---|
+| `/analyze` | `qa` (`reproducir`) | la tarea es un fix | síntoma + punto de entrada; sin la causa |
+| `/implement` (ralph-loop) | `qa` (`testear`) | después de cada tarea del TODO | slug + número de tarea |
+| `/implement` (ralph-loop) | `analyst` ×3 | el dev devolvió `DECISION:` | la pregunta, las opciones, un ángulo cada uno |
+| `/review` | `qa` (`verificar`), `code-reviewer`, `security-auditor` | TODO completo y Done verde | slug, ronda, base `main` (working tree sin commitear); los tres en un turno |
+| `/fix` | `fixer`, después `qa` (`testear`) | hay `REVIEW-*.md` con hallazgos | slug, ronda |
+| `/conflicts` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
+| `/orchestrate` | todos los anteriores, en ese orden | la persona delega el flujo | lee `references/<fase>.md` |
+
+## Iteración por fase
+
+El loop no es solo de implementación. Cada fase itera hasta su condición de salida, y la condición es verificable, no "parece que está":
+
+| Fase | Itera | Hasta que |
+|---|---|---|
+| analizar | pregunta → respuesta → supuestos y casos borde | no queda ambigüedad que cambie el SPEC; en un fix, además `REPRO` ≠ `NO` |
+| planificar | plan → corrección de la persona | la persona dice que está y cada tarea tiene rol y verificación |
+| implementar | una tarea del TODO por vuelta, `qa` después | TODO completo y Done verde; para en `BLOCKED:` o tres fallos seguidos |
+| consenso | tres analistas en paralelo | 3/3 misma opción; si no, la persona |
+| revisar ↔ corregir | tres revisores → corrector → tres revisores | sin hallazgos críticos ni altos; máximo dos rondas |
+| pr ↔ conflictos | rebase → suite → push | el PR es mergeable |
+
+## Skills externas
+
+Todos los agentes tienen la herramienta `Skill`: pueden cargar cualquier skill instalada en la máquina, de este plugin o de otro (`ponytail`, `caveman`, la que sea). Mindstack no limita el catálogo; el `CLAUDE.md` del proyecto dice cuáles aplican y cada agente carga además las que su trabajo pide. Lo único cerrado es qué archivos escribe cada rol.
+
 Cada rol tiene un permiso que le impide hacer el trabajo de otro: QA no toca producción; los revisores no tienen Edit; el corrector no agrega hallazgos; el dev no escribe tests ni reviews; nadie edita SPEC ni PLAN después de aprobados; ningún agente mergea. No es desconfianza: es lo que hace que un fallo quede en un solo lugar y que el changelog diga quién vio qué.
 
 | Rol | Dónde corre | Modelo | Escribe |

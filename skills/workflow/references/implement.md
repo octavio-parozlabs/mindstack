@@ -16,11 +16,11 @@ sequenceDiagram
             D->>Q: Agent qa testear <slug> <n>
             Q-->>D: tests corridos, Observaciones
         else tarea rol: developer
-            D->>D: implementa, commit chico
+            D->>D: implementa (sin commit)
             D->>Q: Agent qa testear <slug> <n>
             Q-->>D: tests de la tarea
         end
-        D->>D: [x] en TODO.md + fila en Cambios (mismo commit)
+        D->>D: [x] en TODO.md + fila en Cambios (sin commit)
         opt el dev encuentra una ambigüedad
             D->>A: DECISION: pregunta | A / B (ver consensus.md)
             A-->>D: 3 OPTION iguales → Decisiones, quién consensus
@@ -55,7 +55,7 @@ Tres líneas: tu directorio, el checkout principal, las tareas pendientes. Si la
 ## El loop
 
 ```
-/ralph-loop "Cargá la skill mindstack:workflow y leé agents/developer.md del plugin: sos ese rol. Tarea: docs/plans/2-in-progress/<slug>/. Leé SPEC.md, PLAN.md, TODO.md y CHANGELOG.md. Hacé la próxima línea sin [x] de TODO.md, en orden. Si su rol es qa, lanzá el agente qa con 'testear <slug> <n>' y no escribas tests vos. Si su rol es developer, implementala y después lanzá el agente qa con 'testear <slug> <n>'. Al terminar: [x] en TODO.md y fila en CHANGELOG › Cambios con evidencia, en el mismo commit que el cambio. Lo que veas y no sea de esta tarea va a Observaciones; lo que dejes a propósito va a Deuda técnica con issue y vencimiento; una elección discutible va a Decisiones con el principio de references/PRINCIPLES.md. Si una decisión no la resuelve ni el SPEC ni el PLAN ni un principio, no adivines: seguí references/consensus.md de la skill. Cuando todas las líneas de TODO.md tienen [x] y el bloque Done de PLAN.md pasa entero, escribí <promise>PLAN DONE</promise>." --max-iterations 30 --completion-promise "PLAN DONE"
+/ralph-loop "Cargá la skill mindstack:workflow y leé agents/developer.md del plugin: sos ese rol. Tarea: docs/plans/2-in-progress/<slug>/. Leé SPEC.md, PLAN.md, TODO.md y CHANGELOG.md. Hacé la próxima línea sin [x] de TODO.md, en orden. Si su rol es qa, lanzá el agente qa con 'testear <slug> <n>' y no escribas tests vos. Si su rol es developer, implementala y después lanzá el agente qa con 'testear <slug> <n>'. Al terminar: [x] en TODO.md y fila en CHANGELOG › Cambios con evidencia (comando y salida). No commitees: el código queda en el working tree hasta que pase la revisión. Lo que veas y no sea de esta tarea va a Observaciones; lo que dejes a propósito va a Deuda técnica con issue y vencimiento; una elección discutible va a Decisiones con el principio de references/PRINCIPLES.md. Si una decisión no la resuelve ni el SPEC ni el PLAN ni un principio, no adivines: seguí references/consensus.md de la skill. Cuando todas las líneas de TODO.md tienen [x] y el bloque Done de PLAN.md pasa entero, escribí <promise>PLAN DONE</promise>." --max-iterations 30 --completion-promise "PLAN DONE"
 ```
 
 Reglas dentro del loop:
@@ -64,10 +64,10 @@ Reglas dentro del loop:
 |---|---|
 | Una tarea por iteración. Si no cierra en una, partila en `na` y `nb` en `TODO.md` y anotalo en Decisiones | el PLAN no se toca; el TODO sí |
 | El dev no escribe tests. Las tareas `qa` y los tests de cada tarea `developer` los hace el agente `qa` | el que implementa testea lo que pensó, no lo que el código hace |
-| No modificar un test existente para que pase. Si estaba mal: Decisiones + commit aparte | un test que se ajusta al código no prueba nada |
+| No modificar un test existente para que pase. Si estaba mal: Decisiones | un test que se ajusta al código no prueba nada |
 | No bajar umbral de cobertura ni desactivar lint | el Done cambia debajo del loop |
 | Sin refactors grandes. Lo que molesta y no es de la tarea va a Observaciones o Deuda | un refactor es otra tarea con su SPEC |
-| Commits chicos por tarea. El CHANGELOG va en el mismo commit que el cambio que describe | el revisor lee commit por commit |
+| **Nada se commitea durante el loop.** Código, `TODO.md` y `CHANGELOG.md` quedan en el working tree del worktree hasta que la revisión pasa; el commit lo hace `/mindstack:pr` | lo que está commiteado parece terminado. Un commit por tarea a medio revisar es un historial de estados que nadie validó; el worktree aislado es la red mientras tanto |
 | La misma tarea falla tres iteraciones seguidas: parar y decir por qué, no insistir | tres fallos es una ambigüedad o un bloqueo, no mala suerte |
 
 ## Al terminar
@@ -76,4 +76,4 @@ Reglas dentro del loop:
 - Si hay compose y `$CI` vacío: `env-up.sh <slug>` levanta api y web de la rama. Decí la URL.
 - La carpeta se queda en `2-in-progress/`. Terminá diciendo: Done verde, dónde probar, y que la revisión arranca con `/mindstack:review <slug>`.
 
-Lo que la persona pida después en la sesión ("el botón dice Guardar, no Enviar") se hace acá con las mismas reglas: commit chico, fila en Cambios, tests al agente `qa`.
+Lo que la persona pida después en la sesión ("el botón dice Guardar, no Enviar") se hace acá con las mismas reglas: sin commit, fila en Cambios, tests al agente `qa`.

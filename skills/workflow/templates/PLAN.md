@@ -3,6 +3,8 @@ title: "<mismo título que SPEC.md>"
 slug: <slug>
 rama: worktree-<slug>
 spec: ./SPEC.md
+tipo: feature | fix | refactor | migration | performance | ci | docs
+skills: [mindstack:<práctica que aplica>, ...]
 fecha_inicio: AAAA-MM-DD
 fecha_fin: AAAA-MM-DD
 padre:
@@ -46,6 +48,8 @@ flowchart LR
     http[shared/http.ts] --> svc[orders/order.service.ts] --> h[order.handler.ts]
     http --> inv[billing/invoice.service.ts]
 ```
+
+Si es un fix: **Causa raíz**: confirmada / refutada. `archivo:línea`, por qué, qué dice la hipótesis del SPEC si difiere. La tarea 1 es el test de reproducción en rojo (rol: qa) y el Done lo incluye en verde.
 
 Decisión: **tests de caracterización antes de tocar**: sí / no. Si hay una fila con riesgo alto y sin test, es sí, y esos tests son la primera tarea (rol: qa).
 

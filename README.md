@@ -61,13 +61,13 @@ docs/plans/
 | Comando | Hace | git |
 |---|---|---|
 | `/mindstack:install` | tablero, `CLAUDE.md`, `.gitignore` | — |
-| `/mindstack:analyze <tema>` | entrevista, supuestos, un diagrama por caso borde → `SPEC.md` | — |
-| `/mindstack:plan <slug>` | acoplamiento, tajadas verticales, tareas con rol, fechas, Done → `PLAN.md` | — |
+| `/mindstack:analyze <tema>` | entrevista, supuestos, un diagrama por caso borde → `SPEC.md` | commit por ronda |
+| `/mindstack:plan <slug>` | acoplamiento, tajadas verticales, tareas con rol, fechas, Done → `PLAN.md` | commit por ronda |
 | `/mindstack:approve <slug>` | congela, deriva `TODO.md`, mueve a `1-pending` | commit |
-| `/mindstack:implement <slug>` | `ralph-loop`: una tarea por vuelta, `qa` después de cada una, consenso ante ambigüedades | commits |
-| `/mindstack:review <slug>` | `qa` + `code-reviewer` + `security-auditor` en paralelo → tres `REVIEW-*.md` | commit |
-| `/mindstack:fix <slug>` | `fixer`: fix, deuda con vencimiento, o rechazo con motivo; `qa` testea | commits |
-| `/mindstack:pr <slug>` | `PR.md`, push, `gh pr create` | push |
+| `/mindstack:implement <slug>` | `ralph-loop`: una tarea por vuelta, `qa` después de cada una, consenso ante ambigüedades | commit del estado; el código queda sin commitear |
+| `/mindstack:review <slug>` | `qa` + `code-reviewer` + `security-auditor` en paralelo → tres `REVIEW-*.md` | commit solo de los REVIEW |
+| `/mindstack:fix <slug>` | `fixer`: fix, deuda con vencimiento, o rechazo con motivo; `qa` testea | sin commit |
+| `/mindstack:pr <slug>` | **único commit del código**, `PR.md`, push, `gh pr create` | commit + push |
 | `/mindstack:conflicts <slug\|#pr>` | `conflict-resolver`: rebase, suite, `--force-with-lease` | push |
 | `/mindstack:finalize <slug>` | Cierre con fechas reales, mueve a `4-done` | commit |
 | `/mindstack:orchestrate <slug\|tema>` | todo lo anterior en orden, parando donde hace falta la persona. Nunca mergea | todo |
@@ -79,8 +79,8 @@ Cada comando es cinco líneas que apuntan a `skills/workflow/references/<fase>.m
 | Agente | Modelo | Hace | Escribe solo |
 |---|---|---|---|
 | `analyst` | opus | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
-| `developer` | opus | una tarea del TODO, commit chico, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
-| `qa` | sonnet | tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| `developer` | opus | una tarea del TODO, sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
+| `qa` | sonnet | en un fix, reproduce el bug antes de aprobar; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | `code-reviewer` | opus | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |
 | `security-auditor` | opus | zero trust | `REVIEW-security.md` |
 | `fixer` | opus | cierra cada hallazgo | código, `CHANGELOG.md` |
@@ -95,10 +95,23 @@ Cuando el dev encuentra una ambigüedad que ni el SPEC, ni el PLAN, ni un princi
 | Grupo | Skills | Para qué |
 |---|---|---|
 | flujo | `workflow` | el núcleo: estados, artefactos, roles, cada fase en `references/`, templates |
-| prácticas (agnósticas) | `tdd` · `debugging` · `code-review` · `security` · `git` | las cargan los roles: qa, dev y corrector, revisor, auditor, resolutor |
+| prácticas (agnósticas) | `tdd` · `debugging` · `code-review` · `security` · `git` · `simplification` · `performance` · `api-design` · `migration` · `observability` · `documentation` · `ci-cd` | las cargan los roles según `tipo:` y `skills:` del PLAN (tabla en `skills/workflow/references/plan.md`) |
 | stack | `typescript` · `react` · `node-api` · `nestjs` · `architecture` · `web-security` · `docker-ci` · `auth-jwt-sessions` | cargan solas por `paths:` o por nombre; dicen con qué librería, con qué comando, qué nunca |
 
 Los principios que desempatan cuando dos reglas chocan están en `references/PRINCIPLES.md` y entran al contexto en cada sesión.
+
+## Commits
+
+```
+0-draft        spec(slug): ronda n · plan(slug): ronda n      cada vuelta, commit
+estados        plan(slug): approve | implement | in review | PR | finalize
+implementar    nada: el código vive en el working tree del worktree
+revisar        review(slug): round n                           solo los REVIEW-*.md
+fix            nada
+pr             feat|fix(slug): título                          el único commit de código, después push y PR
+```
+
+Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR sin pedir permiso: `/mindstack:install` deja los permisos de `git` y `gh` en el proyecto.
 
 ## Redes de contención
 

@@ -8,14 +8,15 @@ Con agentes trabajando en paralelo, la rama es la unidad de aislamiento y el com
 |---|---|---|
 | Una rama por tarea | `worktree-<slug>`, la que dice `rama:` en `PLAN.md`. La crea el hook `WorktreeCreate` o `/mindstack:implement` | dos tareas en una rama no se revisan ni se revierten por separado |
 | Nadie crea ramas por iniciativa propia | un agente trabaja en la rama que le dieron | una rama inesperada es trabajo que nadie va a encontrar |
-| Commits chicos, uno por tarea del TODO o por hallazgo corregido | mensaje = la tarea o el ID del hallazgo; el CHANGELOG va en el mismo commit que el cambio que describe | `git bisect` encuentra la tarea que rompió; el revisor lee commit por commit |
+| Borradores: un commit por ronda | `spec(<slug>): ronda n`, `plan(<slug>): ronda n`, en `0-draft/` | el historial del borrador es el historial de cómo se entendió el pedido; se retoma en otra sesión |
+| Código: **un solo commit, después de la revisión** | durante `/implement` y `/fix` nada se commitea; el worktree aislado guarda el trabajo. `/pr` hace `feat\|fix(<slug>): <título>` con código, tests, TODO y CHANGELOG | lo commiteado parece terminado; solo lo que tres revisores miraron lo está |
 | Los movimientos de estado son commits propios | `plan(<slug>): approve` · `implementar` · `a revisión` · `PR` · `finalizar` | el historial de la carpeta es el historial de la tarea, con fecha y autor |
 | Nada de `--force` | `--force-with-lease` solo el resolutor, después de un rebase, sobre la rama de la tarea | `--force` pisa lo que otro pusheó mientras tanto |
 | Ningún agente mergea ni pushea a `main` | merge: persona. `main` protegida | es el único punto donde alguien ve el cambio entero |
 | Rebase, no merge, para ponerse al día | el PR queda lineal; los conflictos se resuelven commit por commit | un merge commit esconde cómo se resolvió cada conflicto |
-| Commitear solo cuando se pide | los comandos del flujo declaran sus commits en su `description`; invocarlos es pedirlos. Fuera de eso, Claude muestra `git status` y propone el mensaje | un commit automático a mitad de una tarea deja el historial a medias |
+| Los comandos commitean lo que declaran, sin preguntar | cada `description` dice qué commitea; invocar el comando es pedirlo. Fuera de un comando, Claude muestra `git status` y propone el mensaje | un flujo que para a pedir permiso en cada `git mv` no termina nunca |
 
-Prefijos de commit: `plan(<slug>):` movimientos de estado · `feat|fix|test|chore(<slug>): <tarea>` dentro del loop · `fix(<slug>): <ID> <qué>` en corrección · `review(<slug>): round n`.
+Prefijos de commit: `spec(<slug>): ronda n` y `plan(<slug>): ronda n` en borrador · `plan(<slug>): approve | implement | in review | PR | finalize` movimientos de estado · `review(<slug>): round n` solo con los `REVIEW-*.md` · `feat|fix(<slug>): <título>` el único commit de código, en `/pr`.
 
 ## `.gitignore`
 

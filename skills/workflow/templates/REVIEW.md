@@ -2,7 +2,8 @@
 rol: qa | code-reviewer | security-auditor
 ronda: 1
 fecha: AAAA-MM-DD
-commit: <sha revisado>
+base: main
+working_tree: <salida de git status --short | wc -l> archivos
 ---
 
 # Revisión de <rol>: <título>

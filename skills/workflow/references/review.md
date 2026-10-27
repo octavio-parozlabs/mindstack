@@ -1,10 +1,10 @@
 # Revisar: tres roles, tres archivos, un turno
 
-Lo corre `/mindstack:review <slug>`. Requiere `TODO.md` completo y Done verde. La primera ronda mueve la carpeta a `3-in-review/`; las siguientes la encuentran ahí. Termina con `REVIEW-qa.md`, `REVIEW-code.md` y `REVIEW-security.md` escritos y commiteados.
+Lo corre `/mindstack:review <slug>`. Requiere `TODO.md` completo y Done verde. El código todavía no está commiteado: se revisa el working tree contra `main` (`git diff main`), no un rango de commits. La primera ronda mueve la carpeta a `3-in-review/`; las siguientes la encuentran ahí. Termina con `REVIEW-qa.md`, `REVIEW-code.md` y `REVIEW-security.md` escritos y commiteados.
 
 ```mermaid
 flowchart LR
-    C[commit revisado] --> Q[Agent qa\nmodo verificar]
+    C[working tree vs main] --> Q[Agent qa\nmodo verificar]
     C --> R[Agent code-reviewer]
     C --> S[Agent security-auditor]
     Q --> FQ[REVIEW-qa.md]
@@ -28,14 +28,14 @@ Por qué tres agentes y no uno: un revisor que mira todo mira todo por encima. T
 ## Pasos
 
 1. Ronda 1: `git mv docs/plans/2-in-progress/<slug> docs/plans/3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
-2. Rango: `git log --oneline main..HEAD` (o la base de la rama). Es lo que se revisa; cada revisor lo recibe.
+2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`.
 3. **Un solo turno con tres `Agent`**, cada uno con `subagent_type` del rol y este prompt mínimo:
-   - `qa`: "verificar <slug> ronda <n> commits <rango>. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests."
-   - `code-reviewer`: "revisar <slug> ronda <n> commits <rango>. Lógica, legibilidad, arquitectura, rendimiento. Escribí REVIEW-code.md."
-   - `security-auditor`: "auditar <slug> ronda <n> commits <rango>. Zero trust. Escribí REVIEW-security.md."
-4. Cuando los tres terminan: un commit `review(<slug>): round <n>` con los tres archivos.
+   - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests."
+   - `code-reviewer`: "revisar <slug> ronda <n> base main. Lógica, legibilidad, arquitectura, rendimiento. Escribí REVIEW-code.md."
+   - `security-auditor`: "auditar <slug> ronda <n> base main. Zero trust. Escribí REVIEW-security.md."
+4. Cuando los tres terminan: un commit `review(<slug>): round <n>` **solo con los tres `REVIEW-*.md`** (`git add` de esos archivos, nada más). El código sigue sin commitear.
 5. Resumen en la salida: por rol, cuántos hallazgos por severidad. Y el veredicto:
-   - ninguno, o solo media/baja que la persona acepte como deuda: siguiente paso `/mindstack:pr <slug>`.
+   - ninguno, o solo media/baja que la persona acepte como deuda: siguiente paso `/mindstack:pr <slug>`, que es el que commitea el código.
    - cualquier crítica o alta: siguiente paso `/mindstack:fix <slug>`.
    - ronda 2 con crítica o alta todavía abierta: pará y pedí a la persona. Dos rondas que no cierran son un desacuerdo, no un bug.
 

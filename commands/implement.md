@@ -1,5 +1,5 @@
 ---
-description: Ejecuta una tarea de 1-pending en su worktree con ralph-loop, una tarea del TODO por vuelta, qa después de cada una, consenso ante ambigüedades. Mueve a 2-in-progress y hace un commit por tarea. No abre el PR, no pushea.
+description: Ejecuta una tarea de 1-pending en su worktree con ralph-loop, una tarea del TODO por vuelta, qa después de cada una, consenso ante ambigüedades. Mueve a 2-in-progress con un commit; el código queda sin commitear en el worktree hasta que pase la revisión. No abre el PR, no pushea.
 argument-hint: <slug>
 disable-model-invocation: true
 ---

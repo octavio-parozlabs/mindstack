@@ -34,9 +34,10 @@ caso "REVIEW-code sin agent_type pasa"         0 ./plan-immutable.sh <<<"$(E Wri
 caso "Read no se evalúa"                         0 ./plan-immutable.sh <<<"$(E Read docs/plans/1-pending/x/PLAN.md)"
 
 echo "write-scope.sh"
-caso "qa escribe test"                           0 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|test-helpers|REVIEW-qa\.md$|CHANGELOG\.md$)' <<<"$(E Write src/a.test.ts)"
-caso "qa escribe REVIEW-qa"                      0 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|test-helpers|REVIEW-qa\.md$|CHANGELOG\.md$)' <<<"$(E Write docs/plans/3-in-review/x/REVIEW-qa.md)"
-caso "qa no escribe producción"                  2 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|test-helpers|REVIEW-qa\.md$|CHANGELOG\.md$)' <<<"$(E Edit src/a.ts)"
+caso "qa escribe test"                           0 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|test-helpers|REVIEW-qa\.md$|CHANGELOG\.md$|/notes/repro\.md$)' <<<"$(E Write src/a.test.ts)"
+caso "qa escribe REVIEW-qa"                      0 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|test-helpers|REVIEW-qa\.md$|CHANGELOG\.md$|/notes/repro\.md$)' <<<"$(E Write docs/plans/3-in-review/x/REVIEW-qa.md)"
+caso "qa escribe notes/repro.md"                 0 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|test-helpers|REVIEW-qa\.md$|CHANGELOG\.md$|/notes/repro\.md$)' <<<"$(E Write docs/plans/0-draft/x/notes/repro.md)"
+caso "qa no escribe producción"                  2 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|test-helpers|REVIEW-qa\.md$|CHANGELOG\.md$|/notes/repro\.md$)' <<<"$(E Edit src/a.ts)"
 caso "revisor escribe REVIEW-code"             0 ./write-scope.sh 'REVIEW-code\.md$' <<<"$(E Write docs/plans/3-in-review/x/REVIEW-code.md)"
 caso "revisor no escribe REVIEW-qa"              2 ./write-scope.sh 'REVIEW-code\.md$' <<<"$(E Write docs/plans/3-in-review/x/REVIEW-qa.md)"
 caso "dev escribe src"                           0 ./write-scope.sh --no '(PLAN\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|test-helpers)' <<<"$(E Edit src/a.ts)"

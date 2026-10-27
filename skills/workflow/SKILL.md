@@ -45,7 +45,7 @@ La carpeta donde está es su estado, y moverla es `git mv`. Se ve en `ls`, en Gi
 
 | Archivo | Lo escribe | Cuándo cambia | Qué responde |
 |---|---|---|---|
-| `SPEC.md` | analista con la persona | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica | ¿qué se pidió y cómo sabemos que está? |
+| `SPEC.md` | analista con la persona; en un fix, `qa` aporta la reproducción | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica | ¿qué se pidió y cómo sabemos que está? |
 | `PLAN.md` | planificador con la persona | solo en `0-draft/`. Después, **nunca** | ¿cómo se hace, en qué orden, con qué Done? |
 | `TODO.md` | `/approve` lo deriva; el dev tacha | en cada tarea terminada | ¿qué se hizo? |
 | `CHANGELOG.md` | todos los roles, cada uno su sección | en cada paso. Solo se agrega, nunca se reescribe | ¿qué pasó, qué se vio, qué se decidió y por qué, qué se dejó? |
@@ -64,7 +64,7 @@ flowchart TD
     P0 -->|/approve: TODO.md, git mv| S1["1-pending<br/>SPEC + PLAN congelados"]
     S1 -->|/implement en worktree| S2["2-in-progress"]
     subgraph IMPL["loop: una tarea del TODO por vuelta"]
-        D[dev implementa, commit, Cambios, tacha] --> Q[qa: tests de la tarea]
+        D[dev implementa sin commit, Cambios, tacha] --> Q[qa: tests de la tarea]
         D -. DECISION .-> C[consenso: 3 analistas]
         C -. sin acuerdo .-> HU([persona decide])
     end
@@ -79,7 +79,7 @@ flowchart TD
     S3 --> REV --> H{¿crítica o alta?}
     H -->|sí, ronda 1| CO[/fix: corrector + qa/] --> REV
     H -->|sí, ronda 2| HU2([persona])
-    H -->|no| PR[/pr: PR.md, push, gh pr create/]
+    H -->|no| PR[/pr: único commit del código,\nPR.md, push, gh pr create/]
     PR -->|conflicto| CF[/conflicts: rebase/] --> PR
     PR -->|persona mergea| M([merge]) -->|/finalize| S4["4-done"]
     classDef persona fill:#fc9,color:#000
@@ -96,8 +96,8 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfi
 |---|---|---|---|
 | **analista** | entrevista, supuestos, casos borde con diagrama, SPEC. En consenso: busca evidencia en historial, código o principios | decidir cómo se implementa | `SPEC.md` |
 | **planificador** | acoplamiento, tajadas verticales, tareas con rol y verificación, fechas, Done | implementar, tachar | `PLAN.md`, `CHANGELOG.md` vacío |
-| **desarrollador** | una tarea por vuelta, commit chico, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md` |
-| **qa** | tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| **desarrollador** | una tarea por vuelta, sin commit, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md` |
+| **qa** | caja negra: entradas y salidas por la interfaz, sin leer la implementación. En un fix, reproduce el bug antes de aprobar; tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción, leer el cuerpo de las funciones | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | **code-reviewer** | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
 | **security-auditor** | zero trust: toda entrada es hostil hasta que se valida | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
 | **corrector** | cada hallazgo: corrige, o deuda con vencimiento, o rechaza con motivo | agregar hallazgos, tests | código, `CHANGELOG.md` |
@@ -105,6 +105,8 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfi
 | **orquestador** | lee las referencias y llama a los roles en orden | lógica propia, mergear | nada propio |
 
 El detalle de cada uno, con modelo y herramientas: `references/roles-and-artifacts.md` y `agents/*.md` del plugin.
+
+Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplification`, `performance`, `api-design`, `migration`, `observability`, `documentation`, `ci-cd`) no son roles: son conocimiento que un rol carga según la tarea. El `PLAN.md` dice en `tipo:` qué clase de tarea es y en `skills:` cuáles van; la tabla está en `references/plan.md`.
 
 ## Redes de contención, de adentro hacia afuera
 
@@ -114,7 +116,8 @@ El detalle de cada uno, con modelo y herramientas: `references/roles-and-artifac
 4. `chmod a-w` local al aprobar: frena un `>` distraído.
 5. `scripts/plans-immutable.sh` en el CI del proyecto: un PR que modifique SPEC o PLAN fuera de `0-draft/` no entra.
 6. Dos rondas de revisión como máximo; después, la persona.
-7. Nadie mergea.
+7. El código no se commitea hasta que la revisión pasa: lo commiteado es lo revisado.
+8. Nadie mergea.
 
 ## El detalle, por referencia
 
@@ -131,7 +134,7 @@ El detalle de cada uno, con modelo y herramientas: `references/roles-and-artifac
 | `references/conflicts.md` | rebase, dos intenciones, suite, `--force-with-lease` | `/conflicts` |
 | `references/finalize.md` | Cierre con fechas reales, mover, `env-down` | `/finalize` |
 | `references/orchestrate.md` | detección de estado, el grafo con sus paradas | `/orchestrate` |
-| `references/roles-and-artifacts.md` | diagramas de clases: artefactos y roles, modelo y permisos | al escribir o cambiar un agente |
+| `references/roles-and-artifacts.md` | diagramas de clases: artefactos y roles; quién invoca a quién y cuándo; qué itera cada fase y hasta cuándo; skills externas | al escribir o cambiar un agente, al preguntarse quién llama a quién |
 | `references/worktree.md` | qué arma el hook `WorktreeCreate` y por qué | al abrir una sesión, al tocar el hook |
 | `references/git.md` | ramas, commits, prefijos, `.gitignore` | al tocar ramas, commits, `.gitignore` |
 | `templates/` | `SPEC.md`, `PLAN.md`, `TODO.md`, `CHANGELOG.md`, `REVIEW.md`, `PR.md`, `CLAUDE.md`, `gitignore` | cada comando que crea un archivo |
@@ -141,7 +144,10 @@ El detalle de cada uno, con modelo y herramientas: `references/roles-and-artifac
 | Atajo | Lo que cuesta |
 |---|---|
 | Implementar sin SPEC | el dev decide el alcance. Lo que la persona quería y no dijo no existe; lo que no quería, sí |
+| Arreglar un bug sin reproducirlo antes | nadie sabe si existía, si se arregló, ni si vuelve. Un fix entra con el test que fallaba antes; si solo reproduce a mano, igual se aprueba con esa evidencia y el test llega al nivel de la causa raíz |
 | Un SPEC sin casos borde con diagrama | QA no sabe qué reproducir y testea el camino feliz. Lo que rompe en producción es siempre un borde |
+| Commitear el código por tarea, antes de la revisión | el historial muestra como terminado lo que nadie miró. El worktree aislado guarda el trabajo; el commit llega cuando tres revisores dijeron que está |
+| Parar a pedir permiso en cada `git mv` | el flujo no termina solo. Los comandos declaran sus commits y `/install` deja los permisos |
 | Editar el PLAN durante la ejecución | el Done cambia debajo del loop. "Está hecho" deja de significar algo |
 | El dev escribe sus tests | los tests prueban lo que el dev pensó. Lo que no pensó no tiene test, y es justo lo que rompe |
 | Un solo revisor para todo | mira todo por encima. Tres con un encargo cada uno encuentran lo suyo |

@@ -39,5 +39,6 @@ La forma de trabajo es el plugin `mindstack`. Se respeta; si algo no cierra, PR 
 - No desactivar reglas de lint o del compilador para que pase. Arreglar la causa.
 - No modificar un test para que pase. Si el test estaba mal, decirlo y cambiarlo en un commit aparte, con fila en Decisiones.
 - No editar `SPEC.md` ni `PLAN.md` fuera de `0-draft/`. No escribir un `REVIEW-*.md` que no sea de tu rol.
+- El código de una tarea no se commitea hasta que la revisión pasa: `/mindstack:pr` hace el único commit de código. Los borradores y los movimientos de estado sí se commitean, uno por ronda.
 - No commitear ni pushear fuera de lo que un comando del flujo declara. Nunca crear una rama por iniciativa propia. Nada de `--force`: solo el resolutor, con `--force-with-lease`, sobre la rama de la tarea.
 - No trabajar en el checkout principal: cada tarea en su worktree (`claude -w <slug>`).

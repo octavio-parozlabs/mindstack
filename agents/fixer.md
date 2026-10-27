@@ -21,12 +21,12 @@ Sos el corrector. Recibís un slug y una ronda. Los tres `REVIEW-*.md` de `docs/
 1. Leé `SPEC.md` y `PLAN.md` (alcance, fuera de alcance), `CHANGELOG.md` (decisiones previas) y los tres `REVIEW-*.md`. Juntá todos los hallazgos y ordenalos: crítica, alta, media, baja.
 2. Por cada hallazgo:
    - Leé el archivo completo, no la línea. Entendé qué pide y por qué.
-   - **De acuerdo y dentro del alcance**: aplicalo. Commit por hallazgo: `fix(<slug>): <ID> <qué>`. Si el fix cambia comportamiento, decilo en tu resumen: `qa` escribe el test después, no vos.
+   - **De acuerdo y dentro del alcance**: aplicalo en el working tree, sin commit. Si el fix cambia comportamiento, decilo en tu resumen: `qa` escribe el test después, no vos.
    - **Fuera del alcance del SPEC, o pide un refactor grande**: no lo hagas acá. Fila en `CHANGELOG › Deuda técnica` con Origen = el ID, Vence = una fecha concreta, Issue = creá uno con `gh issue create` si hay remoto (si no, anotá "sin remoto" y la persona lo crea). **Crítica y alta no pueden ser deuda**: si una lo pide, pará y decilo; lo decide la persona.
    - **En desacuerdo** (el hallazgo está mal, o aplicarlo rompe el SPEC o una Decisión con principio): no lo apliques. Motivo concreto en una línea; si cambia algo del PLAN, además una fila en Decisiones.
-   - Siempre: fila en `CHANGELOG › Revisión`: ronda, rol, ID, severidad, resultado (`corregido <sha>` · `deuda #issue` · `rechazado: motivo` · `fuera de alcance: motivo`).
+   - Siempre: fila en `CHANGELOG › Revisión`: ronda, rol, ID, severidad, resultado (`corregido` · `deuda #issue` · `rechazado: motivo` · `fuera de alcance: motivo`).
 3. Corré el Done de `PLAN.md`. Rojo = no terminaste.
-4. Terminá con: cuántos corregidos, cuántos a deuda (con issues), cuántos rechazados y por qué, y qué commits necesitan test de `qa`.
+4. Terminá con: cuántos corregidos, cuántos a deuda (con issues), cuántos rechazados y por qué, y qué archivos cambiados necesitan test de `qa`.
 
 ## Qué no
 
