@@ -1,0 +1,88 @@
+# Por qué cada grupo y qué no se ignora: plugin mindstack, skill git
+
+# --- Secretos y config local ---
+.env
+.env.*
+!.env.example
+
+# --- Claves y certificados ---
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+*.ppk
+*.asc
+*.gpg
+
+# --- Credenciales de proveedores ---
+*service-account*.json
+*credentials*.json
+.aws/
+.gcloud/
+.azure/
+kubeconfig
+*.kubeconfig
+.netrc
+.pgpass
+
+# --- Estado de infraestructura ---
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+!*.example.tfvars
+
+# --- Overrides locales ---
+docker-compose.override.yml
+*.local.yml
+*.local.json
+# Quitar esta línea solo si el token va como ${NPM_TOKEN}
+.npmrc
+
+# --- Dumps y DBs locales ---
+*.dump
+.seed/
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Dependencias y build ---
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# --- Logs y temporales ---
+*.log
+logs/
+tmp/
+.cache/
+*.pid
+
+# --- Editor y OS ---
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+.vscode/*
+# Config compartida del equipo: formateador y extensiones recomendadas
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# --- Claude Code: lo personal no, lo del equipo sí ---
+.claude/settings.local.json
+.claude/*.local.md
+CLAUDE.local.md
+# Worktrees de `claude -w`: checkouts, no archivos del repo
+.claude/worktrees/

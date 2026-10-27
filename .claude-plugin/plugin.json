@@ -1,16 +1,9 @@
 {
-  "name": "agent-skills",
-  "version": "0.6.13",
-  "description": "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship.",
-  "author": {
-    "name": "Addy Osmani"
-  },
-  "homepage": "https://github.com/addyosmani/agent-skills",
-  "repository": "https://github.com/addyosmani/agent-skills",
+  "name": "mindstack",
+  "version": "1.0.0",
+  "description": "Forma de trabajo por tareas para Claude Code: una tarea es una carpeta con estado (0-draft a 4-done), SPEC y PLAN congelados al aprobar, CHANGELOG como memoria, roles separados (analista, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor), consenso antes de interrumpir a la persona, orquestador opcional; más skills por stack.",
+  "author": { "name": "Octavio" },
   "license": "MIT",
-  "commands": ["./.claude/commands", "./commands"],
-  "skills": "./skills",
-  "experimental": {
-    "evals": "evals/plugin"
-  }
+  "keywords": ["workflow", "tareas", "roles", "revision", "seguridad", "typescript", "react", "nestjs"],
+  "hooks": "./hooks/hooks.json"
 }

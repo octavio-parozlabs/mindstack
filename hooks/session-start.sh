@@ -1,33 +1,25 @@
-#!/bin/bash
-# agent-skills session start hook
-# Injects the using-agent-skills meta-skill into a new session.
-#
-# Not wired by the plugin: hosts that already route skills from their
-# descriptions (Claude Code, Codex CLI) would run a second router on top of
-# the native one — see docs/getting-started.md. Wire this script into a
-# SessionStart hook only on hosts without native skill routing.
-#
-# Every output path must emit the standard SessionStart envelope
-#   {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "..."}}
-# Hosts that validate hook output (Codex CLI, Claude Code) reject other shapes.
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SKILLS_DIR="$(dirname "$SCRIPT_DIR")/skills"
-META_SKILL="$SKILLS_DIR/using-agent-skills/SKILL.md"
-
-if ! command -v jq >/dev/null 2>&1; then
-  echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "agent-skills: jq is required for the session-start hook but was not found on PATH. Install jq (e.g. `brew install jq` or `apt-get install jq`) to enable meta-skill injection. Skills remain available individually."}}'
-  exit 0
+#!/usr/bin/env bash
+# Hook SessionStart. Lo que imprime va al contexto de Claude al arrancar.
+# 1. Los principios, siempre en contexto: desempatan cuando dos reglas chocan.
+cat "${CLAUDE_PLUGIN_ROOT}/references/PRINCIPLES.md"
+echo
+# 2. El tablero: una línea por estado con sus tareas.
+if [ -d docs/plans ]; then
+  echo "## Tareas (docs/plans)"
+  for d in docs/plans/[0-4]-*/; do
+    [ -d "$d" ] || continue
+    estado=$(basename "$d")
+    slugs=$(find "$d" -mindepth 1 -maxdepth 1 -type d -printf '%f ' 2>/dev/null)
+    echo "- $estado: ${slugs:-—}"
+  done
+  echo
 fi
-
-if [ -f "$META_SKILL" ]; then
-  CONTENT=$(cat "$META_SKILL")
-  # Use jq to properly escape and construct valid JSON
-  jq -cn \
-    --arg context "agent-skills loaded. Use the skill discovery flowchart to find the right skill for your task.
-
-$CONTENT" \
-    '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $context}}'
-else
-  echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "agent-skills: using-agent-skills meta-skill not found. Skills may still be available individually."}}'
+# 3. Avisos del entorno.
+main=$(git worktree list 2>/dev/null | head -1 | awk '{print $1}')
+if [ -n "$main" ] && [ "$main" = "$(pwd)" ]; then
+  activas=$(find docs/plans/1-pending docs/plans/2-in-progress -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+  if [ "$activas" -gt 0 ]; then
+    echo "Sesión en el checkout principal con tareas activas. Para implementar: salir y abrir con 'claude -w <slug>'."
+  fi
 fi
+exit 0

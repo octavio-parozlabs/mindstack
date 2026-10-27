@@ -1,0 +1,37 @@
+name: validate
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: skills y agentes
+        run: node scripts/validate-skills.js
+      - name: tests de lint y de links
+        run: node --test scripts/lib/skill-lint-test.js scripts/validate-reference-links-test.js
+      - name: links entre references
+        run: node scripts/validate-reference-links.js
+      - name: hooks
+        run: bash hooks/test.sh
+      - name: versiones de los manifiestos
+        run: test "$(jq -r .version .claude-plugin/plugin.json)" = "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)"
+      - name: toda skill citada existe
+        run: |
+          grep -rhoP '(?<![/a-z])mindstack:[a-z-]+' agents commands skills README.md CLAUDE.md | sort -u | sed 's/.*://' | while read -r s; do
+            test -d "skills/$s" || { echo "falta skills/$s"; exit 1; }
+          done
+      - name: comandos apuntan a una reference que existe
+        run: |
+          grep -rhoE 'skills/workflow/references/[a-z-]+\.md' commands | sort -u | while read -r f; do
+            test -f "$f" || { echo "falta $f"; exit 1; }
+          done
+      - name: planes inmutables (solo en PRs)
+        if: github.event_name == 'pull_request'
+        run: bash scripts/plans-immutable.sh "origin/${{ github.base_ref }}"

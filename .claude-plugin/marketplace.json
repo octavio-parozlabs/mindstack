@@ -1,23 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "addy-agent-skills",
-  "description": "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship.",
-  "owner": {
-    "name": "Addy Osmani",
-    "url": "https://github.com/addyosmani"
-  },
+  "name": "mindstack",
+  "description": "Forma de trabajo por tareas para Claude Code, con roles separados y redes de contención.",
+  "owner": { "name": "Octavio" },
   "plugins": [
     {
-      "name": "agent-skills",
-      "version": "0.6.13",
-      "source": {
-        "source": "github",
-        "repo": "addyosmani/agent-skills"
-      },
-      "description": "Production-grade engineering skills covering every phase of software development: spec, plan, build, verify, review, and ship.",
-      "homepage": "https://github.com/addyosmani/agent-skills",
+      "name": "mindstack",
+      "version": "1.0.0",
+      "source": "./",
+      "description": "Una tarea es una carpeta con estado; SPEC y PLAN congelados; CHANGELOG como memoria; analista, desarrollador, qa, revisor, auditor, corrector, resolutor; orquestador opcional; skills por stack.",
       "license": "MIT",
-      "keywords": ["skills", "agents", "engineering", "spec", "tdd", "review", "ship"]
+      "keywords": ["workflow", "tareas", "roles", "revision", "seguridad"]
     }
   ]
 }

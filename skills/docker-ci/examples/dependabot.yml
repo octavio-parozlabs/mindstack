@@ -1,0 +1,21 @@
+# .github/dependabot.yml: el bot que mueve los pins. Sin esto, un digest es una versión congelada
+# que se vuelve vulnerable sola. skill docker-ci, references/docker-updates-bot.md.
+#
+# Qué hace: PR con tag + digest nuevos por cada FROM, PR con SHA nuevo por cada `uses:`.
+# Qué no hace: expandir ARG (por eso el stage `base`), decir qué CVE corrige (eso es Trivy en ci.yml),
+# mergear (siempre una persona), mover .nvmrc (va en el mismo PR; el check de versión obliga).
+version: 2
+updates:
+  - package-ecosystem: docker           # FROM node:x.y.z-alpine@sha256:... del Dockerfile
+    directory: /apps/api                # donde está el Dockerfile. Uno por app con Dockerfile
+    schedule: { interval: daily }       # un security release no espera a la semana
+
+  - package-ecosystem: github-actions   # uses: actions/x@<sha>  # vX.Y.Z
+    directory: /                        # Dependabot busca solo en .github/workflows/
+    schedule: { interval: daily }
+
+  # install según stack: /mindstack:install lo escribe para el proyecto. Ejemplo Node:
+  - package-ecosystem: npm              # package.json + lockfile. Acá sí abre PR por CVE publicado
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 10
