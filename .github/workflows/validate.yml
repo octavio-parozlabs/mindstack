@@ -13,13 +13,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: skills y agentes
-        run: node scripts/validate-skills.js
+        run: node scripts/validate/skills.js
       - name: tests de lint y de links
-        run: node --test scripts/lib/skill-lint-test.js scripts/validate-reference-links-test.js
+        run: node --test scripts/validate/lib/skill-lint-test.js scripts/validate/reference-links-test.js
       - name: links entre references
-        run: node scripts/validate-reference-links.js
+        run: node scripts/validate/reference-links.js
       - name: diagramas mermaid
-        run: node scripts/validate-mermaid.mjs .
+        run: node scripts/validate/mermaid.mjs .
       - name: hooks
         run: bash hooks/test.sh
       - name: versiones de los manifiestos
@@ -36,4 +36,4 @@ jobs:
           done
       - name: planes inmutables (solo en PRs)
         if: github.event_name == 'pull_request'
-        run: bash scripts/plans-immutable.sh "origin/${{ github.base_ref }}"
+        run: bash scripts/ci-plans-immutable.sh "origin/${{ github.base_ref }}"

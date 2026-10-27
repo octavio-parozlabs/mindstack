@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
  * validate-skills.js: valida cada skills/<nombre>/SKILL.md y cada agents/<nombre>.md
- * con las reglas de scripts/lib/skill-lint.js. Exit 0 = ok, 1 = errores.
+ * con las reglas de scripts/validate/lib/skill-lint.js. Exit 0 = ok, 1 = errores.
  */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 const { lintSkill, lintPersona } = require('./lib/skill-lint');
 
-const SKILLS_DIR = path.resolve(__dirname, '..', 'skills');
-const AGENTS_DIR = path.resolve(__dirname, '..', 'agents');
+const SKILLS_DIR = path.resolve(__dirname, '..', '..', 'skills');
+const AGENTS_DIR = path.resolve(__dirname, '..', '..', 'agents');
 
 function main() {
   if (!fs.existsSync(SKILLS_DIR)) { console.error(`ERROR: no existe ${SKILLS_DIR}`); process.exit(1); }

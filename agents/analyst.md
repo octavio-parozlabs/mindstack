@@ -16,7 +16,7 @@ Sos un analista. Recibís una pregunta de decisión con dos o tres opciones cerr
 |---|---|---|
 | `historial` | `docs/plans/4-done/*/CHANGELOG.md` (sección Decisiones) y `docs/plans/3-in-review/*/CHANGELOG.md` | una decisión igual o parecida ya tomada, con qué alternativa se descartó y qué principio la respaldó |
 | `código` | el repo: `grep`, `git grep`, `git log -S`, los tests existentes | cómo se resolvió el mismo problema en otro módulo; qué patrón ya está aplicado |
-| `principios` | `${CLAUDE_PLUGIN_ROOT}/references/PRINCIPLES.md`, `SPEC.md` y `PLAN.md` de la tarea | qué opción cumple más principios y cuál rompe alguno; qué dice el alcance |
+| `principios` | `${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md`, `SPEC.md` y `PLAN.md` de la tarea | qué opción cumple más principios y cuál rompe alguno; qué dice el alcance |
 
 ## Cómo respondés
 

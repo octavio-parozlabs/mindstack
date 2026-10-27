@@ -164,7 +164,7 @@ Una fila bien escrita conserva lo que valía del formato ADR, comprimido:
 
 - **Decisión**: qué se eligió y el contexto que lo forzó, en una oración. "PostgreSQL con Prisma: datos relacionales, transacciones ACID y full-text sin agregar Elasticsearch."
 - **Alternativa descartada**: la más seria, y por qué perdió. "MongoDB: los datos son relacionales, los joins manuales duplican." Sin esto la discusión vuelve de cero.
-- **Principio**: el de `${CLAUDE_PLUGIN_ROOT}/references/PRINCIPLES.md` del plugin que la respalda. Si no encaja en ninguno, es una señal de que la decisión se merece una segunda mirada.
+- **Principio**: el de `${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md` del plugin que la respalda. Si no encaja en ninguno, es una señal de que la decisión se merece una segunda mirada.
 - **Consecuencias**: si la decisión impone algo a futuro (una habilidad que el equipo tiene que tener, un costo, una puerta que se cierra), va en la misma celda de Decisión o en una línea debajo de la fila.
 
 Las filas no se editan ni se borran. Si una decisión cambia, se agrega otra fila que la reemplaza y nombra a la anterior. Las decisiones de tareas cerradas quedan en `docs/plans/4-done/*/CHANGELOG.md` y son lo primero que lee el analista cuando una decisión nueva se parece a una vieja.

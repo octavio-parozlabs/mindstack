@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Hook SessionStart. Lo que imprime va al contexto de Claude al arrancar.
 # 1. Los principios, siempre en contexto: desempatan cuando dos reglas chocan.
-cat "${CLAUDE_PLUGIN_ROOT}/references/PRINCIPLES.md"
+cat "${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md"
 echo
 # 2. El tablero: una línea por estado con sus tareas.
 if [ -d docs/plans ]; then
@@ -14,7 +14,9 @@ if [ -d docs/plans ]; then
   done
   echo
 fi
-# 3. Avisos del entorno.
+# 3. El marco, para una sesión que no corre ningún comando.
+echo "Marco de trabajo: skill mindstack:workflow (estados, artefactos, roles). Cada rol hace solo su fase; el resto es contexto."
+# 4. Avisos del entorno.
 main=$(git worktree list 2>/dev/null | head -1 | awk '{print $1}')
 if [ -n "$main" ] && [ "$main" = "$(pwd)" ]; then
   echo "Sesión en el checkout principal. Acá solo se cierran tareas mergeadas (/mindstack:orchestrate). Para una tarea, del borrador al PR: 'claude -w <slug>'."

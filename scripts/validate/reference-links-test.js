@@ -9,14 +9,14 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { afterEach, test } = require('node:test');
 
-const VALIDATOR = path.join(__dirname, 'validate-reference-links.js');
+const VALIDATOR = path.join(__dirname, 'reference-links.js');
 const sandboxes = [];
 
 function makeSandbox() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-skills-validate-reference-links-test-'));
-  const scriptsDir = path.join(root, 'scripts');
+  const scriptsDir = path.join(root, 'scripts', 'validate');
   fs.mkdirSync(scriptsDir, { recursive: true });
-  fs.copyFileSync(VALIDATOR, path.join(scriptsDir, 'validate-reference-links.js'));
+  fs.copyFileSync(VALIDATOR, path.join(scriptsDir, 'reference-links.js'));
   fs.mkdirSync(path.join(scriptsDir, 'lib'));
   fs.copyFileSync(path.join(__dirname, 'lib', 'skill-lint.js'), path.join(scriptsDir, 'lib', 'skill-lint.js'));
   sandboxes.push(root);
@@ -30,7 +30,7 @@ function writeFile(root, relativePath, content) {
 }
 
 function run(root) {
-  return spawnSync(process.execPath, [path.join(root, 'scripts', 'validate-reference-links.js')], {
+  return spawnSync(process.execPath, [path.join(root, 'scripts', 'validate', 'reference-links.js')], {
     cwd: root,
     encoding: 'utf8',
   });

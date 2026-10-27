@@ -9,7 +9,7 @@ flowchart TD
     S -- no --> X[Agent ×3 en un solo turno, en paralelo]
     X --> H[analista · ángulo historial:\nDecisiones de docs/plans/4-done/*/CHANGELOG.md]
     X --> C[analista · ángulo código:\npatrones ya aplicados en el repo]
-    X --> P[analista · ángulo principios:\nreferences/PRINCIPLES.md]
+    X --> P[analista · ángulo principios:\nPRINCIPLES.md]
     H & C & P --> V{¿las tres OPTION\nson la misma?}
     V -- sí --> OK[Decisiones: quién = consensus,\nevidencia de cada ángulo debajo] --> SIGUE[seguir la tarea]
     V -- no --> U([AskUserQuestion a la persona:\nla pregunta, las opciones, qué dijo cada ángulo])
@@ -34,7 +34,7 @@ Mismo agente (`analyst`), mismo prompt base, distinto ángulo. Se lanzan en un s
 |---|---|---|
 | `historial` | una decisión igual o parecida ya tomada, y qué principio la respaldó | `docs/plans/4-done/*/CHANGELOG.md` sección Decisiones, y `3-in-review/` si hay |
 | `código` | cómo se resolvió el mismo problema en otro módulo del repo | `grep`, `graphify query`, los tests existentes |
-| `principios` | qué opción cumple más principios y cuál rompe alguno | `${CLAUDE_PLUGIN_ROOT}/references/PRINCIPLES.md` |
+| `principios` | qué opción cumple más principios y cuál rompe alguno | `${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md` |
 
 Cada analista termina con `OPTION: A` (o B, o C) y dos renglones de evidencia. No puede proponer una opción nueva ni abstenerse: si no encuentra nada, elige por el principio más cercano y lo dice.
 

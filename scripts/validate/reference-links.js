@@ -1,29 +1,20 @@
 #!/usr/bin/env node
 /**
- * validate-reference-links.js
+ * reference-links.js
  *
- * Guards links from skills to the shared `references/` checklists.
+ * Guards links from a skill to its own `references/` directory.
  *
- * Those checklists live in the repo-root `references/` directory, but every
- * SKILL.md used to link them as `references/<file>.md` — a path relative to
- * the skill's own directory, which is two levels below the root. All 18 links
- * across 11 skills resolved to files that do not exist, in the repo and in
- * every plugin-install layout (~/.claude/plugins/cache/..., ~/.codex/...).
- * Agents that followed the guidance — for example using-agent-skills pointing
- * at the Definition of Done — hit a file-not-found and stalled.
+ * The only `references/` directories in the repo are the per-skill ones
+ * (`skills/<name>/references/`). Links from a SKILL.md are written as
+ * `references/<file>.md` and resolve relative to the skill's own directory;
+ * links from a file inside that directory are written as `<file>.md` or
+ * `../references/<file>.md`. A link that resolves to a file that does not
+ * exist, in the repo or in any plugin-install layout, makes the agent that
+ * follows it stall on a file-not-found.
  *
- * Nothing else in CI catches this: validate-artifact-paths.js is scoped to
- * spec/plan/todo artifacts and is explicitly not a general markdown linter.
- *
- * The rule enforced here: every `references/*.md` link in a SKILL.md must
- * resolve to an existing file relative to that skill's own directory. This
- * accepts both conventions in CLAUDE.md — shared checklists reached via
- * `../../references/`, and a skill's own colocated `references/` directory.
- *
- * The markdown files inside a skill's own `references/` directory get the
- * same check, with each link resolved from the file that contains it. They
- * sit one directory deeper than SKILL.md, so from there the shared checklists
- * are `../../../references/`: the same off-by-a-level mistake, one level down.
+ * The rule enforced here: every `references/*.md` link in a SKILL.md, or in
+ * a markdown file inside a skill's `references/` directory, must resolve to
+ * an existing file relative to the file that contains it.
  *
  * A `#fragment` after such a link must match a heading in the target file,
  * slugged the way GitHub renders anchors. The file existing is not enough:
@@ -50,7 +41,7 @@ const fs = require('fs');
 const path = require('path');
 const { stripFencedCodeBlocks } = require('./lib/skill-lint');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '..', '..');
 const SKILLS_DIR = path.join(ROOT, 'skills');
 
 // Matches a link to a references/ markdown file, with any number of leading

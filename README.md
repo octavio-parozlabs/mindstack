@@ -12,7 +12,7 @@ flowchart LR
     class A,OK,PR,M persona
 ```
 
-Naranja: la persona. Todo lo demás lo hacen los roles, de a uno (`/mindstack:<fase>`) o encadenados (`/mindstack:orchestrate`). La tarea es el worktree: `claude -w <slug>` y todo pasa adentro, del borrador al PR; si hay Compose, con su propio entorno en `localhost` y copia de tu DB. Nada se publica.
+Naranja: la persona. Todo lo demás lo hacen los roles: `/mindstack:draft` y `/mindstack:plan` para lo que necesita diálogo, `/mindstack:orchestrate` para el resto, sin parar. La tarea es el worktree: `claude -w <slug>` y todo pasa adentro, del borrador al PR; si hay Compose, con su propio entorno en `localhost` y copia de tu DB. Nada se publica.
 
 ## Instalar
 
@@ -35,7 +35,7 @@ claude --plugin-dir /ruta/a/mindstack
 
 O desde el clon local: `/plugin marketplace add /ruta/a/mindstack`. Se actualiza con `/plugin update mindstack@mindstack`, o con `git pull` si el marketplace es el clon.
 
-Para implementar hace falta además el plugin `ralph-wiggum` (el loop). Validar el clon: `node scripts/validate-skills.js && bash hooks/test.sh`.
+Para implementar hace falta además el plugin `ralph-wiggum` (el loop). Validar el clon: `node scripts/validate/skills.js && bash hooks/test.sh`.
 
 ### En cada proyecto
 
@@ -112,7 +112,7 @@ Cuando el dev encuentra una ambigüedad que ni el SPEC, ni el PLAN, ni un princi
 | prácticas (agnósticas) | `tdd` · `debugging` · `code-review` · `security` · `git` · `simplification` · `performance` · `api-design` · `migration` · `observability` · `documentation` · `ci-cd` | las cargan los roles según `tipo:` y `skills:` del PLAN (tabla en `skills/workflow/references/plan.md`) |
 | stack | `typescript` · `react` · `node-api` · `nestjs` · `architecture` · `web-security` · `docker-ci` · `auth-jwt-sessions` | cargan solas por `paths:` o por nombre; dicen con qué librería, con qué comando, qué nunca |
 
-Los principios que desempatan cuando dos reglas chocan están en `references/PRINCIPLES.md` y entran al contexto en cada sesión.
+Los principios que desempatan cuando dos reglas chocan están en `PRINCIPLES.md` y entran al contexto en cada sesión.
 
 ## Commits
 
@@ -133,17 +133,17 @@ Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR si
 2. `hooks/write-scope.sh` por agente: fuera de sus archivos, bloqueado.
 3. `hooks/plan-immutable.sh` global: `SPEC.md` y `PLAN.md` fuera de `0-draft/`, bloqueado.
 4. `chmod a-w` local al pasar a pendiente.
-5. `scripts/plans-immutable.sh` en el CI del proyecto.
+5. `scripts/ci-plans-immutable.sh` en el CI del proyecto.
 6. Dos rondas de revisión como máximo; después, la persona.
 7. Nadie mergea.
 
 ## Validar el plugin
 
 ```bash
-node scripts/validate-skills.js          # frontmatter de skills y agentes
-node scripts/validate-reference-links.js # links entre references
+node scripts/validate/skills.js          # frontmatter de skills y agentes
+node scripts/validate/reference-links.js # links entre references
 bash hooks/test.sh                       # los hooks, caso por caso
-node scripts/validate-mermaid.mjs .      # todos los diagramas parsean (instala mermaid en /tmp la primera vez)
+node scripts/validate/mermaid.mjs .      # todos los diagramas parsean (instala mermaid en /tmp la primera vez)
 ```
 
 Lo mismo corre en `.github/workflows/validate.yml`.

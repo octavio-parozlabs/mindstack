@@ -104,19 +104,19 @@ Naranja es la persona: pide, pide el plan, prueba, desempata, mergea. Todo lo de
 
 Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfianza: es lo que saca el sesgo (el que implementa testea lo que pensó, no lo que el código hace) y hace que un fallo quede en un solo lugar.
 
-| Rol | Hace | No hace | Escribe |
-|---|---|---|---|
-| **analista** | entrevista, supuestos, casos borde con diagrama, SPEC. En consenso: busca evidencia en historial, código o principios | decidir cómo se implementa | `SPEC.md` |
-| **planificador** | acoplamiento, tajadas verticales, tareas con rol y verificación, fechas, Done; valida y deja la tarea pendiente | implementar, tachar, preguntar lo que un principio decide | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
-| **desarrollador** | una tarea por vuelta, sin commit, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md` |
-| **qa** | caja negra: entradas y salidas por la interfaz, sin leer la implementación. En un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción, leer el cuerpo de las funciones | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
-| **code-reviewer** | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
-| **security-auditor** | zero trust: toda entrada es hostil hasta que se valida | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
-| **corrector** | cada hallazgo: corrige, o deuda con vencimiento, o rechaza con motivo | agregar hallazgos, tests | código, `CHANGELOG.md` |
-| **conflict-resolver** | rebase, suite, `--force-with-lease` | `--force`, "el mío" entero | lo que esté en conflicto, `CHANGELOG.md` |
-| **orquestador** | lee las referencias y llama a los roles en orden | lógica propia, mergear | nada propio |
+| Rol | Escribe |
+|---|---|
+| **analista** | `SPEC.md` |
+| **planificador** | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
+| **desarrollador** | código, `TODO.md`, `CHANGELOG.md` |
+| **qa** | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| **code-reviewer** | `REVIEW-code.md` |
+| **security-auditor** | `REVIEW-security.md` |
+| **corrector** | código, `CHANGELOG.md` |
+| **conflict-resolver** | lo que esté en conflicto, `CHANGELOG.md` |
+| **orquestador** | nada propio |
 
-El detalle de cada uno, con modelo y herramientas: `references/roles-and-artifacts.md` y `agents/*.md` del plugin.
+Qué hace y qué no cada uno: `references/roles-and-artifacts.md` (sección "Qué hace y qué no cada rol"); modelo y herramientas, en `agents/*.md` del plugin.
 
 Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplification`, `performance`, `api-design`, `migration`, `observability`, `documentation`, `ci-cd`) no son roles: son conocimiento que un rol carga según la tarea. El `PLAN.md` dice en `tipo:` qué clase de tarea es y en `skills:` cuáles van; la tabla está en `references/plan.md`.
 
@@ -126,7 +126,7 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 2. `hooks/write-scope.sh` en cada agente: Edit/Write fuera de sus archivos → bloqueado.
 3. `hooks/plan-immutable.sh` global: Edit/Write/Bash sobre `SPEC.md` o `PLAN.md` fuera de `0-draft/` → bloqueado.
 4. `chmod a-w` local al pasar a pendiente: frena un `>` distraído.
-5. `scripts/plans-immutable.sh` en el CI del proyecto: un PR que modifique SPEC o PLAN fuera de `0-draft/` no entra.
+5. `scripts/ci-plans-immutable.sh` en el CI del proyecto: un PR que modifique SPEC o PLAN fuera de `0-draft/` no entra.
 6. Dos rondas de revisión como máximo; después, la persona.
 7. El código no se commitea hasta que la revisión pasa: lo commiteado es lo revisado.
 8. El PR no está entregado hasta que CI está verde; el orquestador itera con el log hasta tres veces.

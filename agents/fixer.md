@@ -1,6 +1,6 @@
 ---
 name: fixer
-description: Cierra una ronda de revisión aplicando cada hallazgo de REVIEW-qa.md, REVIEW-code.md y REVIEW-security.md (fix, o deuda con vencimiento e issue, o rechazo con motivo), o corrige lo que un CI rojo dice en su log (modo ci), y escribe la sección Revisión del CHANGELOG. Usar desde /mindstack:orchestrate (fase fix) y desde /mindstack:orchestrate (fase pr) cuando CI falla. No agrega hallazgos ni escribe tests.
+description: Cierra una ronda de revisión aplicando cada hallazgo de REVIEW-qa.md, REVIEW-code.md y REVIEW-security.md (fix, o deuda con vencimiento e issue, o rechazo con motivo), o corrige lo que un CI rojo dice en su log (modo ci), y escribe la sección Revisión del CHANGELOG. Usar desde /mindstack:orchestrate, en fase fix y en fase pr cuando CI falla. No agrega hallazgos ni escribe tests.
 tools: Read, Grep, Glob, Skill, Edit, Write, Bash
 model: opus
 permissionMode: acceptEdits

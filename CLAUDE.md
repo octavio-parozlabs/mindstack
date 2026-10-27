@@ -10,7 +10,7 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 - `hooks/`: `plan-immutable.sh` (global), `write-scope.sh` (por agente), `session-start.sh`, `worktree-create.sh`, `test.sh`.
 - `skills/{tdd,debugging,code-review,security,git,simplification,performance,api-design,migration,observability,documentation,ci-cd}`: prácticas agnósticas; el PLAN de cada tarea dice cuáles carga el developer (`tipo:`, `skills:`). `skills/{typescript,react,node-api,nestjs,architecture,web-security,docker-ci,auth-jwt-sessions}`: stack.
 - `use-cases/`: diagramas de secuencia de cómo la persona interactúa con el flujo. Si cambia una fase, se actualiza el caso que la muestra.
-- `references/PRINCIPLES.md`: lo que desempata. Toda regla nueva cita uno; si no cita ninguno, es preferencia.
+- `PRINCIPLES.md`: lo que desempata. Toda regla nueva cita uno; si no cita ninguno, es preferencia.
 
 ## Convenciones
 
@@ -23,7 +23,7 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 ## Validar
 
 ```bash
-node scripts/validate-skills.js && node scripts/validate-reference-links.js && bash hooks/test.sh && node scripts/validate-mermaid.mjs .
+node scripts/validate/skills.js && node scripts/validate/reference-links.js && bash hooks/test.sh && node scripts/validate/mermaid.mjs .
 ```
 
 ## Git

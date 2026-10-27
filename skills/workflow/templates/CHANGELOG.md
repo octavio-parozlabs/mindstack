@@ -22,7 +22,7 @@ Lo que se vio y no es de esta tarea: bugs ajenos, código raro, módulos sin tes
 
 ## Decisiones
 
-Elecciones que alguien va a cuestionar después, y todo giro respecto del PLAN. Con la alternativa descartada, para que no se vuelva a discutir desde cero, y el principio que la respalda (`references/PRINCIPLES.md` del plugin). Si la decidió un consenso, quién es `consensus` y la evidencia de cada analista va en una línea debajo.
+Elecciones que alguien va a cuestionar después, y todo giro respecto del PLAN. Con la alternativa descartada, para que no se vuelva a discutir desde cero, y el principio que la respalda (`PRINCIPLES.md` del plugin). Si la decidió un consenso, quién es `consensus` y la evidencia de cada analista va en una línea debajo.
 
 | Fecha | Quién | Decisión | Alternativa descartada | Principio |
 |---|---|---|---|---|

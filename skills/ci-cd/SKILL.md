@@ -236,7 +236,7 @@ el ruido. La configuración concreta para el stack del plugin está en
 - El `developer` carga esta skill en tareas con `tipo: ci` en el PLAN, o
   cuando el Done de una tarea pide un comando que el CI del proyecto todavía
   no corre: primero se agrega el step, después se implementa contra él.
-- `scripts/plans-immutable.sh` del plugin es un step del CI del proyecto que
+- `scripts/ci-plans-immutable.sh` del plugin es un step del CI del proyecto que
   rechaza un PR que modifique SPEC o PLAN fuera de `0-draft/`; lo propone
   `/mindstack:install` cuando encuentra `.github/workflows/`.
 - `code-reviewer` carga esta skill cuando el diff toca `.github/workflows/`
