@@ -1,6 +1,6 @@
 # Planificar: del SPEC al PLAN
 
-Lo corre la misma conversación de `/mindstack:draft`, cuando la persona leyó el SPEC y pidió el plan en palabras. Requiere `docs/plans/0-draft/<slug>/SPEC.md` de la tarea activa; si no está, pará y decí que primero va `/mindstack:draft`. Pedir el plan es decir que el SPEC está: si al leerlo ves algo que no cierra, decilo antes de planificar. **Termina con la tarea en `1-pending/`**: el plan es la checklist del orquestador, no un documento que la persona aprueba; lo que sí lee es el resumen final. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
+Lo corre `/mindstack:plan`, o la misma conversación de `/mindstack:draft` cuando la persona pide el plan en palabras ("generá el plan"); es lo mismo. Requiere `docs/plans/0-draft/<slug>/SPEC.md` de la tarea activa; si no está, pará y decí que primero va `/mindstack:draft`. Pedir el plan es decir que el SPEC está: si al leerlo ves algo que no cierra, decilo antes de planificar. **Termina con la tarea en `1-pending/`**: el plan es la checklist del orquestador, no un documento que la persona aprueba; lo que sí lee es el resumen final. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
 
 ```mermaid
 flowchart TD

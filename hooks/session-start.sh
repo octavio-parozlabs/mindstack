@@ -17,9 +17,9 @@ fi
 # 3. Avisos del entorno.
 main=$(git worktree list 2>/dev/null | head -1 | awk '{print $1}')
 if [ -n "$main" ] && [ "$main" = "$(pwd)" ]; then
-  activas=$(find docs/plans/1-pending docs/plans/2-in-progress -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
-  if [ "$activas" -gt 0 ]; then
-    echo "Sesión en el checkout principal con tareas activas. Para implementar: salir y abrir con 'claude -w <slug>'."
-  fi
+  echo "Sesión en el checkout principal. Acá solo se cierran tareas mergeadas (/mindstack:orchestrate). Para una tarea, del borrador al PR: 'claude -w <slug>'."
+else
+  echo "Worktree: $(git branch --show-current 2>/dev/null). La tarea es este worktree."
+
 fi
 exit 0

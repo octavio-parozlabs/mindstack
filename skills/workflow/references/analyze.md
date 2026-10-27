@@ -1,11 +1,11 @@
 # Analizar: del pedido vago al SPEC
 
-Lo corre `/mindstack:draft "<qué querés>"` en la sesión principal, en diálogo con la persona. Termina con `docs/plans/0-draft/<slug>/SPEC.md` y nada más: ni plan, ni código. Después el diálogo sigue en la misma conversación: los comentarios sueltos de la persona corrigen el SPEC (commit por vuelta), y cuando pide el plan en palabras ("generá el plan", "planificalo") se pasa a `plan.md`. El analista no lo dispara solo.
+Lo corre `/mindstack:draft "<qué querés>"` en el worktree de la tarea, en diálogo con la persona. Termina con `docs/plans/0-draft/<slug>/SPEC.md` y nada más: ni plan, ni código. Después el diálogo sigue en la misma conversación: los comentarios sueltos de la persona corrigen el SPEC (commit por vuelta), y cuando pide el plan, en palabras ("generá el plan") o con `/mindstack:plan`, se pasa a `plan.md`. El analista no lo dispara solo.
 
 ```mermaid
 sequenceDiagram
     participant P as persona
-    participant A as analista (sesión principal)
+    participant A as analista (sesión principal, en el worktree)
     participant R as repo
     P->>A: /mindstack:draft "que los pagos reintenten"
     A->>R: leer lo que el pedido toca (grep, graphify si hay)
@@ -18,7 +18,7 @@ sequenceDiagram
     A->>P: slug propuesto + SPEC.md con un diagrama por CB
     P-->>A: correcciones
     A->>A: escribe docs/plans/0-draft/<slug>/SPEC.md
-    A-->>P: SPEC listo y commiteado. Leelo, comentá lo que quieras, y cuando esté pedime el plan
+    A-->>P: SPEC listo y commiteado. Leelo, comentá lo que quieras, y cuando esté pedime el plan (o /mindstack:plan)
 ```
 
 ## Antes de preguntar
@@ -93,7 +93,7 @@ La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su
 
 ## Slug
 
-Kebab-case, tres palabras máximo, del objetivo y no de la solución: `reintento-pagos`, no `backoff-exponencial`. Es el nombre de la carpeta, de la rama (`worktree-<slug>`) y del worktree; no se renombra.
+Es el nombre del worktree: lo eligió la persona al abrirlo (`claude -w reintento-pagos`) y es también el nombre de la carpeta y de la rama (`worktree-<slug>`). No se inventa ni se renombra. Si la persona pregunta cómo nombrarlo: kebab-case, tres palabras máximo, del objetivo y no de la solución (`reintento-pagos`, no `backoff-exponencial`).
 
 ## Qué no
 

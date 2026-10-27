@@ -1,39 +1,37 @@
 # 06 · Varias tareas en paralelo e iteración sobre un PR
 
-El modelo de uso diario: lo que necesita hablar con vos pasa en el checkout principal; lo que no, corre en paralelo en worktrees. Al final probás cada PR, y mergeás o iterás.
+El modelo de uso diario: un worktree por tarea, cada uno con su sesión. El borrador lo hacés de a uno (necesita hablar con vos); los orquestadores corren en paralelo. Al final probás cada PR, y mergeás o iterás.
 
 ```mermaid
 sequenceDiagram
     actor U as Vos
-    participant M as Claude (principal, main)
-    participant Wa as Claude (worktree a)
-    participant Wb as Claude (worktree b)
+    participant Wa as Claude (worktree facturas-pdf)
+    participant Wb as Claude (worktree pagos-timeout)
+    participant M as Claude (main)
     participant G as git / GitHub
 
     rect rgb(255, 245, 230)
-    Note over U,M: en el principal: entender y pedir el plan, una tarea tras otra
-    U->>M: /mindstack:draft "exportar facturas a PDF"
-    M-->>U: SPEC facturas-pdf (commit por vuelta). Leelo
-    U->>M: generá el plan
-    M-->>U: PLAN facturas-pdf, a 1-pending. Resumen
-    M->>G: 1-pending/facturas-pdf · commit
-    U->>M: /mindstack:draft "los pagos con timeout se cobran dos veces"
-    M-->>U: SPEC pagos-timeout con REPRO: integration
-    U->>M: generá el plan
-    M-->>U: PLAN pagos-timeout, a 1-pending. Resumen
-    M->>G: 1-pending/pagos-timeout · commit
+    Note over U,G: dos worktrees. El borrador de cada una, con vos
+    U->>Wa: claude -w facturas-pdf · /mindstack:draft "exportar facturas a PDF"
+    Wa-->>U: SPEC facturas-pdf (commit por vuelta). Leelo
+    U->>Wa: /mindstack:plan
+    Wa-->>U: PLAN, a 1-pending. Resumen
+    U->>Wb: claude -w pagos-timeout · /mindstack:draft "los pagos con timeout se cobran dos veces"
+    Wb-->>U: SPEC pagos-timeout con REPRO: integration
+    U->>Wb: /mindstack:plan
+    Wb-->>U: PLAN, a 1-pending. Resumen
     end
 
     rect rgb(230, 240, 255)
-    Note over U,G: en paralelo: un worktree y un orquestador por tarea, sin vos
-    U->>Wa: claude -w facturas-pdf · /mindstack:orchestrate
-    U->>Wb: claude -w pagos-timeout · /mindstack:orchestrate
+    Note over U,G: en paralelo, sin vos
+    U->>Wa: /mindstack:orchestrate
+    U->>Wb: /mindstack:orchestrate
     par
-        Wa->>Wa: implement (loop + qa) → review ×3 → fix → review → pr
+        Wa->>Wa: implement (loop + qa) → review ×3 → fix → review → pr → CI verde
         Wa->>G: PR #88 · url en PR.md
         Wa-->>U: PR #88 abierto · localhost:5231
     and
-        Wb->>Wb: implement → review ×3 (limpia) → pr
+        Wb->>Wb: implement → review ×3 (limpia) → pr → CI verde
         Wb->>G: PR #89
         Wb-->>U: PR #89 abierto · localhost:5247
     end
@@ -43,23 +41,23 @@ sequenceDiagram
     Note over U,G: probás, mergeás o iterás
     U->>U: prueba #89 en localhost:5247 → está
     U->>G: merge #89
-    U->>M: /mindstack:orchestrate (en main → finalize)
+    U->>M: /mindstack:orchestrate (en main)
     M->>G: Cierre con url · 4-done/pagos-timeout · commit
 
     U->>U: prueba #88 → el PDF sale sin logo
     U->>Wa: /mindstack:draft "el PDF sale sin el logo de la empresa"
+    Note over Wa: la tarea tiene PR → iteración: hija facturas-pdf-2
     Wa->>Wa: analyze acotado → SPEC facturas-pdf-2 (padre: facturas-pdf)
     Wa-->>U: SPEC de la iteración. Leelo
     U->>Wa: generá el plan
     Wa-->>U: PLAN de la iteración, a 1-pending. Resumen
-    Wa->>G: 1-pending/facturas-pdf-2 · commit (en la rama)
     U->>Wa: /mindstack:orchestrate
-    Wa->>Wa: implement → review ×3 → pr
-    Wa->>G: push · gh pr comment #88 "iteración 2: logo en el PDF"
+    Wa->>Wa: toma la hija → implement → review ×3 → pr
+    Wa->>G: push · gh pr comment #88 "iteración 2: logo en el PDF" · CI verde
     Wa-->>U: PR #88 actualizado
     U->>U: prueba → está
     U->>G: merge #88
-    U->>M: /mindstack:orchestrate (en main → finalize, padre e hija)
+    U->>M: /mindstack:orchestrate (en main)
     M->>G: Cierre con url e iteraciones · 4-done/facturas-pdf y facturas-pdf-2 · commit
     end
 ```
@@ -82,4 +80,4 @@ docs/plans/4-done/
 └── pagos-timeout/     …, PR.md (pr: 89, url)
 ```
 
-Los links abren los PRs mientras GitHub exista; si un día no, la carpeta tiene todo lo que importa: qué se pidió, qué se decidió, qué dijeron los revisores, qué quedó como deuda. Un PR cerrado sin merge también se finaliza: `fase finalize` trae la carpeta desde la rama antes de que se borre.
+Los links abren los PRs mientras GitHub exista; si un día no, la carpeta tiene todo lo que importa: qué se pidió, qué se decidió, qué dijeron los revisores, qué quedó como deuda. Un PR cerrado sin merge también se finaliza: `/orchestrate` en `main` trae la carpeta desde la rama antes de que se borre.

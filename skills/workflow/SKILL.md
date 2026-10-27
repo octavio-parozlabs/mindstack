@@ -1,7 +1,7 @@
 ---
 name: workflow
 description: >-
-  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en docs/plans/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan cuando el plan está; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar docs/plans/.
+  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en docs/plans/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan cuando el plan está; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, plan, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar docs/plans/.
 ---
 
 # Flujo: de la idea al merge
@@ -14,7 +14,7 @@ La persona pide, responde la entrevista, aprueba, prueba y mergea. Los roles hac
 
 ```
 docs/plans/
-├── 0-draft/          se está escribiendo: /draft, comentarios, "generá el plan"
+├── 0-draft/          se está escribiendo: /draft, comentarios, /plan (o "generá el plan")
 ├── 1-pending/         plan hecho, SPEC y PLAN congelados, esperando el worktree
 ├── 2-in-progress/ el loop corre en su worktree
 ├── 3-in-review/       tres revisores, corrector, PR abierto
@@ -36,8 +36,8 @@ La carpeta donde está es su estado, y moverla es `git mv`. Se ve en `ls`, en Gi
 | Carpeta | Quién la mueve ahí | Comando |
 |---|---|---|
 | `0-draft/` | el analista la crea | `/mindstack:draft "qué quiero"` |
-| `1-pending/` | el planificador, al terminar el plan | "generá el plan" en la conversación de `/mindstack:draft` |
-| `2-in-progress/` | el orquestador, al arrancar el loop | `/mindstack:orchestrate` en el worktree |
+| `1-pending/` | el planificador, al terminar el plan | `/mindstack:plan`, o "generá el plan" en la conversación |
+| `2-in-progress/` | el orquestador, al arrancar el loop | `/mindstack:orchestrate` |
 | `3-in-review/` | el orquestador, en la primera ronda de revisión | el mismo `/mindstack:orchestrate` |
 | `4-done/` | el orquestador en `main`, después del merge (o del cierre sin merge) | `/mindstack:orchestrate` en `main` |
 
@@ -45,15 +45,9 @@ Una tarea hija (`/mindstack:draft "<qué falta>" (en el worktree)`) pasa por las
 
 ## Qué tarea es
 
-La persona nunca escribe el slug. Los comandos lo deducen:
+**La tarea es el worktree.** Todo pasa adentro de `claude -w <slug>`, del borrador al PR: el slug lo elegís vos al abrirlo, y es el nombre de la carpeta, de la rama (`worktree-<slug>`) y del worktree. Ningún comando lleva el nombre de la tarea: la lee de `git branch --show-current`. Un worktree, una tarea, una rama, un PR.
 
-| Dónde estás | La tarea es |
-|---|---|
-| en un worktree (`git branch --show-current` = `worktree-<slug>`) | esa. `/orchestrate`, `/rebase` y `/draft "qué falta"` (iteración) trabajan sobre ella |
-| en el checkout principal, conversación que arrancó con `/draft` | la que ese `/draft` creó: la **tarea activa**. Los comentarios sueltos la corrigen, "generá el plan" le genera el plan y la deja pendiente, `/draft` sin texto la retoma a borrador |
-| en el checkout principal, sin tarea activa | `/draft` sin texto: si en `1-pending/` o `0-draft/` hay una sola, esa; si hay varias, se pregunta cuál. En `main` con PRs mergeados, `/orchestrate` pregunta cuál cerrar si hay más de una |
-
-El slug existe igual (es el nombre de la carpeta, la rama y el worktree; lo inventa el analista) y se puede escribir para desambiguar, pero no hace falta.
+Lo único que pasa en el checkout principal (`main`) es cerrar: después del merge, `/orchestrate` ahí mueve la tarea a `4-done/`. Si hay más de una mergeada sin cerrar, pregunta cuál.
 
 ## Qué se congela y qué se escribe
 
@@ -73,12 +67,12 @@ Por qué un changelog por tarea: la memoria de un agente termina con su sesión.
 
 ```mermaid
 flowchart TD
-    U0([persona: /draft qué quiero]) -->|entrevista, commit por vuelta| S0["0-draft: SPEC.md"]
+    U0([persona: claude -w slug, /draft qué quiero]) -->|entrevista, commit por vuelta| S0["0-draft: SPEC.md"]
     S0 -->|comentarios sueltos| S0
-    S0 -->|persona: generá el plan| P0["+ PLAN.md, CHANGELOG.md"]
+    S0 -->|persona: /plan o generá el plan| P0["+ PLAN.md, CHANGELOG.md"]
     P0 -->|valida, TODO.md, git mv| S1["1-pending<br/>SPEC + PLAN congelados"]
     S1 -->|/draft sin texto: reopen| S0
-    S1 -->|claude -w slug, /orchestrate| S2["2-in-progress"]
+    S1 -->|/orchestrate| S2["2-in-progress"]
     subgraph IMPL["loop: una tarea del TODO por vuelta"]
         D[dev implementa sin commit, Cambios, tacha] --> Q[qa: tests de la tarea]
         D -. DECISION .-> C[consenso: 3 analistas]
@@ -178,6 +172,6 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 | Preguntar cada ambigüedad a la persona | veinte interrupciones por tarea. El consenso resuelve las que ya tienen respuesta en el repo |
 | Sin tope de rondas | dos modelos discutiendo un `media` hasta que se acaba el presupuesto |
 | Un refactor "de paso" | la tarea crece, el diff no se puede revisar, y el refactor queda a medias. Es otra tarea con su SPEC |
-| Trabajar en el checkout principal | la tarea en curso y "una cosita" comparten `git status`. Uno commitea lo del otro |
+| Trabajar en el checkout principal | la tarea en curso y "una cosita" comparten `git status`. Uno commitea lo del otro. El principal es solo para cerrar tareas mergeadas |
 | Entregar el PR con CI rojo | un link a trabajo a medias. CI es parte de la tarea: se itera con el log hasta que pasa, o se dice por qué no |
 | Agente que mergea | se pierde el único punto donde una persona ve el cambio entero y lee el changelog |

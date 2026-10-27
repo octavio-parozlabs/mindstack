@@ -12,7 +12,7 @@ flowchart LR
     class A,OK,PR,M persona
 ```
 
-Naranja: la persona. Todo lo demás lo hacen los roles, de a uno (`/mindstack:<fase>`) o encadenados (`/mindstack:orchestrate`). Cada tarea corre en su worktree y, si hay Compose, en su propio entorno en `localhost` con copia de tu DB: probás ahí antes de la revisión. Nada se publica.
+Naranja: la persona. Todo lo demás lo hacen los roles, de a uno (`/mindstack:<fase>`) o encadenados (`/mindstack:orchestrate`). La tarea es el worktree: `claude -w <slug>` y todo pasa adentro, del borrador al PR; si hay Compose, con su propio entorno en `localhost` y copia de tu DB. Nada se publica.
 
 ## Instalar
 
@@ -27,7 +27,7 @@ O desde el clon local: `/plugin marketplace add /ruta/al/clon`. Para implementar
 
 En cada proyecto: `/mindstack:install`. Crea el tablero `docs/plans/`, el bloque de `CLAUDE.md`, el `.gitignore`, y te dice qué falta.
 
-En tu `~/.claude/CLAUDE.md`, si tenés una regla que prohíbe commits sin pedido explícito, agregá: *"Invocar `/mindstack:draft`, `orchestrate` o `rebase` es el pedido explícito de los commits y push que su descripción declara."*
+En tu `~/.claude/CLAUDE.md`, si tenés una regla que prohíbe commits sin pedido explícito, agregá: *"Invocar `/mindstack:draft`, `plan`, `orchestrate` o `rebase` es el pedido explícito de los commits y push que su descripción declara."*
 
 ## Casos de uso
 
@@ -37,7 +37,7 @@ Diagramas de secuencia con vos como actor, de "arreglame esto" al PR: [`use-case
 
 ```
 docs/plans/
-├── 0-draft/           /draft → comentás → "generá el plan" → comentás
+├── 0-draft/           claude -w slug · /draft → comentás → /plan → comentás
 ├── 1-pending/          plan hecho → SPEC y PLAN congelados (/draft sin texto los reabre)
 ├── 2-in-progress/  fase implement, en worktree
 ├── 3-in-review/        fase review ↔ fase fix, fase pr
@@ -62,13 +62,14 @@ docs/plans/
 
 ## Comandos
 
-Cuatro. Dos en el día a día. Ninguno lleva el nombre de la tarea: es la de la conversación o la del worktree.
+Cinco. Tres en el día a día. Ninguno lleva el nombre de la tarea: la tarea es el worktree.
 
 | Comando | Vos | Hace | git |
 |---|---|---|---|
 | `/mindstack:install` | una vez por proyecto | tablero `docs/plans/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
-| `/mindstack:draft "<qué querés>"` | respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Cuando decís "generá el plan": acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado, y la tarea queda en `1-pending` con un resumen de cinco líneas. Sin texto: retoma la tarea a borrador. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
-| `/mindstack:orchestrate` | te sentás a esperar | en el worktree: implement (ralph-loop, `qa` por tarea, consenso), review ×3, fix, pr, conflicts, CI verde. Termina con el link del PR. En `main` con el PR mergeado: finalize | todos los que las fases declaran |
+| `/mindstack:draft "<qué querés>"` | en el worktree: respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
+| `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | commit |
+| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (ralph-loop, `qa` por tarea, consenso), review ×3, fix, pr, conflicts, CI verde. Termina con el link del PR. En `main` con el PR mergeado: finalize | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
 
 Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee las mismas referencias en orden. Cero lógica en los comandos.

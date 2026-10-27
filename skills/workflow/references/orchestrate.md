@@ -6,29 +6,24 @@ Lo corre `/mindstack:orchestrate`. Es el único que ejecuta las fases implement,
 
 ```mermaid
 flowchart LR
-    subgraph main [checkout principal]
-        A["/draft → comentás → generá el plan\n(con vos, una tarea tras otra)"] --> P["1-pending: a, b, c"]
-    end
-    P --> Wa["claude -w a\n/orchestrate"] --> PRa[PR #1]
-    P --> Wb["claude -w b\n/orchestrate"] --> PRb[PR #2]
-    P --> Wc["claude -w c\n/orchestrate"] --> PRc[PR #3]
+    Wa["claude -w a\n/draft → /plan → /orchestrate"] --> PRa[PR #1]
+    Wb["claude -w b\n/draft → /plan → /orchestrate"] --> PRb[PR #2]
+    Wc["claude -w c\n/draft → /plan → /orchestrate"] --> PRc[PR #3]
     PRa & PRb & PRc --> T([probás en localhost])
     T -->|está| M([merge → fase finalize])
     T -->|falta algo| I["/draft qué falta, en el worktree
 → /orchestrate → mismo PR"] --> T
 ```
 
-Lo que necesita diálogo con vos (entender el pedido, pedir el plan) pasa en el checkout principal, de a una tarea. Lo que no (implementar, testear, revisar, corregir, abrir el PR) corre en paralelo, un worktree por tarea, un orquestador en cada uno. Desde `1-pending/` el orquestador no vuelve a preguntarte salvo consenso sin acuerdo o ronda 2 con críticas. Vos aparecés al final: probás, y mergeás o iterás.
+Cada tarea vive entera en su worktree: el borrador con vos (`/draft`, comentarios, "generá el plan"), y después el orquestador solo. Varias tareas son varios worktrees, cada uno con su sesión; lo que necesita diálogo lo hacés de a uno, lo demás corre en paralelo. Desde `1-pending/` el orquestador no vuelve a preguntarte salvo consenso sin acuerdo o ronda 2 con críticas. Vos aparecés al final: probás, y mergeás o iterás.
 
 ```mermaid
 flowchart TD
     IN[/orchestrate/] --> ST{¿dónde está\nla carpeta?}
     ST -- no existe --> FIN0(["parar: no hay tarea. /draft"])
-    ST -- 0-draft --> FIN1(["parar: falta generar el plan (/draft)"])
-    ST -- 1-pending --> WT{¿worktree?}
-    WT -- no --> EW{¿existe la herramienta\nEnterWorktree?}
-    EW -- sí --> IM
-    EW -- no --> FIN2(["parar: claude -w slug y /orchestrate"])
+    ST -- 0-draft --> FIN1(["parar: falta /plan"])
+    ST -- 1-pending --> WT{¿estoy en el worktree?}
+    WT -- no --> FIN2(["parar: abrí claude -w slug"])
     WT -- sí --> IM[implement.md]
     ST -- 2-in-progress --> IM
     IM -- BLOCKED o 3 fallos --> FIN3([parar: decir qué])
@@ -73,7 +68,7 @@ Lo que no es suyo: escribir SPEC y PLAN (eso es `/draft`), decidir un consenso s
 | Una tarea hija (`padre:` en el PLAN) corre igual; en `fase pr` detecta el PR del padre y lo actualiza en vez de abrir otro | iterar sobre un PR es el mismo flujo, no uno aparte |
 | Lee `references/<fase>.md` y hace exactamente eso. No tiene lógica propia | una sola fuente para el modo manual y el orquestado |
 | No planifica: arranca desde `1-pending/`. En `0-draft/` para y dice que falta el plan | el plan es el contrato; se escribe en la conversación de `/draft`, con la persona |
-| Implementar solo en worktree. Si la herramienta `EnterWorktree` existe, entra solo (el hook `WorktreeCreate` arma el entorno); si no, para y dice `claude -w <slug>` | el checkout principal no se toca |
+| Solo en el worktree de la tarea. Fuera de uno, para y dice `claude -w <slug>` | el checkout principal no se toca; la tarea es el worktree |
 | No espera a que la persona pruebe: imprime la URL del entorno y sigue a revisión | la autonomía es el punto. La persona prueba cuando quiere en `localhost`; lo que quiera cambiar lo pide en la sesión antes de `fase pr` o después como tarea nueva |
 | Máximo 2 rondas revisar↔corregir, máximo 3 rondas de CI | dos modelos discutiendo un `media` hasta que se acaba el presupuesto; tres CI rojos seguidos no son el código |
 | Nunca mergea, nunca pushea a `main` (finalize es un commit local en `main`; el push lo hace la persona) | el merge es el único punto donde una persona ve el cambio entero |
