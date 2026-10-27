@@ -19,7 +19,7 @@ flowchart TD
 
 | Vos decís | `tipo` | Lo distinto |
 |---|---|---|
-| "los pagos con timeout se cobran dos veces" | `fix` | antes de aprobar, `qa` reproduce (caso 01). Sin reproducción no hay tarea |
+| "los pagos con timeout se cobran dos veces" | `fix` | antes de pedir el plan, `qa` reproduce (caso 01). Sin reproducción no hay tarea |
 | "exportar facturas a PDF" | `feature` | el planificador carga `api-design` porque expone un endpoint; el contrato queda en el PLAN |
 | "el módulo de órdenes es ilegible, ordenalo" | `refactor` | el SPEC dice qué comportamiento queda igual; `qa` fija ese comportamiento con tests antes de que el dev toque nada; `simplification` guía al dev |
 | "pasar de sesiones en memoria a JWT" | `migration` | PLAN con vuelta atrás obligatoria; tarea "expandir" (los dos coexisten) y tarea "contraer" (se saca lo viejo) separadas; `auth-jwt-sessions` como pre-plan si aplica |
@@ -33,4 +33,4 @@ Una feature que necesita migrar una tabla: `tipo: migration` (el más riesgoso m
 
 ## Lo que no cambia
 
-Siempre: SPEC con casos borde y diagrama, PLAN congelado al aprobar, TODO como avance, CHANGELOG como memoria, código sin commitear hasta que tres revisores dijeron que está, PR abierto por el flujo, merge tuyo.
+Siempre: SPEC con casos borde y diagrama, PLAN congelado al quedar pendiente, TODO como avance, CHANGELOG como memoria, código sin commitear hasta que tres revisores dijeron que está, PR abierto por el flujo, merge tuyo.

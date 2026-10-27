@@ -59,7 +59,7 @@ Un PR en GitHub no se borra: se cierra. Lo que puede desaparecer es la rama. Qu�
 |---|---|---|---|
 | mergeado | en `main` | en `main`, en `docs/plans/4-done/<slug>/` después de `fase finalize` | `PR.md › url` y `CHANGELOG › Cierre`, siguen abriendo el PR cerrado |
 | cerrado sin merge, rama viva | en la rama | en la rama | ídem |
-| cerrado sin merge, rama borrada | perdido | **perdido, salvo lo que ya estaba en `main`**: SPEC y PLAN aprobados (el `/approve` fue un commit en `main`) | el PR cerrado sigue en GitHub con su diff |
+| cerrado sin merge, rama borrada | perdido | **perdido, salvo lo que ya estaba en `main`**: SPEC y PLAN (pasar a pendiente fue un commit en `main`) | el PR cerrado sigue en GitHub con su diff |
 
 Por eso `fase finalize` también cubre el PR cerrado sin merge: trae la carpeta de la tarea desde la rama a `main` antes de que alguien borre la rama. La memoria de la tarea (qué se decidió, qué se dejó, qué dijeron los revisores) vale aunque el código no haya entrado.
 

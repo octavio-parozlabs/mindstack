@@ -1,5 +1,5 @@
 ---
-description: En el worktree de una tarea aprobada, no para hasta dejar el PR abierto con CI verde: implementa con ralph-loop, qa después de cada tarea, consenso ante ambigüedades, tres revisores, corrector, PR, CI. En main con el PR mergeado, cierra la tarea (4-done). Hace y pushea todos los commits que las fases declaran. Nunca mergea.
+description: En el worktree de una tarea pendiente, no para hasta dejar el PR abierto con CI verde: implementa con ralph-loop, qa después de cada tarea, consenso ante ambigüedades, tres revisores, corrector, PR, CI. En main con el PR mergeado, cierra la tarea (4-done). Hace y pushea todos los commits que las fases declaran. Nunca mergea.
 disable-model-invocation: true
 ---
 

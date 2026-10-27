@@ -7,7 +7,7 @@ Lo corre `/mindstack:orchestrate`. Es el único que ejecuta las fases implement,
 ```mermaid
 flowchart LR
     subgraph main [checkout principal]
-        A["/draft → comentás → generá el plan → comentás → /approve\n(con vos, una tarea tras otra)"] --> P["1-pending: a, b, c"]
+        A["/draft → comentás → generá el plan\n(con vos, una tarea tras otra)"] --> P["1-pending: a, b, c"]
     end
     P --> Wa["claude -w a\n/orchestrate"] --> PRa[PR #1]
     P --> Wb["claude -w b\n/orchestrate"] --> PRb[PR #2]
@@ -18,13 +18,13 @@ flowchart LR
 → /orchestrate → mismo PR"] --> T
 ```
 
-Lo que necesita diálogo con vos (entender el pedido, aprobar) pasa en el checkout principal, de a una tarea. Lo que no (implementar, testear, revisar, corregir, abrir el PR) corre en paralelo, un worktree por tarea, un orquestador en cada uno. Desde `1-pending/` el orquestador no vuelve a preguntarte salvo consenso sin acuerdo o ronda 2 con críticas. Vos aparecés al final: probás, y mergeás o iterás.
+Lo que necesita diálogo con vos (entender el pedido, pedir el plan) pasa en el checkout principal, de a una tarea. Lo que no (implementar, testear, revisar, corregir, abrir el PR) corre en paralelo, un worktree por tarea, un orquestador en cada uno. Desde `1-pending/` el orquestador no vuelve a preguntarte salvo consenso sin acuerdo o ronda 2 con críticas. Vos aparecés al final: probás, y mergeás o iterás.
 
 ```mermaid
 flowchart TD
     IN[/orchestrate/] --> ST{¿dónde está\nla carpeta?}
     ST -- no existe --> FIN0(["parar: no hay tarea. /draft"])
-    ST -- 0-draft --> FIN1(["parar: falta /approve"])
+    ST -- 0-draft --> FIN1(["parar: falta generar el plan (/draft)"])
     ST -- 1-pending --> WT{¿worktree?}
     WT -- no --> EW{¿existe la herramienta\nEnterWorktree?}
     EW -- sí --> IM
@@ -63,7 +63,7 @@ Desde que la persona dice "hacelo" hasta que entrega, el orquestador es responsa
 | el entorno local levantado y la URL en el CHANGELOG | `env-up.sh` al terminar el loop | sin compose: el comando del stack |
 | todo lo que pasó, escrito | Cambios, Decisiones, Deuda, Revisión, Conflictos en el CHANGELOG | nunca |
 
-Lo que no es suyo: escribir o aprobar SPEC y PLAN (eso es `/draft` y `/approve`), decidir un consenso sin acuerdo, mergear. Eso es de la persona, y el orquestador para ahí y lo dice con el estado exacto. Finalizar sí es suyo: la persona lo corre en `main` después del merge y él cierra.
+Lo que no es suyo: escribir SPEC y PLAN (eso es `/draft`), decidir un consenso sin acuerdo, mergear. Eso es de la persona, y el orquestador para ahí y lo dice con el estado exacto. Finalizar sí es suyo: la persona lo corre en `main` después del merge y él cierra.
 
 ## Reglas
 
@@ -72,7 +72,7 @@ Lo que no es suyo: escribir o aprobar SPEC y PLAN (eso es `/draft` y `/approve`)
 | El estado es la carpeta. El orquestador detecta dónde está y sigue desde ahí; no asume | se puede cortar y retomar en otra sesión |
 | Una tarea hija (`padre:` en el PLAN) corre igual; en `fase pr` detecta el PR del padre y lo actualiza en vez de abrir otro | iterar sobre un PR es el mismo flujo, no uno aparte |
 | Lee `references/<fase>.md` y hace exactamente eso. No tiene lógica propia | una sola fuente para el modo manual y el orquestado |
-| No aprueba: arranca desde `1-pending/`. En `0-draft/` para y pide `/approve` | un plan aprobado sin lectura es un plan que nadie leyó; aprobar es un comando de la persona |
+| No planifica: arranca desde `1-pending/`. En `0-draft/` para y dice que falta el plan | el plan es el contrato; se escribe en la conversación de `/draft`, con la persona |
 | Implementar solo en worktree. Si la herramienta `EnterWorktree` existe, entra solo (el hook `WorktreeCreate` arma el entorno); si no, para y dice `claude -w <slug>` | el checkout principal no se toca |
 | No espera a que la persona pruebe: imprime la URL del entorno y sigue a revisión | la autonomía es el punto. La persona prueba cuando quiere en `localhost`; lo que quiera cambiar lo pide en la sesión antes de `fase pr` o después como tarea nueva |
 | Máximo 2 rondas revisar↔corregir, máximo 3 rondas de CI | dos modelos discutiendo un `media` hasta que se acaba el presupuesto; tres CI rojos seguidos no son el código |

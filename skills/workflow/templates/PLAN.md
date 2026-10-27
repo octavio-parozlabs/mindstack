@@ -12,7 +12,7 @@ padre:
 
 # <mismo título>
 
-<!-- Lo escribe la misma conversación de /mindstack:draft cuando la persona, leído el SPEC, pide el plan. Desde que /mindstack:approve lo mueve a 1-pending/ no se edita: ni tachar tareas ni corregir fechas. El avance se tacha en TODO.md; lo que pasó, en CHANGELOG.md. Las fechas de acá son las planificadas; las reales van en CHANGELOG.md › Cierre. -->
+<!-- Lo escribe la misma conversación de /mindstack:draft cuando la persona, leído el SPEC, pide el plan. Desde que queda en 1-pending/ no se edita: ni tachar tareas ni corregir fechas. El avance se tacha en TODO.md; lo que pasó, en CHANGELOG.md. Las fechas de acá son las planificadas; las reales van en CHANGELOG.md › Cierre. -->
 
 El estado de esta tarea es la carpeta donde está: `0-draft/` → `1-pending/` → `2-in-progress/` → `3-in-review/` → `4-done/`. Cambiar de estado es `git mv`.
 

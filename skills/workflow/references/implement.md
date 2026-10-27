@@ -41,7 +41,7 @@ ls docs/plans/1-pending/ 2>/dev/null || true
 
 Tres líneas: tu directorio, el checkout principal, las tareas pendientes. Si las dos primeras son iguales, no estás en un worktree.
 
-- Carpeta no está en `1-pending/`: pará. El estado es la carpeta y solo `/mindstack:approve` la pone ahí.
+- Carpeta no está en `1-pending/`: pará. El estado es la carpeta y solo el plan terminado la pone ahí.
 - No estás en worktree y `$CI` está vacío: pará. Este comando corre en una sesión abierta con `claude -w <slug>`.
 - `/ralph-loop` no existe: pará y decí que falta habilitar `ralph-wiggum`.
 

@@ -11,18 +11,16 @@ sequenceDiagram
     participant G as git / GitHub
 
     rect rgb(255, 245, 230)
-    Note over U,M: en el principal: entender y aprobar, una tarea tras otra
+    Note over U,M: en el principal: entender y pedir el plan, una tarea tras otra
     U->>M: /mindstack:draft "exportar facturas a PDF"
     M-->>U: SPEC facturas-pdf (commit por vuelta). Leelo
     U->>M: generá el plan
-    M-->>U: PLAN facturas-pdf. Leelo
-    U->>M: /mindstack:approve
+    M-->>U: PLAN facturas-pdf, a 1-pending. Resumen
     M->>G: 1-pending/facturas-pdf · commit
     U->>M: /mindstack:draft "los pagos con timeout se cobran dos veces"
     M-->>U: SPEC pagos-timeout con REPRO: integration
     U->>M: generá el plan
-    M-->>U: PLAN pagos-timeout
-    U->>M: /mindstack:approve
+    M-->>U: PLAN pagos-timeout, a 1-pending. Resumen
     M->>G: 1-pending/pagos-timeout · commit
     end
 
@@ -53,8 +51,7 @@ sequenceDiagram
     Wa->>Wa: analyze acotado → SPEC facturas-pdf-2 (padre: facturas-pdf)
     Wa-->>U: SPEC de la iteración. Leelo
     U->>Wa: generá el plan
-    Wa-->>U: PLAN de la iteración
-    U->>Wa: /mindstack:approve
+    Wa-->>U: PLAN de la iteración, a 1-pending. Resumen
     Wa->>G: 1-pending/facturas-pdf-2 · commit (en la rama)
     U->>Wa: /mindstack:orchestrate
     Wa->>Wa: implement → review ×3 → pr

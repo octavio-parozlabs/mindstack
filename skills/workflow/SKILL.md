@@ -1,7 +1,7 @@
 ---
 name: workflow
 description: >-
-  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en docs/plans/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan al aprobar; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, approve, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar docs/plans/.
+  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en docs/plans/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan cuando el plan está; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar docs/plans/.
 ---
 
 # Flujo: de la idea al merge
@@ -14,8 +14,8 @@ La persona pide, responde la entrevista, aprueba, prueba y mergea. Los roles hac
 
 ```
 docs/plans/
-├── 0-draft/          se está escribiendo: /draft, comentarios, "generá el plan", comentarios
-├── 1-pending/         aprobado, SPEC y PLAN congelados, esperando
+├── 0-draft/          se está escribiendo: /draft, comentarios, "generá el plan"
+├── 1-pending/         plan hecho, SPEC y PLAN congelados, esperando el worktree
 ├── 2-in-progress/ el loop corre en su worktree
 ├── 3-in-review/       tres revisores, corrector, PR abierto
 ├── 4-done/        mergeado
@@ -36,7 +36,7 @@ La carpeta donde está es su estado, y moverla es `git mv`. Se ve en `ls`, en Gi
 | Carpeta | Quién la mueve ahí | Comando |
 |---|---|---|
 | `0-draft/` | el analista la crea | `/mindstack:draft "qué quiero"` |
-| `1-pending/` | la persona aprueba | `/mindstack:approve` |
+| `1-pending/` | el planificador, al terminar el plan | "generá el plan" en la conversación de `/mindstack:draft` |
 | `2-in-progress/` | el orquestador, al arrancar el loop | `/mindstack:orchestrate` en el worktree |
 | `3-in-review/` | el orquestador, en la primera ronda de revisión | el mismo `/mindstack:orchestrate` |
 | `4-done/` | el orquestador en `main`, después del merge (o del cierre sin merge) | `/mindstack:orchestrate` en `main` |
@@ -50,8 +50,8 @@ La persona nunca escribe el slug. Los comandos lo deducen:
 | Dónde estás | La tarea es |
 |---|---|
 | en un worktree (`git branch --show-current` = `worktree-<slug>`) | esa. `/orchestrate`, `/rebase` y `/draft "qué falta"` (iteración) trabajan sobre ella |
-| en el checkout principal, conversación que arrancó con `/draft` | la que ese `/draft` creó: la **tarea activa**. Los comentarios sueltos la corrigen, "generá el plan" le genera el plan, `/approve` la aprueba |
-| en el checkout principal, sin tarea activa | si en `0-draft/` hay una sola, esa; si hay varias, se pregunta cuál. En `main` con PRs mergeados, `/orchestrate` pregunta cuál cerrar si hay más de una |
+| en el checkout principal, conversación que arrancó con `/draft` | la que ese `/draft` creó: la **tarea activa**. Los comentarios sueltos la corrigen, "generá el plan" le genera el plan y la deja pendiente, `/draft` sin texto la retoma a borrador |
+| en el checkout principal, sin tarea activa | `/draft` sin texto: si en `1-pending/` o `0-draft/` hay una sola, esa; si hay varias, se pregunta cuál. En `main` con PRs mergeados, `/orchestrate` pregunta cuál cerrar si hay más de una |
 
 El slug existe igual (es el nombre de la carpeta, la rama y el worktree; lo inventa el analista) y se puede escribir para desambiguar, pero no hace falta.
 
@@ -59,9 +59,9 @@ El slug existe igual (es el nombre de la carpeta, la rama y el worktree; lo inve
 
 | Archivo | Lo escribe | Cuándo cambia | Qué responde |
 |---|---|---|---|
-| `SPEC.md` | analista con la persona; en un fix, `qa` aporta la reproducción | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica | ¿qué se pidió y cómo sabemos que está? |
+| `SPEC.md` | analista con la persona; en un fix, `qa` aporta la reproducción | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica. Para cambiarlo, `/draft` sin texto lo vuelve a borrador | ¿qué se pidió y cómo sabemos que está? |
 | `PLAN.md` | planificador con la persona | solo en `0-draft/`. Después, **nunca** | ¿cómo se hace, en qué orden, con qué Done? |
-| `TODO.md` | `/approve` lo deriva; el dev tacha | en cada tarea terminada | ¿qué se hizo? |
+| `TODO.md` | el planificador lo deriva al pasar a pendiente; el dev tacha | en cada tarea terminada | ¿qué se hizo? |
 | `CHANGELOG.md` | todos los roles, cada uno su sección | en cada paso. Solo se agrega, nunca se reescribe | ¿qué pasó, qué se vio, qué se decidió y por qué, qué se dejó? |
 | `REVIEW-*.md` | un rol cada uno | se reescribe entero por ronda | ¿qué está mal? (solo eso) |
 
@@ -76,8 +76,8 @@ flowchart TD
     U0([persona: /draft qué quiero]) -->|entrevista, commit por vuelta| S0["0-draft: SPEC.md"]
     S0 -->|comentarios sueltos| S0
     S0 -->|persona: generá el plan| P0["+ PLAN.md, CHANGELOG.md"]
-    P0 -->|comentarios sueltos| P0
-    P0 -->|/approve: TODO.md, git mv| S1["1-pending<br/>SPEC + PLAN congelados"]
+    P0 -->|valida, TODO.md, git mv| S1["1-pending<br/>SPEC + PLAN congelados"]
+    S1 -->|/draft sin texto: reopen| S0
     S1 -->|claude -w slug, /orchestrate| S2["2-in-progress"]
     subgraph IMPL["loop: una tarea del TODO por vuelta"]
         D[dev implementa sin commit, Cambios, tacha] --> Q[qa: tests de la tarea]
@@ -104,7 +104,7 @@ tarea hija, mismo PR"] --> S0
     class U0,PRUEBA,HU,HU2,M persona
 ```
 
-Naranja es la persona: pide, aprueba, prueba, desempata, mergea. Todo lo demás lo hacen los roles. `/mindstack:orchestrate` recorre este grafo solo y para únicamente en aprobar, en un consenso sin acuerdo y en una ronda 2 con críticas; "probar" no lo frena. Los casos de uso con diagramas de secuencia están en `use-cases/` del plugin.
+Naranja es la persona: pide, pide el plan, prueba, desempata, mergea. Todo lo demás lo hacen los roles. `/mindstack:orchestrate` recorre este grafo solo y para únicamente en un consenso sin acuerdo y en una ronda 2 con críticas; "probar" no lo frena. Los casos de uso con diagramas de secuencia están en `use-cases/` del plugin.
 
 ## Roles
 
@@ -113,9 +113,9 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfi
 | Rol | Hace | No hace | Escribe |
 |---|---|---|---|
 | **analista** | entrevista, supuestos, casos borde con diagrama, SPEC. En consenso: busca evidencia en historial, código o principios | decidir cómo se implementa | `SPEC.md` |
-| **planificador** | acoplamiento, tajadas verticales, tareas con rol y verificación, fechas, Done | implementar, tachar | `PLAN.md`, `CHANGELOG.md` vacío |
+| **planificador** | acoplamiento, tajadas verticales, tareas con rol y verificación, fechas, Done; valida y deja la tarea pendiente | implementar, tachar, preguntar lo que un principio decide | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
 | **desarrollador** | una tarea por vuelta, sin commit, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md` |
-| **qa** | caja negra: entradas y salidas por la interfaz, sin leer la implementación. En un fix, reproduce el bug antes de aprobar; tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción, leer el cuerpo de las funciones | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| **qa** | caja negra: entradas y salidas por la interfaz, sin leer la implementación. En un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción, leer el cuerpo de las funciones | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | **code-reviewer** | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
 | **security-auditor** | zero trust: toda entrada es hostil hasta que se valida | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
 | **corrector** | cada hallazgo: corrige, o deuda con vencimiento, o rechaza con motivo | agregar hallazgos, tests | código, `CHANGELOG.md` |
@@ -131,7 +131,7 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 1. El prompt del rol dice qué no hace.
 2. `hooks/write-scope.sh` en cada agente: Edit/Write fuera de sus archivos → bloqueado.
 3. `hooks/plan-immutable.sh` global: Edit/Write/Bash sobre `SPEC.md` o `PLAN.md` fuera de `0-draft/` → bloqueado.
-4. `chmod a-w` local al aprobar: frena un `>` distraído.
+4. `chmod a-w` local al pasar a pendiente: frena un `>` distraído.
 5. `scripts/plans-immutable.sh` en el CI del proyecto: un PR que modifique SPEC o PLAN fuera de `0-draft/` no entra.
 6. Dos rondas de revisión como máximo; después, la persona.
 7. El código no se commitea hasta que la revisión pasa: lo commiteado es lo revisado.
@@ -144,7 +144,6 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 |---|---|---|
 | `references/analyze.md` | la entrevista, supuestos con confianza, casos borde, mapa de capacidades, qué va al SPEC | `/draft (analyze)` |
 | `references/plan.md` | acoplamiento, caracterizar, tajadas verticales, tareas con rol, Done, fechas, empates | `/draft (plan)` |
-| `references/approve.md` | verificaciones, TODO derivado, congelar, mover | `/approve` |
 | `references/implement.md` | precondiciones, el prompt del ralph-loop, reglas del loop, qué hacer al terminar | `fase implement` |
 | `references/consensus.md` | el protocolo `DECISION:` → tres analistas → persona | el dev encuentra una ambigüedad |
 | `references/review.md` | tres agentes en un turno, rondas, veredicto | `fase review` |
@@ -169,6 +168,7 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 | Un SPEC sin casos borde con diagrama | QA no sabe qué reproducir y testea el camino feliz. Lo que rompe en producción es siempre un borde |
 | Commitear el código por tarea, antes de la revisión | el historial muestra como terminado lo que nadie miró. El worktree aislado guarda el trabajo; el commit llega cuando tres revisores dijeron que está |
 | Parar a pedir permiso en cada `git mv` | el flujo no termina solo. Los comandos declaran sus commits y `/install` deja los permisos |
+| Pedir el plan sin haber leído el SPEC | el plan se congela con el SPEC: lo que el SPEC no dice, no se hace. Se vuelve con `/draft` sin texto, pero es una vuelta |
 | Editar el PLAN durante la ejecución | el Done cambia debajo del loop. "Está hecho" deja de significar algo |
 | El dev escribe sus tests | los tests prueban lo que el dev pensó. Lo que no pensó no tiene test, y es justo lo que rompe |
 | Un solo revisor para todo | mira todo por encima. Tres con un encargo cada uno encuentran lo suyo |

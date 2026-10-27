@@ -7,7 +7,7 @@ padre:
 
 # <mismo título>
 
-<!-- Lo escribe /mindstack:draft en diálogo con la persona, y se corrige con sus comentarios hasta que está de acuerdo y pide el plan. Vive en docs/plans/0-draft/<slug>/ hasta que /mindstack:approve lo congela: desde ahí no se edita (el hook lo bloquea). Lo que cambie después va a CHANGELOG.md › Decisiones, o es otra tarea. -->
+<!-- Lo escribe /mindstack:draft en diálogo con la persona, y se corrige con sus comentarios hasta que está de acuerdo y pide el plan. Vive en docs/plans/0-draft/<slug>/ hasta que el plan lo deja en 1-pending/: desde ahí no se edita (el hook lo bloquea; /mindstack:draft sin texto lo vuelve a borrador). Lo que cambie después va a CHANGELOG.md › Decisiones, o es otra tarea. -->
 
 ## Pedido original
 
@@ -100,4 +100,4 @@ Lo que tiene que ser cierto cuando está hecho. Cada línea verificable por un c
 
 ## Preguntas abiertas
 
-Lo que no se pudo cerrar en la entrevista. Si queda alguna al aprobar, el plan la hereda como riesgo.
+Lo que no se pudo cerrar en la entrevista. Si queda alguna al pedir el plan, el plan la hereda como riesgo.

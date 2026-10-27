@@ -10,13 +10,13 @@ Con agentes trabajando en paralelo, la rama es la unidad de aislamiento y el com
 | Nadie crea ramas por iniciativa propia | un agente trabaja en la rama que le dieron | una rama inesperada es trabajo que nadie va a encontrar |
 | Borradores: un commit por ronda | `spec(<slug>): ronda n`, `plan(<slug>): ronda n`, en `0-draft/` | el historial del borrador es el historial de cómo se entendió el pedido; se retoma en otra sesión |
 | Código: **un solo commit, después de la revisión** | durante `fase implement` y `fase fix` nada se commitea; el worktree aislado guarda el trabajo. `fase pr` hace `feat\|fix(<slug>): <título>` con código, tests, TODO y CHANGELOG | lo commiteado parece terminado; solo lo que tres revisores miraron lo está |
-| Los movimientos de estado son commits propios | `plan(<slug>): approve` · `implementar` · `a revisión` · `PR` · `finalizar` | el historial de la carpeta es el historial de la tarea, con fecha y autor |
+| Los movimientos de estado son commits propios | `plan(<slug>): pending` · `reopen` · `implement` · `in review` · `PR` · `finalize` | el historial de la carpeta es el historial de la tarea, con fecha y autor |
 | Nada de `--force` | `--force-with-lease` solo el resolutor, después de un rebase, sobre la rama de la tarea | `--force` pisa lo que otro pusheó mientras tanto |
 | Ningún agente mergea ni pushea a `main` | merge: persona. `main` protegida | es el único punto donde alguien ve el cambio entero |
 | Rebase, no merge, para ponerse al día | el PR queda lineal; los conflictos se resuelven commit por commit | un merge commit esconde cómo se resolvió cada conflicto |
 | Los comandos commitean lo que declaran, sin preguntar | cada `description` dice qué commitea; invocar el comando es pedirlo. Fuera de un comando, Claude muestra `git status` y propone el mensaje | un flujo que para a pedir permiso en cada `git mv` no termina nunca |
 
-Prefijos de commit: `spec(<slug>): ronda n` y `plan(<slug>): ronda n` en borrador · `plan(<slug>): approve | implement | in review | PR | finalize` movimientos de estado · `review(<slug>): round n` solo con los `REVIEW-*.md` · `feat|fix(<slug>): <título>` el único commit de código, en `fase pr`.
+Prefijos de commit: `spec(<slug>): ronda n` y `plan(<slug>): ronda n` en borrador · `plan(<slug>): pending | reopen | implement | in review | PR | finalize` movimientos de estado · `review(<slug>): round n` solo con los `REVIEW-*.md` · `feat|fix(<slug>): <título>` el único commit de código, en `fase pr`.
 
 ## `.gitignore`
 

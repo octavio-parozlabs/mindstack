@@ -54,14 +54,14 @@ classDiagram
     Tarea "1" *-- "3" REVIEW
     Tarea "1" *-- "0..1" PR
     PLAN ..> SPEC : implementa
-    TODO ..> PLAN : derivado al aprobar
+    TODO ..> PLAN : derivado al pasar a pendiente
 ```
 
 ```mermaid
 classDiagram
     class Persona {
         pide, responde la entrevista
-        aprueba SPEC y PLAN
+        pide el plan cuando el SPEC está
         prueba la feature
         decide cuando no hay consenso
         mergea
@@ -155,7 +155,7 @@ El loop no es solo de implementación. Cada fase itera hasta su condición de sa
 
 Todos los agentes tienen la herramienta `Skill`: pueden cargar cualquier skill instalada en la máquina, de este plugin o de otro (`ponytail`, `caveman`, la que sea). Mindstack no limita el catálogo; el `CLAUDE.md` del proyecto dice cuáles aplican y cada agente carga además las que su trabajo pide. Lo único cerrado es qué archivos escribe cada rol.
 
-Cada rol tiene un permiso que le impide hacer el trabajo de otro: QA no toca producción; los revisores no tienen Edit; el corrector no agrega hallazgos; el dev no escribe tests ni reviews; nadie edita SPEC ni PLAN después de aprobados; ningún agente mergea. No es desconfianza: es lo que hace que un fallo quede en un solo lugar y que el changelog diga quién vio qué.
+Cada rol tiene un permiso que le impide hacer el trabajo de otro: QA no toca producción; los revisores no tienen Edit; el corrector no agrega hallazgos; el dev no escribe tests ni reviews; nadie edita SPEC ni PLAN desde que la tarea está pendiente; ningún agente mergea. No es desconfianza: es lo que hace que un fallo quede en un solo lugar y que el changelog diga quién vio qué.
 
 | Rol | Dónde corre | Modelo | Escribe |
 |---|---|---|---|

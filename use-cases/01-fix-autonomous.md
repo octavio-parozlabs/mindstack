@@ -1,6 +1,6 @@
 # 01 · Un bug, de punta a punta, autónomo
 
-Pedís que se arregle algo con `/draft`, leés el SPEC, decís "generá el plan", lo leés, aprobás, y no intervenís hasta que hay un PR con CI verde. Tres comandos tuyos, una frase, y el merge.
+Pedís que se arregle algo con `/draft`, leés el SPEC, decís "generá el plan", y no intervenís hasta que hay un PR con CI verde. Dos comandos tuyos, una frase, y el merge.
 
 ```mermaid
 sequenceDiagram
@@ -35,14 +35,11 @@ sequenceDiagram
     Note over C: tarea activa con SPEC y sin PLAN → fase plan
     C->>C: acoplamiento, causa raíz confirmada en pagos.service:42, tipo: fix, tareas con rol, fechas, Done = CI
     C->>G: commit plan(pagos-timeout): ronda 1
-    C-->>U: PLAN listo. Leelo y después /mindstack:approve
-    U->>U: lee el PLAN
     end
 
-    U->>C: /mindstack:approve
-    C->>C: TODO.md, chmod a-w SPEC PLAN
-    C->>G: git mv → 1-pending · commit plan(pagos-timeout): approve
-    C-->>U: aprobada. claude -w pagos-timeout y /mindstack:orchestrate ahí
+    C->>C: valida · TODO.md · chmod a-w SPEC PLAN
+    C->>G: git mv → 1-pending · commit plan(pagos-timeout): pending
+    C-->>U: resumen: fix, 2 tareas, 2026-11-03 → 11-04, Done = CI, sin fuera de alcance nuevo. claude -w pagos-timeout y /mindstack:orchestrate ahí
 
     U->>C: claude -w pagos-timeout · /mindstack:orchestrate
     Note over C: worktree pagos-timeout, 1-pending → implement.md
@@ -118,7 +115,7 @@ sequenceDiagram
 
 | Parada | Por qué no se puede saltear |
 |---|---|
-| aprobar (`/approve`, tuyo) | es el contrato. Lo que no está en SPEC/PLAN no se hace; lo que está, se congela. El orquestador no arranca sin eso |
+| pedir el plan ("generá el plan", tuyo) | es el contrato. Lo que no está en el SPEC no se hace; con el plan hecho, los dos se congelan. El orquestador no arranca sin eso |
 | consenso sin acuerdo (caso 03) | tres analistas no coincidieron: la decisión es tuya |
 | ronda 2 con crítica o alta | dos rondas que no cierran son un desacuerdo, no un bug |
 | `BLOCKED:` o tres fallos en la misma tarea | algo externo o una ambigüedad que el consenso no resolvió |

@@ -1,10 +1,10 @@
 # Planificar: del SPEC al PLAN
 
-Lo corre la misma conversación de `/mindstack:draft`, cuando la persona leyó el SPEC y pidió el plan en palabras. Requiere `docs/plans/0-draft/<slug>/SPEC.md` de la tarea activa; si no está, pará y decí que primero va `/mindstack:draft`. Pedir el plan es decir que el SPEC está: si al leerlo ves algo que no cierra, decilo antes de planificar. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
+Lo corre la misma conversación de `/mindstack:draft`, cuando la persona leyó el SPEC y pidió el plan en palabras. Requiere `docs/plans/0-draft/<slug>/SPEC.md` de la tarea activa; si no está, pará y decí que primero va `/mindstack:draft`. Pedir el plan es decir que el SPEC está: si al leerlo ves algo que no cierra, decilo antes de planificar. **Termina con la tarea en `1-pending/`**: el plan es la checklist del orquestador, no un documento que la persona aprueba; lo que sí lee es el resumen final. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
 
 ```mermaid
 flowchart TD
-    S[SPEC.md aprobado] --> R[leer el repo:\nacoplamiento de cada módulo que se toca]
+    S[SPEC.md: la persona pidió el plan] --> R[leer el repo:\nacoplamiento de cada módulo que se toca]
     R --> C{¿riesgo alto\nsin test?}
     C -- sí --> T1[tarea 1 = caracterizar, rol: qa]
     C -- no --> V
@@ -16,8 +16,11 @@ flowchart TD
     E -- sí --> P[PRINCIPLES.md decide → Decisiones del CHANGELOG]
     E -- no --> W
     P --> W[escribir PLAN.md + CHANGELOG.md vacío]
-    W --> H([persona corrige en diálogo])
-    H --> OK["queda en 0-draft. Siguiente: /mindstack:approve"]
+    W --> H{¿empate sin principio\no pregunta abierta?}
+    H -- sí --> Q([preguntar a la persona]) --> W
+    H -- no --> V[validar: tipo, estado final, roles, Done, fechas, REPRO si es fix]
+    V --> T[TODO.md · chmod a-w · git mv → 1-pending · commit]
+    T --> OK(["resumen de 5 líneas. Siguiente: claude -w slug y /orchestrate"])
 ```
 
 ## Pasos
@@ -48,12 +51,19 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
 8b. **Pre-planes.** Si una skill del plugin trae un `PLAN.md` de referencia para el tema (ej. `mindstack:auth-jwt-sessions`), partí de él: copiá sus tareas y decisiones al plan, completá los `TODO` con el repo, y lo que el proyecto decida distinto va a Decisiones con la alternativa. Es orientativo: si no aplica, decilo y armá el plan desde la plantilla.
 9. **Empates.** Dos formas de partir las tareas, dos lugares para un módulo: decide `${CLAUDE_PLUGIN_ROOT}/references/PRINCIPLES.md`, y la elección va a Decisiones del `CHANGELOG.md` con el principio. Sin principio que la respalde, es gusto: preguntá.
 10. **CHANGELOG.md**: título y secciones vacías desde `../templates/CHANGELOG.md`. Lo que viste al leer el repo y no es de esta tarea va a Observaciones, quién `planner`.
-11. **Diálogo.** Mostrá el plan, preguntá, corregí, hasta que la persona diga que está. Las correcciones se hacen acá, porque después del `/mindstack:approve` el archivo no se toca.
-12. **Commit por ronda.** Cada vuelta que cambia `PLAN.md` o `CHANGELOG.md` termina en `plan(<slug>): ronda n`. Una vuelta es: la persona dice algo, el archivo cambia, commit. Borrador commiteado es borrador recuperable.
-13. **Terminá esperando.** El plan escrito no se aprueba solo: decí que lo lea y que, cuando esté, corra `/mindstack:approve`. Si quiere cambiar algo del SPEC a esta altura, se cambia (sigue en `0-draft/`), se revisa que el plan siga coherente, commit.
+11. **Preguntas, solo las necesarias.** Un empate sin principio o una pregunta abierta del SPEC que cambie el plan se pregunta ahora; todo lo demás se decide y queda en Decisiones. No se pide "¿está bien el plan?": el plan es técnico.
+12. **Commit.** `plan(<slug>): ronda n` con PLAN.md y CHANGELOG.md.
+13. **A pendiente, en el mismo turno.** Validá y mové:
+    - `tipo:` es uno de la tabla; cada línea de "Estado final" es verificable; cada tarea tiene `rol:` y verificación; Done es un bloque bash no vacío que cubre lo que corre CI; `fecha_inicio` y `fecha_fin` están.
+    - Si el SPEC tiene "Diagnóstico": Reproducción no está vacía ni es `NO`, "Causa raíz: confirmada", tarea 1 con rol `qa`. Sin eso, un fix no pasa a pendiente.
+    - Preguntas abiertas del SPEC que quedaron: a "Riesgos y vuelta atrás" del PLAN.
+    - `TODO.md` desde `../templates/TODO.md`: una línea por tarea, mismo número, rol y verificación, sin tachar.
+    - `chmod a-w SPEC.md PLAN.md` (cosmético; la red real es el hook y CI).
+    - `git mv docs/plans/0-draft/<slug> docs/plans/1-pending/<slug>`; commit propio `plan(<slug>): pending`.
+14. **Resumen de cinco líneas**, lo único que la persona lee: tipo y skills; N tareas y fechas; Done; qué agregaste a "Fuera de alcance" que no estaba en el SPEC; riesgos. Y el siguiente paso: `claude -w <slug>` y `/mindstack:orchestrate` ahí. Si quiere cambiar algo: `/mindstack:draft` sin texto la vuelve a borrador.
 
 ## Qué no
 
 - Tachar nada, poner `pr:` ni `entorno:` en el PLAN. Eso lo hacía el flujo viejo y rompía la inmutabilidad; ahora el avance va a `TODO.md` y lo demás a `CHANGELOG.md`.
-- Mover a `1-pending/`. Lo hace `/mindstack:approve`, cuando la persona lo pide.
+- Dejar la tarea en `0-draft/` con el plan escrito. Plan hecho es tarea pendiente; si no se pudo validar, se dice qué falta.
 - Un plan sin Done ejecutable. "Que funcione" no es Done.

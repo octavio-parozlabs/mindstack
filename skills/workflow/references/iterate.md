@@ -6,7 +6,7 @@ Probaste el PR en `localhost` y querés cambios. No se edita el SPEC ni el PLAN 
 flowchart LR
     P["tarea <slug>\n3-in-review · PR #87"] -->|probás, falta algo| I["/draft: el PDF sale sin logo, en el worktree"]
     I --> A["0-draft/<slug>-2\nSPEC.md (padre: slug), PLAN.md"]
-    A -->|/approve| B["1-pending/<slug>-2"]
+    A -->|generá el plan| B["1-pending/<slug>-2"]
     B -->|/orchestrate en el mismo worktree| C["implement → review → fix"]
     C -->|"fase pr: ya hay PR en la rama → push + comentario"| P2["PR #87, actualizado"]
     P2 -->|probás| D{¿está?}
@@ -22,7 +22,7 @@ La tarea es la del worktree (la rama ya existe y tiene el PR).
 2. Slug hijo: `<slug>-2`, `<slug>-3`, … (el siguiente libre).
 3. `analyze.md` con el pedido, acotado, y **pará con el SPEC escrito** como siempre: la persona lo lee, comenta, y pide el plan en palabras. Detalle del alcance: el "Cómo funciona hoy" es el estado del PR, no de `main`; el alcance es lo que falta, no la tarea entera; los casos borde son los nuevos. `padre: <slug>` en el frontmatter del SPEC y del PLAN; `rama:` la misma que el padre.
 4. `plan.md` igual que siempre. El Done es el mismo del padre más lo nuevo.
-5. `approve.md`: `git mv` a `1-pending/<slug>-2`, commit. Se hace en la rama de la tarea, no en `main`: la hija vive y muere con el PR.
+5. `plan.md` termina con `git mv` a `1-pending/<slug>-2`, commit. Se hace en la rama de la tarea, no en `main`: la hija vive y muere con el PR.
 6. La persona corre `/mindstack:orchestrate` en el mismo worktree; la tarea activa pasa a ser la hija (la de `1-pending/` con `padre:` igual a la del worktree).
 7. `pr.md` detecta que la rama ya tiene un PR abierto: commit único del código de la iteración (`feat|fix(<slug>-2): <título>`), push, y `gh pr comment` con el resumen de la iteración (qué cambió, rondas de revisión, deuda). No abre otro PR. Escribe `pr:` y `url:` del padre en el `PR.md` de la hija.
 8. Probás de nuevo. Si falta algo, otra iteración. Si está, mergeás y `fase finalize <slug>` mueve padre e hijas a `4-done/` juntas.

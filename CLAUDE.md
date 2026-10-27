@@ -5,7 +5,7 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 ## Estructura
 
 - `skills/workflow/` es el núcleo: `SKILL.md` (estados, artefactos, roles), `references/<fase>.md` (qué hace cada comando), `templates/` (SPEC, PLAN, TODO, CHANGELOG, REVIEW, PR, CLAUDE, gitignore).
-- `commands/`: cinco (`install`, `draft`, `approve`, `orchestrate`, `rebase`), sin lógica propia: apuntan a `references/<fase>.md`. Las fases implement, review, fix, pr, conflicts, finalize e iterate no son comandos: las corre el orquestador leyendo esas referencias. Si una fase necesita algo nuevo, va a la reference.
+- `commands/`: cuatro (`install`, `draft`, `orchestrate`, `rebase`), sin lógica propia: apuntan a `references/<fase>.md`. Las fases implement, review, fix, pr, conflicts, finalize e iterate no son comandos: las corre el orquestador leyendo esas referencias. Si una fase necesita algo nuevo, va a la reference.
 - `agents/*.md`: un rol cada uno, con `hooks:` que limita qué escribe (`hooks/write-scope.sh`). Cambiar qué escribe un rol es cambiar su regex ahí y su caso en `hooks/test.sh`.
 - `hooks/`: `plan-immutable.sh` (global), `write-scope.sh` (por agente), `session-start.sh`, `worktree-create.sh`, `test.sh`.
 - `skills/{tdd,debugging,code-review,security,git,simplification,performance,api-design,migration,observability,documentation,ci-cd}`: prácticas agnósticas; el PLAN de cada tarea dice cuáles carga el developer (`tipo:`, `skills:`). `skills/{typescript,react,node-api,nestjs,architecture,web-security,docker-ci,auth-jwt-sessions}`: stack.

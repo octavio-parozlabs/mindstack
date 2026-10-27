@@ -1,11 +1,11 @@
 # mindstack
 
-Forma de trabajo por tareas para Claude Code. Una tarea es una carpeta con estado; lo que se pidió y cómo se hace se congela al aprobar; cada rol escribe solo lo suyo; lo que pasa queda escrito con fecha, quién y por qué. La idea: sacar código rápido con suficientes redes de contención para que no se desmadre.
+Forma de trabajo por tareas para Claude Code. Una tarea es una carpeta con estado; lo que se pidió y cómo se hace se congela cuando el plan está; cada rol escribe solo lo suyo; lo que pasa queda escrito con fecha, quién y por qué. La idea: sacar código rápido con suficientes redes de contención para que no se desmadre.
 
 ```mermaid
 flowchart LR
-    A([persona pide]) --> S[analista: SPEC] --> P[planificador: PLAN] --> OK([persona aprueba])
-    OK --> D[dev: una tarea por vuelta] --> Q[qa: tests] --> D
+    A([persona pide]) --> S[analista: SPEC] --> OK([persona: generá el plan]) --> P[planificador: PLAN, a pendiente]
+    P --> D[dev: una tarea por vuelta] --> Q[qa: tests] --> D
     D --> PR([persona prueba]) --> R[qa + revisor + auditor] --> C[corrector] --> R
     R --> G[PR] --> M([persona mergea]) --> F[finalizar]
     classDef persona fill:#fc9,color:#000
@@ -27,7 +27,7 @@ O desde el clon local: `/plugin marketplace add /ruta/al/clon`. Para implementar
 
 En cada proyecto: `/mindstack:install`. Crea el tablero `docs/plans/`, el bloque de `CLAUDE.md`, el `.gitignore`, y te dice qué falta.
 
-En tu `~/.claude/CLAUDE.md`, si tenés una regla que prohíbe commits sin pedido explícito, agregá: *"Invocar `/mindstack:approve`, `implementar`, `revisar`, `corregir`, `pr`, `conflictos`, `finalizar` u `orquestar` es el pedido explícito de los commits y push que su descripción declara."*
+En tu `~/.claude/CLAUDE.md`, si tenés una regla que prohíbe commits sin pedido explícito, agregá: *"Invocar `/mindstack:draft`, `orchestrate` o `rebase` es el pedido explícito de los commits y push que su descripción declara."*
 
 ## Casos de uso
 
@@ -38,7 +38,7 @@ Diagramas de secuencia con vos como actor, de "arreglame esto" al PR: [`use-case
 ```
 docs/plans/
 ├── 0-draft/           /draft → comentás → "generá el plan" → comentás
-├── 1-pending/          /approve → SPEC y PLAN congelados
+├── 1-pending/          plan hecho → SPEC y PLAN congelados (/draft sin texto los reabre)
 ├── 2-in-progress/  fase implement, en worktree
 ├── 3-in-review/        fase review ↔ fase fix, fase pr
 ├── 4-done/         fase finalize, después del merge
@@ -62,13 +62,12 @@ docs/plans/
 
 ## Comandos
 
-Cinco. Tres en el día a día. Ninguno lleva el nombre de la tarea: es la de la conversación o la del worktree.
+Cuatro. Dos en el día a día. Ninguno lleva el nombre de la tarea: es la de la conversación o la del worktree.
 
 | Comando | Vos | Hace | git |
 |---|---|---|---|
 | `/mindstack:install` | una vez por proyecto | tablero `docs/plans/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
-| `/mindstack:draft "<qué querés>"` | respondés la entrevista, leés, comentás, pedís el plan en palabras, leés, comentás | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Cuando decís "generá el plan": acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`. Tus comentarios corrigen lo que haga falta. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
-| `/mindstack:approve` | el ok | congela SPEC y PLAN, deriva `TODO.md`, mueve a `1-pending` | commit |
+| `/mindstack:draft "<qué querés>"` | respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Cuando decís "generá el plan": acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado, y la tarea queda en `1-pending` con un resumen de cinco líneas. Sin texto: retoma la tarea a borrador. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
 | `/mindstack:orchestrate` | te sentás a esperar | en el worktree: implement (ralph-loop, `qa` por tarea, consenso), review ×3, fix, pr, conflicts, CI verde. Termina con el link del PR. En `main` con el PR mergeado: finalize | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
 
@@ -80,7 +79,7 @@ Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee
 |---|---|---|---|
 | `analyst` | opus | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
 | `developer` | opus | una tarea del TODO, sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
-| `qa` | sonnet | en un fix, reproduce el bug antes de aprobar; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| `qa` | sonnet | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | `code-reviewer` | opus | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |
 | `security-auditor` | opus | zero trust | `REVIEW-security.md` |
 | `fixer` | opus | cierra cada hallazgo | código, `CHANGELOG.md` |
@@ -104,7 +103,7 @@ Los principios que desempatan cuando dos reglas chocan están en `references/PRI
 
 ```
 0-draft        spec(slug): ronda n · plan(slug): ronda n      cada vuelta, commit
-estados        plan(slug): approve | implement | in review | PR | finalize
+estados        plan(slug): pending | reopen | implement | in review | PR | finalize
 implementar    nada: el código vive en el working tree del worktree
 revisar        review(slug): round n                           solo los REVIEW-*.md
 fix            nada
@@ -118,7 +117,7 @@ Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR si
 1. El prompt de cada rol dice qué no hace.
 2. `hooks/write-scope.sh` por agente: fuera de sus archivos, bloqueado.
 3. `hooks/plan-immutable.sh` global: `SPEC.md` y `PLAN.md` fuera de `0-draft/`, bloqueado.
-4. `chmod a-w` local al aprobar.
+4. `chmod a-w` local al pasar a pendiente.
 5. `scripts/plans-immutable.sh` en el CI del proyecto.
 6. Dos rondas de revisión como máximo; después, la persona.
 7. Nadie mergea.
