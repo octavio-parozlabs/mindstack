@@ -1,6 +1,6 @@
 # Conflictos: poner la rama al día
 
-Lo corre `/mindstack:conflicts <slug|#pr>`. Lanza al agente `conflict-resolver`. Termina con la rama rebaseada sobre `main`, la suite verde, push con `--force-with-lease` y la sección Conflictos del CHANGELOG escrita.
+Lo corre `/mindstack:rebase`. Lanza al agente `conflict-resolver`. Termina con la rama rebaseada sobre `main`, la suite verde, push con `--force-with-lease` y la sección Conflictos del CHANGELOG escrita.
 
 ```mermaid
 flowchart TD

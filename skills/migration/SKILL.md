@@ -153,7 +153,7 @@ Respuesta: o se le asigna dueño y se mantiene, o se depreca con plan de migraci
 
 ## En el flujo mindstack
 
-- El planificador la carga en `/mindstack:plan` cuando el `PLAN.md` tiene `tipo: migration`. En ese plan la sección "Riesgos y vuelta atrás" es obligatoria: por cada paso, qué se revierte, cómo y qué queda irreversible.
+- El planificador la carga en `/mindstack:draft` cuando el `PLAN.md` tiene `tipo: migration`. En ese plan la sección "Riesgos y vuelta atrás" es obligatoria: por cada paso, qué se revierte, cómo y qué queda irreversible.
 - Cada tarea del TODO deja el sistema funcionando con el código viejo y el nuevo conviviendo. Expandir y contraer son siempre tareas separadas, nunca la misma; contraer va después de que una tarea demostró uso cero de lo viejo.
 - `qa` caracteriza el comportamiento actual antes de la primera tarea, con el mecanismo "caracterizar antes de tocar" de `mindstack:workflow` (`plan.md`). Esa suite es el Done de cada paso intermedio: lo migrado se comporta igual que lo que reemplaza.
 - `developer` la carga en esas tareas; el camino de vuelta se escribe y se corre en la misma tarea que el camino de ida.

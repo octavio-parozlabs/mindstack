@@ -129,13 +129,14 @@ Los roles no se llaman entre sí: los invoca la sesión principal (un comando o 
 
 | Quién invoca | A quién | Cuándo | Con qué |
 |---|---|---|---|
-| `/analyze` | `qa` (`reproducir`) | la tarea es un fix | síntoma + punto de entrada; sin la causa |
-| `/implement` (ralph-loop) | `qa` (`testear`) | después de cada tarea del TODO | slug + número de tarea |
-| `/implement` (ralph-loop) | `analyst` ×3 | el dev devolvió `DECISION:` | la pregunta, las opciones, un ángulo cada uno |
-| `/review` | `qa` (`verificar`), `code-reviewer`, `security-auditor` | TODO completo y Done verde | slug, ronda, base `main` (working tree sin commitear); los tres en un turno |
-| `/fix` | `fixer`, después `qa` (`testear`) | hay `REVIEW-*.md` con hallazgos | slug, ronda |
-| `/conflicts` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
-| `/orchestrate` | todos los anteriores, en ese orden | la persona delega el flujo | lee `references/<fase>.md` |
+| `/draft (analyze)` | `qa` (`reproducir`) | la tarea es un fix | síntoma + punto de entrada; sin la causa |
+| `fase implement` (ralph-loop) | `qa` (`testear`) | después de cada tarea del TODO | slug + número de tarea |
+| `fase implement` (ralph-loop) | `analyst` ×3 | el dev devolvió `DECISION:` | la pregunta, las opciones, un ángulo cada uno |
+| `fase review` | `qa` (`verificar`), `code-reviewer`, `security-auditor` | TODO completo y Done verde | slug, ronda, base `main` (working tree sin commitear); los tres en un turno |
+| `fase fix` | `fixer`, después `qa` (`testear`) | hay `REVIEW-*.md` con hallazgos | slug, ronda |
+| `fase conflicts` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
+| `/orchestrate` | todos los anteriores, en ese orden | la persona delega el flujo, normalmente desde `1-pending` en un worktree | lee `references/<fase>.md` |
+| `/draft "qué falta" (en el worktree)` | `qa` (`reproducir`) si lo que falta es un bug | probaste el PR y falta algo | crea la tarea hija; después `/orchestrate` en el mismo worktree |
 
 ## Iteración por fase
 

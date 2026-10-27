@@ -1,6 +1,6 @@
 # Implementar: el loop
 
-Lo corre `/mindstack:implement <slug>` en un worktree. Requiere la carpeta en `docs/plans/1-pending/<slug>/` y el plugin `ralph-wiggum` habilitado (`/ralph-loop`). Termina con todas las tareas tachadas en `TODO.md`, Done verde y la carpeta en `2-in-progress/`. **No abre el PR.**
+Lo corre el orquestador (fase implement) en un worktree. Requiere la carpeta en `docs/plans/1-pending/<slug>/` y el plugin `ralph-wiggum` habilitado (`/ralph-loop`). Termina con todas las tareas tachadas en `TODO.md`, Done verde y la carpeta en `2-in-progress/`. **No abre el PR.**
 
 ```mermaid
 sequenceDiagram
@@ -8,7 +8,7 @@ sequenceDiagram
     participant D as dev (sesión principal, ralph-loop)
     participant Q as qa (subagente)
     participant A as analyst ×3 (subagentes)
-    P->>D: /mindstack:implement reintento-pagos
+    P->>D: /mindstack:orchestrate (worktree reintento-pagos)
     D->>D: git mv a 2-in-progress, commit
     loop una tarea de TODO.md por iteración
         D->>D: lee SPEC, PLAN, TODO, CHANGELOG
@@ -28,7 +28,7 @@ sequenceDiagram
         end
     end
     D->>D: corre Done entero
-    D-->>P: "Done verde. Probá y después /mindstack:review <slug>"
+    D-->>P: Done verde, entorno en localhost, sigo a revisión
 ```
 
 ## Dónde estás
@@ -67,13 +67,13 @@ Reglas dentro del loop:
 | No modificar un test existente para que pase. Si estaba mal: Decisiones | un test que se ajusta al código no prueba nada |
 | No bajar umbral de cobertura ni desactivar lint | el Done cambia debajo del loop |
 | Sin refactors grandes. Lo que molesta y no es de la tarea va a Observaciones o Deuda | un refactor es otra tarea con su SPEC |
-| **Nada se commitea durante el loop.** Código, `TODO.md` y `CHANGELOG.md` quedan en el working tree del worktree hasta que la revisión pasa; el commit lo hace `/mindstack:pr` | lo que está commiteado parece terminado. Un commit por tarea a medio revisar es un historial de estados que nadie validó; el worktree aislado es la red mientras tanto |
+| **Nada se commitea durante el loop.** Código, `TODO.md` y `CHANGELOG.md` quedan en el working tree del worktree hasta que la revisión pasa; el commit lo hace el orquestador (fase pr) | lo que está commiteado parece terminado. Un commit por tarea a medio revisar es un historial de estados que nadie validó; el worktree aislado es la red mientras tanto |
 | La misma tarea falla tres iteraciones seguidas: parar y decir por qué, no insistir | tres fallos es una ambigüedad o un bloqueo, no mala suerte |
 
 ## Al terminar
 
 - Done pasó entero: dejalo en la salida con comando y resultado.
 - Si hay compose y `$CI` vacío: `env-up.sh <slug>` levanta api y web de la rama en `localhost`, en los puertos de la tarea. Fila en `CHANGELOG › Cambios`: "entorno levantado: `http://localhost:52xx`". Sin compose: el comando del stack para levantar y la URL, en la misma fila. Es local; no se publica en ningún lado (`skills/workflow/references/environment.md`).
-- La carpeta se queda en `2-in-progress/`. Terminá diciendo: Done verde, la URL donde probar, y que la revisión arranca con `/mindstack:review <slug>` cuando la persona probó.
+- La carpeta se queda en `2-in-progress/`. Terminá diciendo: Done verde, la URL donde probar, y que la revisión arranca con el orquestador (fase review) cuando la persona probó.
 
 Lo que la persona pida después en la sesión ("el botón dice Guardar, no Enviar") se hace acá con las mismas reglas: sin commit, fila en Cambios, tests al agente `qa`.

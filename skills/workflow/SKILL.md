@@ -1,7 +1,7 @@
 ---
 name: workflow
 description: >-
-  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en docs/plans/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan al aprobar; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr cualquier comando /mindstack:*, al escribir un agente o un hook del plugin, o al tocar docs/plans/.
+  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en docs/plans/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan al aprobar; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, approve, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar docs/plans/.
 ---
 
 # Flujo: de la idea al merge
@@ -14,7 +14,7 @@ La persona pide, responde la entrevista, aprueba, prueba y mergea. Los roles hac
 
 ```
 docs/plans/
-├── 0-draft/          se está escribiendo: /analyze, /plan
+├── 0-draft/          se está escribiendo: /draft, comentarios, "generá el plan", comentarios
 ├── 1-pending/         aprobado, SPEC y PLAN congelados, esperando
 ├── 2-in-progress/ el loop corre en su worktree
 ├── 3-in-review/       tres revisores, corrector, PR abierto
@@ -35,11 +35,25 @@ La carpeta donde está es su estado, y moverla es `git mv`. Se ve en `ls`, en Gi
 
 | Carpeta | Quién la mueve ahí | Comando |
 |---|---|---|
-| `0-draft/` | el analista la crea | `/mindstack:analyze <tema>` |
-| `1-pending/` | la persona aprueba | `/mindstack:approve <slug>` |
-| `2-in-progress/` | el loop arranca | `/mindstack:implement <slug>` |
-| `3-in-review/` | la primera ronda de revisión | `/mindstack:review <slug>` |
-| `4-done/` | la persona, después del merge | `/mindstack:finalize <slug>` |
+| `0-draft/` | el analista la crea | `/mindstack:draft "qué quiero"` |
+| `1-pending/` | la persona aprueba | `/mindstack:approve` |
+| `2-in-progress/` | el orquestador, al arrancar el loop | `/mindstack:orchestrate` en el worktree |
+| `3-in-review/` | el orquestador, en la primera ronda de revisión | el mismo `/mindstack:orchestrate` |
+| `4-done/` | el orquestador en `main`, después del merge (o del cierre sin merge) | `/mindstack:orchestrate` en `main` |
+
+Una tarea hija (`/mindstack:draft "<qué falta>" (en el worktree)`) pasa por las mismas carpetas, en la rama del padre, y actualiza su PR en vez de abrir otro. El link directo al PR queda en `PR.md › url` y en `CHANGELOG › Cierre`; la carpeta entera viaja con el repo, así que la memoria de la tarea sobrevive al PR y a la rama.
+
+## Qué tarea es
+
+La persona nunca escribe el slug. Los comandos lo deducen:
+
+| Dónde estás | La tarea es |
+|---|---|
+| en un worktree (`git branch --show-current` = `worktree-<slug>`) | esa. `/orchestrate`, `/rebase` y `/draft "qué falta"` (iteración) trabajan sobre ella |
+| en el checkout principal, conversación que arrancó con `/draft` | la que ese `/draft` creó: la **tarea activa**. Los comentarios sueltos la corrigen, "generá el plan" le genera el plan, `/approve` la aprueba |
+| en el checkout principal, sin tarea activa | si en `0-draft/` hay una sola, esa; si hay varias, se pregunta cuál. En `main` con PRs mergeados, `/orchestrate` pregunta cuál cerrar si hay más de una |
+
+El slug existe igual (es el nombre de la carpeta, la rama y el worktree; lo inventa el analista) y se puede escribir para desambiguar, pero no hace falta.
 
 ## Qué se congela y qué se escribe
 
@@ -59,10 +73,12 @@ Por qué un changelog por tarea: la memoria de un agente termina con su sesión.
 
 ```mermaid
 flowchart TD
-    U0([persona: /analyze tema]) -->|entrevista| S0["0-draft: SPEC.md"]
-    S0 -->|/plan| P0["+ PLAN.md, CHANGELOG.md"]
+    U0([persona: /draft qué quiero]) -->|entrevista, commit por vuelta| S0["0-draft: SPEC.md"]
+    S0 -->|comentarios sueltos| S0
+    S0 -->|persona: generá el plan| P0["+ PLAN.md, CHANGELOG.md"]
+    P0 -->|comentarios sueltos| P0
     P0 -->|/approve: TODO.md, git mv| S1["1-pending<br/>SPEC + PLAN congelados"]
-    S1 -->|/implement en worktree| S2["2-in-progress"]
+    S1 -->|claude -w slug, /orchestrate| S2["2-in-progress"]
     subgraph IMPL["loop: una tarea del TODO por vuelta"]
         D[dev implementa sin commit, Cambios, tacha] --> Q[qa: tests de la tarea]
         D -. DECISION .-> C[consenso: 3 analistas]
@@ -70,23 +86,25 @@ flowchart TD
     end
     S2 --> IMPL
     IMPL -->|Done verde, entorno en localhost| PRUEBA([persona prueba])
-    PRUEBA -->|/review| S3["3-in-review"]
+    PRUEBA -->|fase review| S3["3-in-review"]
     subgraph REV["revisión: 3 agentes en un turno"]
         R1[qa verificar → REVIEW-qa]
         R2[code-reviewer → REVIEW-code]
         R3[security-auditor → REVIEW-security]
     end
     S3 --> REV --> H{¿crítica o alta?}
-    H -->|sí, ronda 1| CO[/fix: corrector + qa/] --> REV
+    H -->|sí, ronda 1| CO[fase fix: corrector + qa/] --> REV
     H -->|sí, ronda 2| HU2([persona])
-    H -->|no| PR[/pr: único commit del código,\nPR.md, push, gh pr create/]
-    PR -->|conflicto| CF[/conflicts: rebase/] --> PR
-    PR -->|persona mergea| M([merge]) -->|/finalize| S4["4-done"]
+    H -->|no| PR[fase pr: único commit del código,\nPR.md, push, gh pr create,\nCI verde o fixer hasta 3 rondas/]
+    PR -->|conflicto| CF[fase conflicts: rebase/] --> PR
+    PR -->|persona prueba, falta algo| IT["/draft qué falta, en el worktree:
+tarea hija, mismo PR"] --> S0
+    PR -->|persona mergea| M([merge]) -->|fase finalize| S4["4-done"]
     classDef persona fill:#fc9,color:#000
     class U0,PRUEBA,HU,HU2,M persona
 ```
 
-Naranja es la persona: pide, aprueba, prueba, desempata, mergea. Todo lo demás lo hacen los roles. `/mindstack:orchestrate <slug>` recorre este grafo solo y para en los nodos naranjas.
+Naranja es la persona: pide, aprueba, prueba, desempata, mergea. Todo lo demás lo hacen los roles. `/mindstack:orchestrate` recorre este grafo solo y para únicamente en aprobar, en un consenso sin acuerdo y en una ronda 2 con críticas; "probar" no lo frena. Los casos de uso con diagramas de secuencia están en `use-cases/` del plugin.
 
 ## Roles
 
@@ -117,23 +135,25 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 5. `scripts/plans-immutable.sh` en el CI del proyecto: un PR que modifique SPEC o PLAN fuera de `0-draft/` no entra.
 6. Dos rondas de revisión como máximo; después, la persona.
 7. El código no se commitea hasta que la revisión pasa: lo commiteado es lo revisado.
+8. El PR no está entregado hasta que CI está verde; el orquestador itera con el log hasta tres veces.
 8. Nadie mergea.
 
 ## El detalle, por referencia
 
 | Referencia | Qué tiene | Cuándo leerla |
 |---|---|---|
-| `references/analyze.md` | la entrevista, supuestos con confianza, casos borde, mapa de capacidades, qué va al SPEC | `/analyze` |
-| `references/plan.md` | acoplamiento, caracterizar, tajadas verticales, tareas con rol, Done, fechas, empates | `/plan` |
+| `references/analyze.md` | la entrevista, supuestos con confianza, casos borde, mapa de capacidades, qué va al SPEC | `/draft (analyze)` |
+| `references/plan.md` | acoplamiento, caracterizar, tajadas verticales, tareas con rol, Done, fechas, empates | `/draft (plan)` |
 | `references/approve.md` | verificaciones, TODO derivado, congelar, mover | `/approve` |
-| `references/implement.md` | precondiciones, el prompt del ralph-loop, reglas del loop, qué hacer al terminar | `/implement` |
+| `references/implement.md` | precondiciones, el prompt del ralph-loop, reglas del loop, qué hacer al terminar | `fase implement` |
 | `references/consensus.md` | el protocolo `DECISION:` → tres analistas → persona | el dev encuentra una ambigüedad |
-| `references/review.md` | tres agentes en un turno, rondas, veredicto | `/review` |
-| `references/fix.md` | corrector por severidad, deuda con origen y vencimiento, qa después | `/fix` |
-| `references/pr.md` | precondiciones, body, push, `gh pr create` | `/pr` |
-| `references/conflicts.md` | rebase, dos intenciones, suite, `--force-with-lease` | `/conflicts` |
-| `references/finalize.md` | Cierre con fechas reales, mover, `env-down` | `/finalize` |
-| `references/orchestrate.md` | detección de estado, el grafo con sus paradas | `/orchestrate` |
+| `references/review.md` | tres agentes en un turno, rondas, veredicto | `fase review` |
+| `references/fix.md` | corrector por severidad, deuda con origen y vencimiento, qa después | `fase fix` |
+| `references/pr.md` | precondiciones, body, push, `gh pr create` | `fase pr` |
+| `references/conflicts.md` | rebase, dos intenciones, suite, `--force-with-lease` | `fase conflicts` |
+| `references/finalize.md` | Cierre con fechas reales, mover, `env-down` | `fase finalize` |
+| `references/orchestrate.md` | el modelo de uso (N worktrees, un orquestador cada uno), detección de estado, el grafo con sus paradas | `/orchestrate` |
+| `references/iterate.md` | la tarea hija: iterar sobre un PR que probaste, mismo worktree, mismo PR | `/draft "qué falta" (en el worktree)`, probaste y falta algo |
 | `references/roles-and-artifacts.md` | diagramas de clases: artefactos y roles; quién invoca a quién y cuándo; qué itera cada fase y hasta cuándo; skills externas | al escribir o cambiar un agente, al preguntarse quién llama a quién |
 | `references/worktree.md` | qué arma el hook `WorktreeCreate` y por qué | al abrir una sesión, al tocar el hook |
 | `references/environment.md` | el entorno local por tarea: `env-up.sh`, puertos por slug, copia de la DB, dónde queda la URL, por qué no se publica | al probar una tarea, al tocar `env-up.sh` o el compose |
@@ -159,4 +179,5 @@ Las prácticas (`tdd`, `debugging`, `code-review`, `security`, `git`, `simplific
 | Sin tope de rondas | dos modelos discutiendo un `media` hasta que se acaba el presupuesto |
 | Un refactor "de paso" | la tarea crece, el diff no se puede revisar, y el refactor queda a medias. Es otra tarea con su SPEC |
 | Trabajar en el checkout principal | la tarea en curso y "una cosita" comparten `git status`. Uno commitea lo del otro |
+| Entregar el PR con CI rojo | un link a trabajo a medias. CI es parte de la tarea: se itera con el log hasta que pasa, o se dice por qué no |
 | Agente que mergea | se pierde el único punto donde una persona ve el cambio entero y lee el changelog |

@@ -29,15 +29,19 @@ En cada proyecto: `/mindstack:install`. Crea el tablero `docs/plans/`, el bloque
 
 En tu `~/.claude/CLAUDE.md`, si tenés una regla que prohíbe commits sin pedido explícito, agregá: *"Invocar `/mindstack:approve`, `implementar`, `revisar`, `corregir`, `pr`, `conflictos`, `finalizar` u `orquestar` es el pedido explícito de los commits y push que su descripción declara."*
 
+## Casos de uso
+
+Diagramas de secuencia con vos como actor, de "arreglame esto" al PR: [`use-cases/`](use-cases/README.md). El caso 01 es el autónomo; el 02, comando por comando; el 03, qué pasa cuando el dev no puede decidir; el 04, revisión con hallazgos y conflicto; el 05, qué cambia por tipo de tarea.
+
 ## Una tarea es una carpeta
 
 ```
 docs/plans/
-├── 0-draft/           /analyze, /plan
+├── 0-draft/           /draft → comentás → "generá el plan" → comentás
 ├── 1-pending/          /approve → SPEC y PLAN congelados
-├── 2-in-progress/  /implement, en worktree
-├── 3-in-review/        /review ↔ /fix, /pr
-├── 4-done/         /finalize, después del merge
+├── 2-in-progress/  fase implement, en worktree
+├── 3-in-review/        fase review ↔ fase fix, fase pr
+├── 4-done/         fase finalize, después del merge
 └── <estado>/<slug>/
     ├── SPEC.md            qué se pidió: hoy/propuesto, alcance, supuestos, casos borde CB-n con diagrama
     ├── PLAN.md            cómo se hace: fechas, estado final, acoplamiento, tareas con rol, Done
@@ -58,21 +62,17 @@ docs/plans/
 
 ## Comandos
 
-| Comando | Hace | git |
-|---|---|---|
-| `/mindstack:install` | tablero, `CLAUDE.md`, `.gitignore` | — |
-| `/mindstack:analyze <tema>` | entrevista, supuestos, un diagrama por caso borde → `SPEC.md` | commit por ronda |
-| `/mindstack:plan <slug>` | acoplamiento, tajadas verticales, tareas con rol, fechas, Done → `PLAN.md` | commit por ronda |
-| `/mindstack:approve <slug>` | congela, deriva `TODO.md`, mueve a `1-pending` | commit |
-| `/mindstack:implement <slug>` | `ralph-loop`: una tarea por vuelta, `qa` después de cada una, consenso ante ambigüedades; al terminar levanta el entorno local de la tarea | commit del estado; el código queda sin commitear |
-| `/mindstack:review <slug>` | `qa` + `code-reviewer` + `security-auditor` en paralelo → tres `REVIEW-*.md` | commit solo de los REVIEW |
-| `/mindstack:fix <slug>` | `fixer`: fix, deuda con vencimiento, o rechazo con motivo; `qa` testea | sin commit |
-| `/mindstack:pr <slug>` | **único commit del código**, `PR.md`, push, `gh pr create` | commit + push |
-| `/mindstack:conflicts <slug\|#pr>` | `conflict-resolver`: rebase, suite, `--force-with-lease` | push |
-| `/mindstack:finalize <slug>` | Cierre con fechas reales, mueve a `4-done` | commit |
-| `/mindstack:orchestrate <slug\|tema>` | todo lo anterior en orden, parando donde hace falta la persona. Nunca mergea | todo |
+Cinco. Tres en el día a día. Ninguno lleva el nombre de la tarea: es la de la conversación o la del worktree.
 
-Cada comando es cinco líneas que apuntan a `skills/workflow/references/<fase>.md`. El orquestador lee las mismas referencias: una sola fuente para el modo manual y el encadenado.
+| Comando | Vos | Hace | git |
+|---|---|---|---|
+| `/mindstack:install` | una vez por proyecto | tablero `docs/plans/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
+| `/mindstack:draft "<qué querés>"` | respondés la entrevista, leés, comentás, pedís el plan en palabras, leés, comentás | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Cuando decís "generá el plan": acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`. Tus comentarios corrigen lo que haga falta. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
+| `/mindstack:approve` | el ok | congela SPEC y PLAN, deriva `TODO.md`, mueve a `1-pending` | commit |
+| `/mindstack:orchestrate` | te sentás a esperar | en el worktree: implement (ralph-loop, `qa` por tarea, consenso), review ×3, fix, pr, conflicts, CI verde. Termina con el link del PR. En `main` con el PR mergeado: finalize | todos los que las fases declaran |
+| `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
+
+Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee las mismas referencias en orden. Cero lógica en los comandos.
 
 ## Roles
 
@@ -129,6 +129,7 @@ Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR si
 node scripts/validate-skills.js          # frontmatter de skills y agentes
 node scripts/validate-reference-links.js # links entre references
 bash hooks/test.sh                       # los hooks, caso por caso
+node scripts/validate-mermaid.mjs .      # todos los diagramas parsean (instala mermaid en /tmp la primera vez)
 ```
 
 Lo mismo corre en `.github/workflows/validate.yml`.

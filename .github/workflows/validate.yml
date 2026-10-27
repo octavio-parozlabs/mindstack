@@ -18,6 +18,8 @@ jobs:
         run: node --test scripts/lib/skill-lint-test.js scripts/validate-reference-links-test.js
       - name: links entre references
         run: node scripts/validate-reference-links.js
+      - name: diagramas mermaid
+        run: node scripts/validate-mermaid.mjs .
       - name: hooks
         run: bash hooks/test.sh
       - name: versiones de los manifiestos

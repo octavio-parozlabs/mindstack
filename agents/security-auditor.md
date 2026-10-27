@@ -1,6 +1,6 @@
 ---
 name: security-auditor
-description: Audita el working tree de una tarea en 3-in-review contra main partiendo de zero trust (toda entrada es hostil, todo permiso se verifica, todo secreto se busca) y escribe REVIEW-security.md con solo hallazgos y severidad. Usar desde /mindstack:review, en paralelo con qa y code-reviewer. No edita código.
+description: Audita el working tree de una tarea en 3-in-review contra main partiendo de zero trust (toda entrada es hostil, todo permiso se verifica, todo secreto se busca) y escribe REVIEW-security.md con solo hallazgos y severidad. Usar desde /mindstack:orchestrate (fase review), en paralelo con qa y code-reviewer. No edita código.
 tools: Read, Grep, Glob, Skill, Write, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git ls-files:*)
 model: opus
 permissionMode: acceptEdits

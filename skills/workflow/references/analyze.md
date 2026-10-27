@@ -1,13 +1,13 @@
 # Analizar: del pedido vago al SPEC
 
-Lo corre `/mindstack:analyze <tema>` en la sesión principal, en diálogo con la persona. Termina con `docs/plans/0-draft/<slug>/SPEC.md` y nada más: ni plan, ni código.
+Lo corre `/mindstack:draft "<qué querés>"` en la sesión principal, en diálogo con la persona. Termina con `docs/plans/0-draft/<slug>/SPEC.md` y nada más: ni plan, ni código. Después el diálogo sigue en la misma conversación: los comentarios sueltos de la persona corrigen el SPEC (commit por vuelta), y cuando pide el plan en palabras ("generá el plan", "planificalo") se pasa a `plan.md`. El analista no lo dispara solo.
 
 ```mermaid
 sequenceDiagram
     participant P as persona
     participant A as analista (sesión principal)
     participant R as repo
-    P->>A: /mindstack:analyze "que los pagos reintenten"
+    P->>A: /mindstack:draft "que los pagos reintenten"
     A->>R: leer lo que el pedido toca (grep, graphify si hay)
     A->>A: lista de supuestos, con % de confianza
     loop una pregunta por vez, hasta que no quede ambigüedad
@@ -18,7 +18,7 @@ sequenceDiagram
     A->>P: slug propuesto + SPEC.md con un diagrama por CB
     P-->>A: correcciones
     A->>A: escribe docs/plans/0-draft/<slug>/SPEC.md
-    A-->>P: "quedó en 0-draft. Seguí con /mindstack:plan <slug>"
+    A-->>P: SPEC listo y commiteado. Leelo, comentá lo que quieras, y cuando esté pedime el plan
 ```
 
 ## Antes de preguntar
@@ -56,7 +56,7 @@ flowchart TD
     R -- no, ni manual --> P([persona: sin reproducción no hay tarea])
     R -- sí --> D[SPEC › Diagnóstico: nivel, test o pasos, salida]
     D --> CB[casos borde alrededor del síntoma]
-    CB --> OK["/mindstack:plan: el planificador confirma la causa"]
+    CB --> OK["fase plan: el planificador confirma la causa"]
 ```
 
 1. **Síntoma antes que causa.** Qué se ve, dónde, el error textual. Si la persona ya trae la causa, se anota como hipótesis igual.
@@ -85,7 +85,11 @@ Diagramas: si dudás entre texto y diagrama, diagrama. Si el diagrama no se enti
 
 ## Commits
 
-Cada vuelta de la entrevista que cambia el SPEC termina en un commit: `spec(<slug>): ronda n` (la primera crea la carpeta). Es un borrador y se commitea igual: el historial de `0-draft/` es el historial de cómo se entendió el pedido, y permite retomar en otra sesión sin perder nada. En un fix, `notes/repro.md` entra en el mismo commit que la ronda que lo pidió.
+Cada vuelta de la entrevista que cambia el SPEC termina en un commit: `spec(<slug>): ronda n` (la primera crea la carpeta). Una vuelta es: la persona dice algo, el SPEC cambia, commit. Cinco correcciones son cinco commits; no se junta todo al final. Es un borrador y se commitea igual: el historial de `0-draft/` es el historial de cómo se entendió el pedido, y permite retomar en otra sesión sin perder nada. En un fix, `notes/repro.md` entra en el mismo commit que la ronda que lo pidió.
+
+## Si es una iteración sobre un PR
+
+La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su SPEC. Se abre una tarea hija con `/mindstack:draft "<qué falta>" (en el worktree)` (`skills/workflow/references/iterate.md`), que corre este mismo análisis acotado a lo que falta, con `padre:` y la misma rama.
 
 ## Slug
 
@@ -96,4 +100,4 @@ Kebab-case, tres palabras máximo, del objetivo y no de la solución: `reintento
 - Decidir cómo se implementa. Eso es el PLAN. Si la persona lo pregunta, "va en el plan".
 - Un SPEC con un solo caso borde. Si no encontraste más, no buscaste.
 - Dejar una ronda sin commit. Sin commit no hay historial del borrador.
-- Avanzar a `/mindstack:plan` solo. Terminá diciendo que el SPEC quedó en `0-draft/` y que el siguiente paso es `/mindstack:plan <slug>` cuando la persona lo lea.
+- Generar el plan solo. El SPEC es el contrato con la persona; el plan se genera cuando ella lo pide, en palabras. Terminá diciendo que el SPEC quedó en `0-draft/` y que el siguiente paso es `/mindstack:draft` (fase plan) cuando la persona lo lea.

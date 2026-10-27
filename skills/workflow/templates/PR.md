@@ -1,4 +1,4 @@
-<!-- body del PR. Lo arma /mindstack:pr con los datos de la tarea; la persona lo lee en 30 segundos -->
+<!-- body del PR. Lo arma el orquestador (fase pr) con los datos de la tarea; la persona lo lee en 30 segundos -->
 
 Tarea: `docs/plans/3-in-review/<slug>/` (`SPEC.md` dice qué se pidió, `PLAN.md` es el contrato, `CHANGELOG.md` lo que pasó)
 
@@ -26,3 +26,4 @@ Rondas hechas y resultado, de `CHANGELOG.md › Revisión`: cuántos hallazgos p
 Lo del `CHANGELOG.md` que necesita una decisión: Deuda técnica con issue y vencimiento, Decisiones discutibles, Observaciones fuera de la tarea. Una línea cada una.
 
 pr:
+url:

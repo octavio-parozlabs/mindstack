@@ -268,7 +268,7 @@ skill `mindstack:workflow`, `skills/workflow/references/git.md`: una rama `workt
 tarea, commits de movimiento de estado `plan(<slug>): …`, prefijos
 `feat|fix|test|chore(<slug>)`, `review(<slug>): round n`, nadie mergea,
 `--force-with-lease` solo el resolutor, `.gitignore` desde la plantilla. Lo
-usan `/mindstack:pr`, el agente `conflict-resolver` y el `developer`.
+usan `/mindstack:orchestrate (fase pr)`, el agente `conflict-resolver` y el `developer`.
 Esta skill es lo general que aplica también fuera del flujo.
 
 ## Racionalizaciones comunes

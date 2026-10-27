@@ -1,9 +1,6 @@
 ---
-description: Congela SPEC.md y PLAN.md de una tarea, deriva TODO.md y la mueve de 0-draft a 1-pending. Hace un commit (plan(<slug>): approve). No pushea.
-argument-hint: <slug>
+description: Aprueba la tarea activa de la conversación (la que se está borrando con /mindstack:draft): congela SPEC.md y PLAN.md, deriva TODO.md y la mueve de 0-draft a 1-pending. Un commit. No pushea.
 disable-model-invocation: true
 ---
 
-Slug: $ARGUMENTS
-
-Cargá la skill `mindstack:workflow` y seguí `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/approve.md` al pie de la letra. Plantilla: `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/TODO.md`. Invocar este comando es el pedido explícito del commit que hace.
+Cargá la skill `mindstack:workflow`. La tarea es la activa de esta conversación (`skills/workflow/SKILL.md`, "Qué tarea es"); si no hay una y en `docs/plans/0-draft/` hay exactamente una, es esa; si hay varias, preguntá cuál. Seguí `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/approve.md` al pie de la letra. Invocar este comando es el pedido explícito del commit que hace.

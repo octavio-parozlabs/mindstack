@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Revisa el working tree de una tarea en 3-in-review contra main buscando errores de lógica, legibilidad, arquitectura y rendimiento, y escribe REVIEW-code.md con solo hallazgos negativos y severidad. Usar desde /mindstack:review, en paralelo con qa y security-auditor. No edita código.
+description: Revisa el working tree de una tarea en 3-in-review contra main buscando errores de lógica, legibilidad, arquitectura y rendimiento, y escribe REVIEW-code.md con solo hallazgos negativos y severidad. Usar desde /mindstack:orchestrate (fase review), en paralelo con qa y security-auditor. No edita código.
 tools: Read, Grep, Glob, Skill, Write, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(bash *scripts/check.sh*)
 model: opus
 permissionMode: acceptEdits

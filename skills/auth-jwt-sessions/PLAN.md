@@ -8,13 +8,13 @@ padre:
 
 # Autenticación con JWT: access + refresh rotativo, sesiones por dispositivo en Postgres, SPA y API en subdominios
 
-**Pre-plan, orientativo.** No se ejecuta tal cual: `/mindstack:plan` lo copia a `docs/plans/0-draft/` del proyecto, lo cruza con el repo y completa los `TODO`. Un proyecto con IAM externo no lo usa; lo de cookies, `Origin`, interceptor y pantalla de dispositivos sigue valiendo.
+**Pre-plan, orientativo.** No se ejecuta tal cual: `/mindstack:draft` lo copia a `docs/plans/0-draft/` del proyecto, lo cruza con el repo y completa los `TODO`. Un proyecto con IAM externo no lo usa; lo de cookies, `Origin`, interceptor y pantalla de dispositivos sigue valiendo.
 
 El flujo está cerrado en `../web-security/references/jwt.md`, `cookies.md` y `origin.md`; este pre-plan no lo rediscute. Lo que agrega: la arquitectura concreta (SPA en `app.ejemplo.com`, API en `api.ejemplo.com`), **la sesión como entidad que el usuario ve y cierra** (una fila por dispositivo, con qué dispositivo, desde dónde, desde cuándo), y dos decisiones que se apartan del core: una fila por sesión en vez de una por rotación, y revocación del access en menos de un minuto en vez de aceptar los 10. El diseño está en `notes/sessions.md`; la alternativa en Redis, descartada, en `notes/redis-rejected.md`. Lo que falta para salir de borrador está marcado `TODO`.
 
 ## Cómo funciona hoy y cómo va a funcionar
 
-**Hoy**: `TODO` al correr `/mindstack:plan` en el proyecto. Si no hay auth, este bloque dice "sin sesión: todo endpoint es público". Si hay (sesión en memoria, token en `localStorage`, Bearer), va el diagrama de ese flujo para ver qué se reemplaza.
+**Hoy**: `TODO` al correr `/mindstack:draft` en el proyecto. Si no hay auth, este bloque dice "sin sesión: todo endpoint es público". Si hay (sesión en memoria, token en `localStorage`, Bearer), va el diagrama de ese flujo para ver qué se reemplaza.
 
 **Propuesto, login**: igual a `jwt.md` § Login, con una fila en `sessions` en vez de `refresh_tokens`, y con el dispositivo capturado: `User-Agent` parseado, IP del proxy confiable, fecha. El body devuelve el usuario; los tokens van en cookies `httpOnly` host-only de `api.ejemplo.com`.
 

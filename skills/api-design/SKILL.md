@@ -21,7 +21,7 @@ Agnóstica al lenguaje. Los ejemplos están en TypeScript porque es el más cort
 
 ## En el flujo mindstack
 
-- La carga el planificador en la sesión principal (`/mindstack:plan`) cuando la tarea toca una frontera: endpoint, DTO, evento, interfaz pública entre módulos. El contrato (input, output, errores, compatibilidad) queda escrito en el `PLAN.md` antes de implementar; `developer` y `qa` trabajan contra eso.
+- La carga el planificador en la sesión principal (`/mindstack:draft`) cuando la tarea toca una frontera: endpoint, DTO, evento, interfaz pública entre módulos. El contrato (input, output, errores, compatibilidad) queda escrito en el `PLAN.md` antes de implementar; `developer` y `qa` trabajan contra eso.
 - La carga `developer` en tareas con `tipo: feature` que exponen algo nuevo o modifican algo expuesto.
 - La carga `code-reviewer` en su pasada de arquitectura: busca cambios incompatibles sin versionar, errores con formato propio, listas sin paginar, endpoints mutantes sin idempotencia.
 - En un fix, un cambio de contrato es fuera de alcance salvo que el `SPEC.md` lo diga. Si el fix lo necesita, se frena y se anota en `CHANGELOG.md › Observaciones`.

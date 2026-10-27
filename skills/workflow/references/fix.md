@@ -1,6 +1,6 @@
 # Corregir: cerrar una ronda
 
-Lo corre `/mindstack:fix <slug>`. Requiere los tres `REVIEW-*.md` de la ronda actual. Lanza al agente `fixer`, después al agente `qa` sobre lo que el corrector cambió, y termina sugiriendo `/mindstack:review` de nuevo.
+Lo corre el orquestador (fase fix). Requiere los tres `REVIEW-*.md` de la ronda actual. Lanza al agente `fixer`, después al agente `qa` sobre lo que el corrector cambió, y termina sugiriendo el orquestador (fase review) de nuevo.
 
 ```mermaid
 sequenceDiagram
@@ -22,7 +22,7 @@ sequenceDiagram
     F-->>C: resumen: corregidos / deuda / rechazados
     C->>Q: testear <slug> cambios del corrector
     Q-->>C: tests de los fixes, Observaciones
-    C-->>C: "ronda n cerrada. Siguiente: /mindstack:review <slug>"
+    C-->>C: "ronda n cerrada. Vuelvo a review"
 ```
 
 ## Reglas
@@ -39,4 +39,4 @@ sequenceDiagram
 
 ## Después
 
-La ronda cerró cuando todos los hallazgos tienen resultado y `qa` corrió. El comando termina diciendo cuántos corregidos, cuántos a deuda, cuántos rechazados, y que el siguiente paso es `/mindstack:review <slug>` para la ronda siguiente. Si no quedó ninguna crítica ni alta y todo lo demás es deuda aceptada, la persona puede ir directo a `/mindstack:pr`.
+La ronda cerró cuando todos los hallazgos tienen resultado y `qa` corrió. El comando termina diciendo cuántos corregidos, cuántos a deuda, cuántos rechazados, y que el siguiente paso es el orquestador (fase review) para la ronda siguiente. Si no quedó ninguna crítica ni alta y todo lo demás es deuda aceptada, la persona puede ir directo a el orquestador (fase pr).

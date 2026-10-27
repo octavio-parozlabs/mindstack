@@ -12,7 +12,7 @@ padre:
 
 # <mismo título>
 
-<!-- Lo escribe /mindstack:plan a partir de SPEC.md, en diálogo con la persona. Desde que /mindstack:approve lo mueve a 1-pending/ no se edita: ni tachar tareas ni corregir fechas. El avance se tacha en TODO.md; lo que pasó, en CHANGELOG.md. Las fechas de acá son las planificadas; las reales van en CHANGELOG.md › Cierre. -->
+<!-- Lo escribe la misma conversación de /mindstack:draft cuando la persona, leído el SPEC, pide el plan. Desde que /mindstack:approve lo mueve a 1-pending/ no se edita: ni tachar tareas ni corregir fechas. El avance se tacha en TODO.md; lo que pasó, en CHANGELOG.md. Las fechas de acá son las planificadas; las reales van en CHANGELOG.md › Cierre. -->
 
 El estado de esta tarea es la carpeta donde está: `0-draft/` → `1-pending/` → `2-in-progress/` → `3-in-review/` → `4-done/`. Cambiar de estado es `git mv`.
 
@@ -34,7 +34,7 @@ Lo del SPEC más lo que apareció al leer el código y no entra. Una línea cada
 
 ## Acoplamiento
 
-Qué existe hoy que este cambio toca, y qué tan expuesto está. Lo llena `/mindstack:plan` leyendo el repo (con `graphify` si hay grafo, con `grep` si no); se corrige a mano.
+Qué existe hoy que este cambio toca, y qué tan expuesto está. Lo llena `/mindstack:draft` leyendo el repo (con `graphify` si hay grafo, con `grep` si no); se corrige a mano.
 
 | Qué se toca | Quién lo usa (callers, imports) | Tiene test | Riesgo |
 |---|---|---|---|
@@ -69,7 +69,7 @@ flowchart LR
 
 ## Done
 
-Lo que evalúa el loop para parar. Todo esto, no alguno. Es el comando del stack; el planificador lo saca de la skill del stack o del `CLAUDE.md` del proyecto.
+Lo que evalúa el loop para parar. Todo esto, no alguno. Es el comando del stack; el planificador lo saca de la skill del stack o del `CLAUDE.md` del proyecto, y tiene que cubrir lo mismo que corre CI.
 
 ```bash
 npm run typecheck && npm run lint && npm test && npm run coverage:diff

@@ -2,11 +2,12 @@
 title: "<título corto, en imperativo: Permitir reintentos en pagos fallidos>"
 slug: <slug>
 fecha: AAAA-MM-DD
+padre:
 ---
 
 # <mismo título>
 
-<!-- Lo escribe /mindstack:analyze en diálogo con la persona. Vive en docs/plans/0-draft/<slug>/ hasta que /mindstack:approve lo congela: desde ahí no se edita (el hook lo bloquea). Lo que cambie después va a CHANGELOG.md › Decisiones, o es otra tarea. -->
+<!-- Lo escribe /mindstack:draft en diálogo con la persona, y se corrige con sus comentarios hasta que está de acuerdo y pide el plan. Vive en docs/plans/0-draft/<slug>/ hasta que /mindstack:approve lo congela: desde ahí no se edita (el hook lo bloquea). Lo que cambie después va a CHANGELOG.md › Decisiones, o es otra tarea. -->
 
 ## Pedido original
 
@@ -35,7 +36,15 @@ Diagrama propuesto, del mismo tipo que el de arriba, para que se comparen a simp
 
 ```mermaid
 sequenceDiagram
-    ...
+    participant W as web
+    participant A as api
+    participant P as pagos
+    W->>A: POST /checkout
+    A->>P: cobrar (idempotency key)
+    P-->>A: timeout
+    A->>P: consultar estado
+    P-->>A: cobrado
+    A-->>W: 200 (propuesto: no reintenta, no duplica)
 ```
 
 ## Qué no se hace

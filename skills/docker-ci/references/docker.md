@@ -358,7 +358,7 @@ Cuánto hace falta de verdad: los tests unitarios no levantan nada. Los de integ
 
 Si aislar un entorno obliga a tocar código, el código tenía un valor hardcodeado que ya era un bug. Se saca a `config.ts` y listo.
 
-Levantar uno de estos con un comando, con puertos derivados del nombre y una copia de tu DB de dev: `../../../scripts/env-up.sh <slug>` del plugin (`${CLAUDE_PLUGIN_ROOT}/scripts/env-up.sh`). Es lo que usa `/mindstack:implement` para dejarte la feature corriendo.
+Levantar uno de estos con un comando, con puertos derivados del nombre y una copia de tu DB de dev: `../../../scripts/env-up.sh <slug>` del plugin (`${CLAUDE_PLUGIN_ROOT}/scripts/env-up.sh`). Es lo que usa `/mindstack:orchestrate (fase implement)` para dejarte la feature corriendo.
 
 ## Qué pasa si no
 

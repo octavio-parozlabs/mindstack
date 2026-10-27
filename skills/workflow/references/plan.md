@@ -1,6 +1,6 @@
 # Planificar: del SPEC al PLAN
 
-Lo corre `/mindstack:plan <slug>` en la sesión principal, en diálogo. Requiere `docs/plans/0-draft/<slug>/SPEC.md`; si no está, pará y decí que primero va `/mindstack:analyze`. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
+Lo corre la misma conversación de `/mindstack:draft`, cuando la persona leyó el SPEC y pidió el plan en palabras. Requiere `docs/plans/0-draft/<slug>/SPEC.md` de la tarea activa; si no está, pará y decí que primero va `/mindstack:draft`. Pedir el plan es decir que el SPEC está: si al leerlo ves algo que no cierra, decilo antes de planificar. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
 
 ```mermaid
 flowchart TD
@@ -38,18 +38,19 @@ flowchart TD
 
 Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso como `tipo` y poné las dos skills.
 
-2b. **Si es un fix: confirmar la causa.** El SPEC trae una causa probable; vos leés el código y la confirmás o refutás, con `archivo:línea` y por qué, en "Acoplamiento". Refutada y el alcance no cambia: Decisiones con la causa real. Refutada y el alcance cambia: pará, vuelve a `/mindstack:analyze`. Las tareas de un fix tienen orden fijo: 1) `qa` lleva el test de `notes/repro.md` a la suite, al nivel de la causa confirmada, y queda en rojo; 2) `developer` arregla; el Done incluye ese test en verde. Si la reproducción fue manual y ningún test automático es viable, lo decís en Decisiones con principio y queda en Deuda técnica con vencimiento; nunca "arreglado, confiá".
+2b. **Si es un fix: confirmar la causa.** El SPEC trae una causa probable; vos leés el código y la confirmás o refutás, con `archivo:línea` y por qué, en "Acoplamiento". Refutada y el alcance no cambia: Decisiones con la causa real. Refutada y el alcance cambia: pará, vuelve a `/mindstack:draft`. Las tareas de un fix tienen orden fijo: 1) `qa` lleva el test de `notes/repro.md` a la suite, al nivel de la causa confirmada, y queda en rojo; 2) `developer` arregla; el Done incluye ese test en verde. Si la reproducción fue manual y ningún test automático es viable, lo decís en Decisiones con principio y queda en Deuda técnica con vencimiento; nunca "arreglado, confiá".
 3. **Caracterizar antes de tocar.** Una fila de riesgo alto sin test convierte la primera tarea en tests de caracterización, rol `qa`. Marcá la decisión en el plan.
 4. **Tajadas verticales.** Una tarea = un camino completo que se puede probar (schema + api + ui de *una* cosa), no una capa entera. Mal: "toda la DB, toda la API, toda la UI". Bien: "el usuario puede X", "el usuario puede Y". Cada tajada deja el sistema funcionando.
 5. **Cada tarea** tiene número, rol (`developer` o `qa`), y verificación (un comando o un test que dice que está). Las de tests van a `qa`, nunca al que implementa. Una tarea que no entra en una iteración del loop son dos. Dibujá el grafo de dependencias entre tareas (flowchart) si son más de cuatro.
 6. **Estado final** = Criterios de aceptación del SPEC + lo que el plan agrega (cobertura del diff, lint, docs). Cada línea verificable.
-7. **Done** = los comandos del stack que el loop corre para parar. Salen de la skill del stack o del `CLAUDE.md` del proyecto. Todos, no alguno.
+7. **Done** = los comandos del stack que el loop corre para parar. Salen de la skill del stack o del `CLAUDE.md` del proyecto. Todos, no alguno. **Done tiene que correr lo mismo que CI**: mirá `.github/workflows/` (o equivalente) y si CI corre un check que el Done no, agregalo. Un Done más chico que CI es un PR rojo asegurado.
 8. **Fechas.** `fecha_inicio` y `fecha_fin` planificadas, en el frontmatter. Son una estimación honesta, no un compromiso: las reales van en `CHANGELOG › Cierre` y la diferencia es información, no culpa.
 8b. **Pre-planes.** Si una skill del plugin trae un `PLAN.md` de referencia para el tema (ej. `mindstack:auth-jwt-sessions`), partí de él: copiá sus tareas y decisiones al plan, completá los `TODO` con el repo, y lo que el proyecto decida distinto va a Decisiones con la alternativa. Es orientativo: si no aplica, decilo y armá el plan desde la plantilla.
 9. **Empates.** Dos formas de partir las tareas, dos lugares para un módulo: decide `${CLAUDE_PLUGIN_ROOT}/references/PRINCIPLES.md`, y la elección va a Decisiones del `CHANGELOG.md` con el principio. Sin principio que la respalde, es gusto: preguntá.
 10. **CHANGELOG.md**: título y secciones vacías desde `../templates/CHANGELOG.md`. Lo que viste al leer el repo y no es de esta tarea va a Observaciones, quién `planner`.
 11. **Diálogo.** Mostrá el plan, preguntá, corregí, hasta que la persona diga que está. Las correcciones se hacen acá, porque después del `/mindstack:approve` el archivo no se toca.
-12. **Commit por ronda.** Cada vuelta que cambia `PLAN.md` o `CHANGELOG.md` termina en `plan(<slug>): ronda n`. Borrador commiteado es borrador recuperable.
+12. **Commit por ronda.** Cada vuelta que cambia `PLAN.md` o `CHANGELOG.md` termina en `plan(<slug>): ronda n`. Una vuelta es: la persona dice algo, el archivo cambia, commit. Borrador commiteado es borrador recuperable.
+13. **Terminá esperando.** El plan escrito no se aprueba solo: decí que lo lea y que, cuando esté, corra `/mindstack:approve`. Si quiere cambiar algo del SPEC a esta altura, se cambia (sigue en `0-draft/`), se revisa que el plan siga coherente, commit.
 
 ## Qué no
 

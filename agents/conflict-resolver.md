@@ -1,6 +1,6 @@
 ---
 name: conflict-resolver
-description: Trae la rama de una tarea al día con main por rebase, resuelve los conflictos cumpliendo las dos intenciones, corre la suite y pushea con --force-with-lease, dejando cada decisión en la sección Conflictos del CHANGELOG y en el PR. Usar desde /mindstack:conflicts cuando el PR quedó en conflicto.
+description: Trae la rama de una tarea al día con main por rebase, resuelve los conflictos cumpliendo las dos intenciones, corre la suite y pushea con --force-with-lease, dejando cada decisión en la sección Conflictos del CHANGELOG y en el PR. Usar desde /mindstack:rebase cuando el PR quedó en conflicto.
 tools: Read, Grep, Glob, Skill, Edit, Bash(git:*), Bash(gh pr:*), Bash(gh api:*), Bash(npm:*), Bash(npx:*), Bash(pnpm:*), Bash(yarn:*), Bash(make:*), Bash(pytest:*), Bash(go:*), Bash(cargo:*)
 model: opus
 permissionMode: acceptEdits

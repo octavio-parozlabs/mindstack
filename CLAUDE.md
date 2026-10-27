@@ -5,10 +5,11 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 ## Estructura
 
 - `skills/workflow/` es el núcleo: `SKILL.md` (estados, artefactos, roles), `references/<fase>.md` (qué hace cada comando), `templates/` (SPEC, PLAN, TODO, CHANGELOG, REVIEW, PR, CLAUDE, gitignore).
-- `commands/*.md` no tienen lógica propia: cinco líneas que apuntan a su `references/<fase>.md`. `/orchestrate` lee las mismas referencias. Si un comando necesita algo nuevo, va a la reference, no al comando.
+- `commands/`: cinco (`install`, `draft`, `approve`, `orchestrate`, `rebase`), sin lógica propia: apuntan a `references/<fase>.md`. Las fases implement, review, fix, pr, conflicts, finalize e iterate no son comandos: las corre el orquestador leyendo esas referencias. Si una fase necesita algo nuevo, va a la reference.
 - `agents/*.md`: un rol cada uno, con `hooks:` que limita qué escribe (`hooks/write-scope.sh`). Cambiar qué escribe un rol es cambiar su regex ahí y su caso en `hooks/test.sh`.
 - `hooks/`: `plan-immutable.sh` (global), `write-scope.sh` (por agente), `session-start.sh`, `worktree-create.sh`, `test.sh`.
 - `skills/{tdd,debugging,code-review,security,git,simplification,performance,api-design,migration,observability,documentation,ci-cd}`: prácticas agnósticas; el PLAN de cada tarea dice cuáles carga el developer (`tipo:`, `skills:`). `skills/{typescript,react,node-api,nestjs,architecture,web-security,docker-ci,auth-jwt-sessions}`: stack.
+- `use-cases/`: diagramas de secuencia de cómo la persona interactúa con el flujo. Si cambia una fase, se actualiza el caso que la muestra.
 - `references/PRINCIPLES.md`: lo que desempata. Toda regla nueva cita uno; si no cita ninguno, es preferencia.
 
 ## Convenciones
@@ -22,7 +23,7 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 ## Validar
 
 ```bash
-node scripts/validate-skills.js && node scripts/validate-reference-links.js && bash hooks/test.sh
+node scripts/validate-skills.js && node scripts/validate-reference-links.js && bash hooks/test.sh && node scripts/validate-mermaid.mjs .
 ```
 
 ## Git

@@ -1,7 +1,7 @@
 ---
 name: security
 description: >-
-  Endurece código y audita cambios partiendo de zero trust: toda entrada es hostil hasta validarla en la frontera, todo permiso se verifica en cada acceso, todo dato sensible se asume expuesto si no se demuestra lo contrario, y la probabilidad de un ataque la decide quien ataca. Cubre seis superficies (entrada, identidad y permisos, secretos, datos sensibles, dependencias, concurrencia e idempotencia), el modelo de amenazas por frontera de confianza y el formato de REVIEW-security.md con hallazgos SEC-n por severidad. Agnóstica al lenguaje y al framework; lo específico de web (CORS, cookies, CSP, headers) vive en mindstack:web-security. Usar cuando se escribe o revisa código que recibe datos de afuera, maneja identidad, sesiones o permisos, guarda o transmite datos personales o de pago, integra servicios externos, agrega dependencias, reintenta operaciones con efectos, o al auditar una tarea desde /mindstack:review como security-auditor.
+  Endurece código y audita cambios partiendo de zero trust: toda entrada es hostil hasta validarla en la frontera, todo permiso se verifica en cada acceso, todo dato sensible se asume expuesto si no se demuestra lo contrario, y la probabilidad de un ataque la decide quien ataca. Cubre seis superficies (entrada, identidad y permisos, secretos, datos sensibles, dependencias, concurrencia e idempotencia), el modelo de amenazas por frontera de confianza y el formato de REVIEW-security.md con hallazgos SEC-n por severidad. Agnóstica al lenguaje y al framework; lo específico de web (CORS, cookies, CSP, headers) vive en mindstack:web-security. Usar cuando se escribe o revisa código que recibe datos de afuera, maneja identidad, sesiones o permisos, guarda o transmite datos personales o de pago, integra servicios externos, agrega dependencias, reintenta operaciones con efectos, o al auditar una tarea desde /mindstack:orchestrate (fase review) como security-auditor.
 ---
 
 # Seguridad
@@ -26,7 +26,7 @@ Esta skill es agnóstica al lenguaje y al framework. Lo específico de web (CORS
 - Al guardar, transmitir o loguear datos personales, de pago o credenciales.
 - Al integrar un servicio externo, un LLM o una dependencia nueva.
 - Al escribir una operación con efectos que se puede reintentar: cobros, envíos, borrados, escrituras.
-- Como `security-auditor` en `/mindstack:review`.
+- Como `security-auditor` en `/mindstack:orchestrate (fase review)`.
 
 ## Frontera de confianza
 
@@ -156,10 +156,10 @@ La plantilla con frontmatter está en `skills/workflow/templates/REVIEW.md`.
 
 ## En el flujo mindstack
 
-- La usa el agente `security-auditor` en `/mindstack:review <slug>`, en el mismo turno y en paralelo con `qa` y `code-reviewer`. Cada uno escribe solo su archivo; el hook bloquea los demás.
+- La usa el agente `security-auditor` en `/mindstack:orchestrate (fase review) <slug>`, en el mismo turno y en paralelo con `qa` y `code-reviewer`. Cada uno escribe solo su archivo; el hook bloquea los demás.
 - Un hallazgo fuera del alcance del SPEC (ya estaba roto antes del cambio) va igual, marcado "preexistente" en *Qué falla*. Seguridad vieja no se ignora por vieja.
 - Crítica y alta no pueden quedar como deuda: se corrigen o se discuten con la persona. Media y baja pueden ser deuda con vencimiento.
-- El corrector cierra cada hallazgo en `/mindstack:fix`: corregido, deuda o rechazado con motivo, en `CHANGELOG › Revisión`. El auditor no edita código.
+- El corrector cierra cada hallazgo en `/mindstack:orchestrate (fase fix)`: corregido, deuda o rechazado con motivo, en `CHANGELOG › Revisión`. El auditor no edita código.
 - La revisión general (lógica, legibilidad, arquitectura) la hace `mindstack:code-review`; acá solo seguridad.
 
 ## Racionalizaciones comunes

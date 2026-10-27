@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Revisa un cambio de código en cuatro dimensiones (lógica y corrección, legibilidad, arquitectura, rendimiento) y escribe REVIEW-code.md con solo hallazgos negativos, cada uno con severidad, archivo:línea, entrada que lo dispara y fix en una línea. Usar cuando hay que revisar un diff, un PR o un rango de commits antes de que entre a main, sea código propio, de otro agente o de una persona, incluso si el diff viene pegado inline. Usar desde /mindstack:review como code-reviewer.
+description: Revisa un cambio de código en cuatro dimensiones (lógica y corrección, legibilidad, arquitectura, rendimiento) y escribe REVIEW-code.md con solo hallazgos negativos, cada uno con severidad, archivo:línea, entrada que lo dispara y fix en una línea. Usar cuando hay que revisar un diff, un PR o un rango de commits antes de que entre a main, sea código propio, de otro agente o de una persona, incluso si el diff viene pegado inline. Usar desde /mindstack:orchestrate (fase review) como code-reviewer.
 ---
 
 # Revisión de código
@@ -184,13 +184,13 @@ Reglas de la tabla:
 
 ## En el flujo mindstack
 
-Lo usa el agente `code-reviewer` dentro de `/mindstack:review`, en un solo turno y en paralelo con `qa` (CB-n contra tests) y `security-auditor` (zero trust). Cada uno escribe su archivo y no lee el de los otros.
+Lo usa el agente `code-reviewer` dentro de `/mindstack:orchestrate (fase review)`, en un solo turno y en paralelo con `qa` (CB-n contra tests) y `security-auditor` (zero trust). Cada uno escribe su archivo y no lee el de los otros.
 
 - Lee `SPEC.md`: lo que el SPEC dice que no se hace, o queda fuera de alcance, no es hallazgo.
 - Lee `CHANGELOG.md › Decisiones`: lo decidido con principio no se vuelve a discutir. Un principio **mal aplicado** sí es hallazgo, con la evidencia.
 - "Yo lo haría distinto" no es hallazgo. "Rompe explícito antes que implícito: el handler lee `process.env`" sí.
 - El revisor no edita código ni escribe en el CHANGELOG. El `fixer` cierra cada hallazgo con **fix**, **deuda** (con vencimiento) o **rechazo** (con justificación), y lo deja en `CHANGELOG.md › Revisión`.
-- Crítica o alta abierta → `/mindstack:fix`. Dos rondas que no cierran son un desacuerdo, no un bug: decide la persona.
+- Crítica o alta abierta → `/mindstack:orchestrate (fase fix)`. Dos rondas que no cierran son un desacuerdo, no un bug: decide la persona.
 
 ## Código muerto
 

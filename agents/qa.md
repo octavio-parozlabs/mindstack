@@ -1,6 +1,6 @@
 ---
 name: qa
-description: Reproduce un bug al nivel más atómico posible y deja la evidencia en notes/repro.md (modo reproducir, en análisis), escribe y corre los tests de una tarea que otro implementó (modo testear), o verifica en revisión que cada caso borde CB-n del SPEC tiene un test que lo cubre y escribe REVIEW-qa.md (modo verificar). Usar después de cada tarea del desarrollador y en /mindstack:review. No toca código de producción.
+description: Reproduce un bug al nivel más atómico posible y deja la evidencia en notes/repro.md (modo reproducir, en análisis), escribe y corre los tests de una tarea que otro implementó (modo testear), o verifica en revisión que cada caso borde CB-n del SPEC tiene un test que lo cubre y escribe REVIEW-qa.md (modo verificar). Usar después de cada tarea del desarrollador y en /mindstack:orchestrate (fase review). No toca código de producción.
 tools: Read, Grep, Glob, Skill, Edit, Write, Bash
 model: sonnet
 permissionMode: acceptEdits

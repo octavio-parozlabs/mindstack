@@ -38,7 +38,7 @@ Lo que se dejó a propósito. Sin issue no es deuda, es olvido. Sin vencimiento 
 
 ## Revisión
 
-Una fila por hallazgo por ronda. La escribe el corrector al cerrar la ronda. Resultado: `corregido` · `deuda #issue` · `rechazado: <motivo>` · `fuera de alcance: <motivo>`.
+Una fila por hallazgo por ronda. La escribe el corrector al cerrar la ronda. Un CI rojo después del push es una ronda `ci-n` con rol `ci` e ID `CI-n`. Resultado: `corregido` · `deuda #issue` · `rechazado: <motivo>` · `fuera de alcance: <motivo>`.
 
 | Ronda | Rol | ID | Severidad | Resultado |
 |---|---|---|---|---|
@@ -54,9 +54,10 @@ Si el resolutor actuó: qué archivos y qué decidió en cada uno.
 
 ## Cierre
 
-Lo escribe `/mindstack:finalize` después del merge.
+Lo escribe el orquestador (fase finalize) después del merge.
 
 - Inicio real: AAAA-MM-DD · Fin real: AAAA-MM-DD (planificado: ver `PLAN.md`)
-- PR: #n
+- PR: #n · <url> · mergeado / cerrado sin merge: <motivo>
+- Iteraciones: <slug>-2 (<qué agregó>), …
 - Qué quedó distinto de lo planeado:
 - Deuda que sigue abierta (issues):
