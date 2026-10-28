@@ -113,67 +113,49 @@ npm i -D typescript eslint @eslint/js typescript-eslint @vitest/eslint-plugin es
 
 `coverage:diff` es el comando que el core pide: lo corre el Done del plan (`../../workflow/SKILL.md`) y el job de CI. Los tres gates van al 100; `.service` entra en `IO` si en el proyecto los services tocan I/O, en `LOGIC` si no. Un use case se cubre en unit con fakes de sus ports (`mindstack:qa`, "Backend"). El job de CI llama a `coverage:diff` en lugar de `diff-cover` suelto.
 
-```yaml
-# .github/workflows/ci.yml
-# Actions por SHA con el tag en comentario: Dependabot github-actions mantiene los dos (skill docker-ci, references/ci.md).
-name: ci
-on: [pull_request]
-jobs:
-  unit:                                         # lo rápido primero; rojo acá corta int y e2e
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
-        with: { fetch-depth: 0 }                  # diff-cover necesita la rama base
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with: { node-version-file: .nvmrc, cache: npm }
-      - run: test "$(node --version)" = "v$(cat .nvmrc)"     # el runner corre la del archivo, no una del tool cache
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint                         # max-lines y la capa equivocada fallan acá
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1: el plugin, para tener check.sh en el runner
-        with: { repository: octavio-parozlabs/mindstack, path: mindstack }
-      - run: bash mindstack/scripts/check.sh   # lo mismo que corre el revisor de código: patrones prohibidos, process.env, digest, .nvmrc, SHA
-      - run: pip install diff-cover
-      - run: bash scripts/coverage-diff.sh unit   # unit + component, C1
-        env: { COVERAGE_BASE: origin/${{ github.base_ref }} }
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882   # v4.4.3
-        with: { name: coverage-unit, path: coverage/unit }
-  int:
-    needs: unit
-    runs-on: ubuntu-latest
-    services:
-      db: { image: "postgres:17@sha256:<digest>", env: { POSTGRES_PASSWORD: test }, ports: ["5432:5432"] }
-    env: { DATABASE_URL: "postgres://postgres:test@localhost:5432/postgres" }
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with: { node-version-file: .nvmrc, cache: npm }
-      - run: npm ci
-      - run: npm run migrate && npm run seed:base
-      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16   # v4.1.8
-        with: { name: coverage-unit, path: coverage/unit }
-      - run: pip install diff-cover
-      - run: bash scripts/coverage-diff.sh int    # int, C2, y C3 con los dos reportes
-        env: { COVERAGE_BASE: origin/${{ github.base_ref }} }
-      - run: npx vitest run --coverage            # thresholds globales (ratchet) fallan acá
-      - run: docker build -f apps/api/Dockerfile -t api:ci .
-      - run: test "$(docker run --rm api:ci node --version)" = "v$(cat .nvmrc)"   # la imagen corre la misma
-      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
-        with: { image-ref: "api:ci", severity: "HIGH,CRITICAL", exit-code: "1", ignore-unfixed: "true" }
-  e2e:                                          # pocos; si no entran en minutos, mover a push en main
-    needs: int
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with: { node-version-file: .nvmrc, cache: npm }
-      - run: npm ci && npx playwright install --with-deps chromium
-      - run: docker compose up -d --wait         # api + web + db, los mismos del entorno por tarea
-      - run: npx playwright test
+## El pipeline
+
+```mermaid
+flowchart LR
+    PR([PR]) --> ST[static: typecheck · lint · check.sh]
+    PR --> UN[unit: unit + component · C1]
+    PR --> IM[image: build · versión de node · Trivy]
+    ST & UN --> IN[int: Postgres efímero · int · C2 · C3 · ratchet]
+    IN & IM --> E2[e2e: compose · Playwright]
+    ST -.rojo corta.-> IN
+    UN -.rojo corta.-> IN
 ```
 
-Tres jobs encadenados con `needs`: rojo en `unit` no gasta la DB de `int`; rojo en `int` no levanta el browser. Los tres steps de imagen son `../../docker-ci/references/docker-runtime-verified.md`: sin el primero, `setup-node` puede usar una versión vieja del tool cache del runner; sin el segundo, la imagen puede no ser la del `Dockerfile`; sin Trivy, Dependabot abre el PR de la imagen nueva pero nadie dice qué CVE corrige.
+Tres jobs arrancan a la vez porque no se necesitan: lo estático, los tests rápidos y la imagen. `int` espera a los dos primeros: sin typecheck verde no vale la pena levantar una DB, y C3 necesita el reporte de `unit`. `e2e` espera a `int` y a la imagen. Un rojo en cualquier job corta lo que depende de él; el PR entero tarda lo que tarda el camino `unit → int → e2e`, no la suma.
+
+| Job | `needs` | Qué falla acá |
+|---|---|---|
+| `static` | | tipos, lint (max-lines, capa equivocada), `check.sh`, versión de node ≠ `.nvmrc` |
+| `unit` | | un unitario o componente; C1: línea de lógica sin test unitario |
+| `image` | | `docker build`; node de la imagen ≠ `.nvmrc`; CVE HIGH/CRITICAL con fix |
+| `int` | `static`, `unit` | integración; C2: línea de I/O sin test de integración; C3: diff al 100; ratchet global |
+| `e2e` | `int`, `image` | más de 5 archivos e2e; un flujo crítico roto |
+
+```yaml
+# .github/workflows/ci.yml, esqueleto. Actions por SHA con el tag en comentario (skill docker-ci).
+on: [pull_request]
+jobs:
+  static:
+    steps: [checkout, setup-node, "test $(node --version) = v$(cat .nvmrc)", npm ci, npm run typecheck, npm run lint, bash mindstack/scripts/check.sh]
+  unit:
+    steps: [checkout fetch-depth 0, setup-node, npm ci, pip install diff-cover, bash scripts/coverage-diff.sh unit, upload-artifact coverage/unit]
+  image:
+    steps: [checkout, docker build -t api:ci, "test $(docker run api:ci node --version) = v$(cat .nvmrc)", trivy HIGH,CRITICAL exit-code 1]
+  int:
+    needs: [static, unit]
+    services: { db: { image: "postgres:17@sha256:<digest>" } }
+    steps: [checkout fetch-depth 0, setup-node, npm ci, npm run migrate && npm run seed:base, download-artifact coverage/unit, bash scripts/coverage-diff.sh int, npx vitest run --coverage]
+  e2e:
+    needs: [int, image]
+    steps: [checkout, setup-node, npm ci, "test $(ls apps/web/e2e/*.spec.ts | wc -l) -le 5", docker compose up -d --wait, npx playwright test]
+```
+
+`COVERAGE_BASE: origin/${{ github.base_ref }}` en `unit` e `int`. Los steps de imagen son `../../docker-ci/references/docker-runtime-verified.md`: sin el check de versión, `setup-node` puede usar una versión vieja del tool cache; sin Trivy, Dependabot abre el PR de la imagen nueva pero nadie dice qué CVE corrige.
 
 ```js
 // eslint.config.js

@@ -58,11 +58,24 @@ flowchart LR
     unit ~~~ comp ~~~ e2e
 ```
 
-| Tipo | Se puede | No se puede |
+| Tipo | Cuándo se escribe | Se puede | No se puede |
+|---|---|---|---|
+| unitario | toda función pura | igual que backend | hooks con estado probados "aislados" |
+| componente | solo si tiene comportamiento: estado, render condicional, interacción, datos de la API. Un test por CB-n del SPEC que ese componente resuelve | render + interacción + lo visible; MSW responde lo que el test define | componentes presentacionales, de layout o que solo pasan props; shallow render; mockear hijos o `api/`; snapshots; asertar estado interno |
+| e2e | solo flujos donde se pierde plata, datos o acceso, marcados como críticos en el SPEC. 3 a 5 en total; uno nuevo reemplaza o extiende, no se acumula | browser real contra la app levantada | el gate de CI; cubrir bordes (eso es integración del back o componente) |
+
+Componente y e2e son los tests más caros de escribir y de mantener: cada uno tiene que justificar su CB. Lo que no tiene comportamiento no tiene test.
+
+**Cómo se encuentra un elemento**, en este orden y sin saltear:
+
+| Orden | Query | Cuándo |
 |---|---|---|
-| unitario | igual que backend | hooks con estado probados "aislados" |
-| componente | render + interacción + lo visible y accesible; MSW responde lo que el test define | shallow render; mockear hijos o módulos `api/`; snapshots; asertar estado interno |
-| e2e | login, el flujo principal, pagar: 3 a 5 | el gate de CI; cubrir bordes (eso es integración del back) |
+| 1 | rol con nombre accesible: `getByRole('button', { name: 'Guardar' })` | botones, links, inputs, headings, tablas: todo lo que tiene semántica |
+| 2 | label o texto visible: `getByLabelText`, `getByText` | campos de formulario, mensajes |
+| 3 | `data-testid` | lo que no tiene semántica: contenedores, filas de una lista dinámica, íconos solos, estados de carga |
+| nunca | `container.querySelector`, clases, `closest`, `parentElement`, `nth-child`, `div > img` | navega la estructura: rompe con cualquier cambio de markup que no cambia el comportamiento |
+
+Mismo orden en e2e: `getByRole`, `getByLabel`, `getByText`, `getByTestId`; nunca `locator('css')`. El lint lo fuerza (`mindstack:react`, `../react/references/TESTING.md`).
 
 ## Qué test para qué línea
 
@@ -213,12 +226,14 @@ El total del paquete no es gate: informativo, sube solo porque cada PR deja al 1
 
 ```mermaid
 flowchart LR
-    U[job unit: typecheck, lint, unit + component, C1] -->|verde| I[job int: DB efímera, int, C2, C3] -->|verde| E[job e2e: app levantada, browser]
-    U -->|rojo| X1((corta))
-    I -->|rojo| X2((corta))
+    PR([PR]) --> ST[static: tipos · lint · checks]
+    PR --> UN[unit: unit + component · C1]
+    PR --> IM[imagen]
+    ST & UN --> IN[int: DB efímera · C2 · C3]
+    IN & IM --> E2[e2e]
 ```
 
-Lo rápido primero y corta lo que sigue. E2E en el PR mientras sean pocos y entren en minutos; si no, en `main` y nightly.
+Lo que no se necesita arranca a la vez; lo caro espera a lo barato. Rojo en un job corta lo que depende de él. E2E en el PR mientras sean pocos y entren en minutos; si no, en `main` y nightly. Jobs y qué falla en cada uno: `mindstack:typescript`, `../typescript/references/ci.md`.
 
 ## Lo que rechaza la máquina
 
@@ -233,6 +248,8 @@ La skill dice por qué. Esto es lo que dice que no, sin que nadie se acuerde:
 | use case con `vi.mock` del repo | lint: `vi.mock` prohibido en `*.unit.test.ts`; el fake implementa el port |
 | mover lógica a un helper para que alcance | el diff cuenta líneas movidas como nuevas, y C2 sigue exigiendo el controller |
 | diff al 70 | C3: 100 o rojo |
+| test de componente navegando el DOM por estructura | lint: `testing-library/no-container`, `no-node-access`; `playwright/prefer-native-locators` |
+| e2e que se acumulan | el job e2e cuenta los archivos y falla pasado el tope |
 
 ## Niveles
 

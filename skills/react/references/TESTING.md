@@ -93,7 +93,19 @@ describe('OrderForm', () => {
 });
 ```
 
-Queries por rol y label, no por `data-testid` ni clase. MSW responde con la forma del contrato. `findBy*` espera a que aparezca.
+Queries por rol, label o texto; `data-testid` solo donde no hay semántica (una fila de lista, un contenedor, un ícono solo). Nunca `container.querySelector`, clases ni estructura: lo prohíbe el lint. Cuándo un componente merece test y el orden de las queries: `mindstack:qa`, "Frontend". MSW responde con la forma del contrato. `findBy*` espera a que aparezca.
+
+```js
+// eslint.config.js: navegar el DOM por estructura falla en el editor
+import testingLibrary from 'eslint-plugin-testing-library';
+import playwright from 'eslint-plugin-playwright';
+export default [
+  { files: ['**/*.component.test.tsx'], ...testingLibrary.configs['flat/react'],
+    rules: { 'testing-library/no-container': 'error', 'testing-library/no-node-access': 'error', 'testing-library/prefer-screen-queries': 'error' } },
+  { files: ['e2e/**/*.spec.ts'], ...playwright.configs['flat/recommended'],
+    rules: { 'playwright/prefer-native-locators': 'error', 'no-restricted-syntax': ['error', { selector: "CallExpression[callee.property.name='locator']", message: 'getByRole / getByLabel / getByText / getByTestId' }] } },
+];
+```
 
 ## End-to-end
 
@@ -123,4 +135,4 @@ test('user completes checkout', async ({ page }) => {
 });
 ```
 
-Pocos. Contra la app levantada con datos de prueba. Corren en CI en un job aparte porque tardan.
+Pocos: 3 a 5 en total, solo flujos críticos del SPEC (`mindstack:qa`, "Frontend"). Contra la app levantada con datos de prueba. Corren en CI en un job aparte, detrás de `int`, con un tope de archivos: `test "$(ls e2e/*.spec.ts | wc -l)" -le 5`.

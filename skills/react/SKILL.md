@@ -28,7 +28,7 @@ El front. Asume la skill `typescript` (tipos, errores, estructura, tests, lint):
 | HTML de datos | `dompurify` antes de `dangerouslySetInnerHTML` | HTML sin sanitizar | `../typescript/references/security.md` |
 | editar código, JSON, SQL en la UI | Monaco Editor (`@monaco-editor/react`), lazy, wrapper en `packages/ui` | `<textarea>` monospace, CodeMirror, Ace | `references/frontend.md` |
 | DOM para tests de componentes | `happy-dom` | `jsdom` por defecto | `references/TESTING.md` |
-| render y queries en tests | `@testing-library/react` + `@testing-library/user-event` | Enzyme, `data-testid` como primera opción | `references/TESTING.md` |
+| render y queries en tests | `@testing-library/react` + `@testing-library/user-event`; rol o label primero, `data-testid` donde no hay semántica | Enzyme; `container.querySelector`, clases, `closest`: navegar la estructura | `references/TESTING.md` |
 | matchers del DOM | `@testing-library/jest-dom` (vía `/vitest`) | | `references/TESTING.md` |
 | mock de API en tests | MSW | mockear `http` o los módulos de `api/` | `references/TESTING.md` |
 | end-to-end | Playwright | Cypress | `references/TESTING.md` |
