@@ -43,15 +43,19 @@ Un caso se prueba **una vez**, en la capa más baja que lo ve. Si lo atrapó un 
 ```mermaid
 flowchart LR
     subgraph unit["unitario: puras"]
+        direction TB
         F[formatter · reducer · selector · schema]
     end
     subgraph comp["componente: lo que ve el usuario"]
+        direction TB
         RD[render] --> U[user-event: click, type] --> Q[queries por rol y texto]
-        API[API] -. MSW en el borde de red,\nhandlers desde el contrato .- RD
+        API[MSW en el borde de red,\nhandlers desde el contrato] -.-> RD
     end
     subgraph e2e["e2e: pocos, críticos"]
+        direction TB
         PW[browser real] --> ENV[entorno de la tarea,\nbackend real]
     end
+    unit ~~~ comp ~~~ e2e
 ```
 
 | Tipo | Se puede | No se puede |
