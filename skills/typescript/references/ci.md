@@ -60,7 +60,7 @@ beforeEach(truncateAll);
   files: ['**/*.unit.test.{ts,tsx}'],
   rules: {
     'no-restricted-imports': ['error', { patterns: [
-      { group: ['**/*.controller', '**/*.use-case', '**/*.repository', '**/*.adapter', '**/app'], message: 'Capa de I/O: va en *.int.test.ts' },
+      { group: ['**/*.controller', '**/*.repository', '**/*.adapter', '**/app'], message: 'Capa de I/O: va en *.int.test.ts' },
       { group: ['pg', 'postgres', 'drizzle-orm', 'typeorm', 'supertest'], message: 'Unitario sin I/O' },
     ] }],
     'no-restricted-syntax': ['error', { selector: "CallExpression[callee.object.name='vi'][callee.property.name='mock']", message: 'Unitario sin mocks de módulos' }],
@@ -75,16 +75,21 @@ beforeEach(truncateAll);
 ```
 
 ```bash
-# scripts/coverage-diff.sh: dos corridas, tres gates. Las dos listas de sufijos viven acá y solo acá.
+# scripts/coverage-diff.sh [unit|int]: sin argumento corre las dos fases. Las dos listas de sufijos viven acá y solo acá.
 set -eu
 base=${COVERAGE_BASE:-origin/main}
-PURE='**/*.helper.ts **/*.util.ts **/*.mapper.ts **/domain/**'
-IO='**/*.controller.ts **/*.use-case.ts **/*.repository.ts **/*.adapter.ts'
-vitest run --project '*:unit' --project '*:component' --coverage --coverage.reportsDirectory=coverage/unit
-vitest run --project '*:int' --coverage --coverage.reportsDirectory=coverage/int
-diff-cover coverage/unit/cobertura-coverage.xml --compare-branch="$base" --include $PURE --fail-under=100
-diff-cover coverage/int/cobertura-coverage.xml  --compare-branch="$base" --include $IO   --fail-under=100
-diff-cover coverage/unit/cobertura-coverage.xml coverage/int/cobertura-coverage.xml --compare-branch="$base" --fail-under=100
+LOGIC='**/*.helper.ts **/*.util.ts **/*.mapper.ts **/*.use-case.ts **/*.guard.ts **/domain/**'
+IO='**/*.controller.ts **/*.repository.ts **/*.adapter.ts'
+phase=${1:-all}
+if [ "$phase" != int ]; then
+  vitest run --project '*:unit' --project '*:component' --coverage --coverage.reportsDirectory=coverage/unit
+  diff-cover coverage/unit/cobertura-coverage.xml --compare-branch="$base" --include $LOGIC --fail-under=100   # C1
+fi
+if [ "$phase" != unit ]; then
+  vitest run --project '*:int' --coverage --coverage.reportsDirectory=coverage/int
+  diff-cover coverage/int/cobertura-coverage.xml  --compare-branch="$base" --include $IO --fail-under=100      # C2
+  diff-cover coverage/unit/cobertura-coverage.xml coverage/int/cobertura-coverage.xml --compare-branch="$base" --fail-under=100   # C3
+fi
 ```
 
 ```json
@@ -106,7 +111,7 @@ npm i -D typescript eslint @eslint/js typescript-eslint @vitest/eslint-plugin es
 
 `lint` incluye `biome format .` sin `--write`: falla si algo no está formateado. `eslint-config-prettier` se queda aunque no haya Prettier: su único trabajo es apagar las reglas de formato de ESLint, que es lo que hace falta con cualquier formateador.
 
-`coverage:diff` es el comando que el core pide: lo corre el Done del plan (`../../workflow/SKILL.md`) y el job de CI. Los tres gates van al 100; `.service` entra en `IO` si en el proyecto los services tocan I/O. El job de CI llama a `coverage:diff` en lugar de `diff-cover` suelto.
+`coverage:diff` es el comando que el core pide: lo corre el Done del plan (`../../workflow/SKILL.md`) y el job de CI. Los tres gates van al 100; `.service` entra en `IO` si en el proyecto los services tocan I/O, en `LOGIC` si no. Un use case se cubre en unit con fakes de sus ports (`mindstack:qa`, "Backend"). El job de CI llama a `coverage:diff` en lugar de `diff-cover` suelto.
 
 ```yaml
 # .github/workflows/ci.yml
@@ -114,7 +119,7 @@ npm i -D typescript eslint @eslint/js typescript-eslint @vitest/eslint-plugin es
 name: ci
 on: [pull_request]
 jobs:
-  check:
+  unit:                                         # lo rápido primero; rojo acá corta int y e2e
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
@@ -124,21 +129,51 @@ jobs:
       - run: test "$(node --version)" = "v$(cat .nvmrc)"     # el runner corre la del archivo, no una del tool cache
       - run: npm ci
       - run: npm run typecheck
-      - run: npm run lint                         # max-lines falla acá
+      - run: npm run lint                         # max-lines y la capa equivocada fallan acá
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1: el plugin, para tener check.sh en el runner
         with: { repository: octavio-parozlabs/mindstack, path: mindstack }
       - run: bash mindstack/scripts/check.sh   # lo mismo que corre el revisor de código: patrones prohibidos, process.env, digest, .nvmrc, SHA
-      - run: npx vitest run --coverage            # thresholds globales fallan acá
       - run: pip install diff-cover
-      - run: npm run coverage:diff                # dos corridas por capa, tres gates al 100 (scripts/coverage-diff.sh)
+      - run: bash scripts/coverage-diff.sh unit   # unit + component, C1
         env: { COVERAGE_BASE: origin/${{ github.base_ref }} }
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882   # v4.4.3
+        with: { name: coverage-unit, path: coverage/unit }
+  int:
+    needs: unit
+    runs-on: ubuntu-latest
+    services:
+      db: { image: "postgres:17@sha256:<digest>", env: { POSTGRES_PASSWORD: test }, ports: ["5432:5432"] }
+    env: { DATABASE_URL: "postgres://postgres:test@localhost:5432/postgres" }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm run migrate && npm run seed:base
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16   # v4.1.8
+        with: { name: coverage-unit, path: coverage/unit }
+      - run: pip install diff-cover
+      - run: bash scripts/coverage-diff.sh int    # int, C2, y C3 con los dos reportes
+        env: { COVERAGE_BASE: origin/${{ github.base_ref }} }
+      - run: npx vitest run --coverage            # thresholds globales (ratchet) fallan acá
       - run: docker build -f apps/api/Dockerfile -t api:ci .
       - run: test "$(docker run --rm api:ci node --version)" = "v$(cat .nvmrc)"   # la imagen corre la misma
       - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
         with: { image-ref: "api:ci", severity: "HIGH,CRITICAL", exit-code: "1", ignore-unfixed: "true" }
+  e2e:                                          # pocos; si no entran en minutos, mover a push en main
+    needs: int
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci && npx playwright install --with-deps chromium
+      - run: docker compose up -d --wait         # api + web + db, los mismos del entorno por tarea
+      - run: npx playwright test
 ```
 
-Los tres steps nuevos son `../../docker-ci/references/docker-runtime-verified.md`: sin el primero, `setup-node` puede usar una versión vieja del tool cache del runner; sin el segundo, la imagen puede no ser la del `Dockerfile`; sin Trivy, Dependabot abre el PR de la imagen nueva pero nadie dice qué CVE corrige.
+Tres jobs encadenados con `needs`: rojo en `unit` no gasta la DB de `int`; rojo en `int` no levanta el browser. Los tres steps de imagen son `../../docker-ci/references/docker-runtime-verified.md`: sin el primero, `setup-node` puede usar una versión vieja del tool cache del runner; sin el segundo, la imagen puede no ser la del `Dockerfile`; sin Trivy, Dependabot abre el PR de la imagen nueva pero nadie dice qué CVE corrige.
 
 ```js
 // eslint.config.js

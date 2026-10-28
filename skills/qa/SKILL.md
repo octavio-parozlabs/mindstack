@@ -1,7 +1,7 @@
 ---
 name: qa
 description: >-
-  Aseguramiento de calidad en caja negra: qué tipo de test va en cada capa y qué no, distinto en backend (unitario solo para funciones puras; integración de endpoint con DB real como fuente de verdad, con response validado contra el contrato) y en frontend (unitario para puras, componente con Testing Library y MSW en el borde de red, e2e pocos y críticos); casos derivados de los CB-n del SPEC (particiones, límites, transiciones, error guessing); datos: seed base de referencia, factories por test, truncate, expected derivado de lo que el test creó; nombres de test por capa (*.unit.test.ts, *.int.test.ts, *.component.test.tsx), dos reportes de cobertura y tres gates al 100 sobre el diff, con lint y setup que rechazan el test en la capa equivocada. Usar al testear o verificar una tarea como qa, al decidir qué tipo de test escribir para un cambio, al diseñar el seed o las factories de test, o cuando un test afirma cantidades sobre datos que no creó.
+  Aseguramiento de calidad en caja negra: qué tipo de test va en cada capa y qué no, distinto en backend (unitario sociable para lógica, use cases con fakes en memoria por port y guards; integración estrecha de repository contra DB real; integración amplia por endpoint, pocas, con response validado contra el contrato) y en frontend (unitario, componente con Testing Library y MSW, e2e pocos); casos derivados de los CB-n del SPEC (particiones, límites, transiciones, error guessing); datos: seed base de referencia, factories por test, truncate, expected derivado de lo que el test creó; nombres de test por capa (*.unit.test.ts, *.int.test.ts, *.component.test.tsx), dos reportes de cobertura y tres gates al 100 sobre el diff, con lint y setup que rechazan el test en la capa equivocada. Usar al testear o verificar una tarea como qa, al decidir qué tipo de test escribir para un cambio, al diseñar el seed o las factories de test, o cuando un test afirma cantidades sobre datos que no creó.
 ---
 
 # QA: qué se prueba, en qué capa, con qué datos
@@ -12,20 +12,31 @@ Caja negra: se conoce el contrato (SPEC, schemas, firmas), no la implementación
 
 ```mermaid
 flowchart LR
-    subgraph unit["unitario: solo funciones puras"]
-        H[helper · cálculo · validador · mapper]
+    subgraph unit["unitario sociable: la lógica y todos sus bordes"]
+        direction TB
+        H[helper · dominio · mapper]
+        UC[use case] --> FK[fakes en memoria por port]
+        GD[guard] --> CX[contexto a mano]
     end
-    subgraph int["integración: el test que da la posta"]
-        R[request] --> MW[auth · validación] --> HD[handler] --> SV[service] --> RP[repo] --> DB[(DB real, efímera)]
-        DB --> RS[response] --> C{parse con el schema\ndel contrato}
+    subgraph narrow["int estrecha: un adapter y su cosa real"]
+        direction TB
+        RP[repository] --> DB1[(DB real)]
     end
-    EXT[externo: pago, mail, API ajena] -. mock en el borde de red .- SV
+    subgraph broad["int amplia: el cableado, 2-3 por endpoint"]
+        direction TB
+        R[request] --> APP[app entero: auth · handler · use case · repo] --> DB2[(DB real)] --> RS[response → parse del contrato]
+    end
+    unit ~~~ narrow ~~~ broad
 ```
 
-| Tipo | Se puede | No se puede |
-|---|---|---|
-| unitario | función sin I/O: entrada → salida | si necesita un mock, no es pura: va a integración |
-| integración | endpoint entero en memoria, DB real, mock solo de lo externo, response validado con el schema del contrato (ese `parse` es el test de contrato) | mockear repo, service u ORM; SQLite en lugar de la DB de producción; levantar el server por puerto; e2e como gate |
+| Tipo | Qué prueba | Qué sustituye | No se puede |
+|---|---|---|---|
+| unitario | función pura; use case con sus ramas; guard con sus combinaciones | ports por **fakes en memoria** que implementan la interfaz; reloj y random por parámetro | `vi.mock` de módulos; `vi.fn()` afirmando llamadas; DB; red |
+| integración estrecha | cada query no trivial del repository: filtros, orden, paginación, agregaciones | nada | HTTP; pasar por el controller para probar SQL |
+| integración amplia | por endpoint, 2 o 3: camino feliz con `parse` del contrato, auth, un error | solo red externa, en el borde | mockear guard, use case, repo u ORM; repetir los bordes del unitario; levantar el server por puerto |
+| las dos integraciones | el motor y la versión de producción, efímeros | | SQLite, `pg-mem` o cualquier otro motor: `jsonb`, arrays, `ON CONFLICT`, `RETURNING` no existen o se comportan distinto, y la query que no se puede escribir termina mockeada |
+
+Un caso se prueba **una vez**, en la capa más baja que lo ve. Si lo atrapó un test de arriba y ninguno de abajo, falta el de abajo. El controller no tiene unitario: si tiene un `if`, la lógica va al use case.
 
 ## Frontend
 
@@ -53,22 +64,24 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    D[línea del diff] --> Q1{"¿declarativo?\nmodule, entity, dto, types,\nconfig, migración, seed, barrel"}
+    D[línea o caso] --> Q1{"¿declarativo?\nmodule, entity, dto, types,\nconfig, migración, seed, barrel"}
     Q1 -- sí --> EX[excluido: no se testea, no cuenta]
-    Q1 -- no --> Q2{"¿función sin I/O?\nentrada → salida, sin DB,\nsin HTTP, sin reloj"}
-    Q2 -- sí --> UT[unitario. Obligatorio]
-    Q2 -- no --> Q3{¿backend o frontend?}
-    Q3 -- backend --> IT["integración por endpoint:\nHTTP en memoria + DB real + parse del contrato"]
-    Q3 -- frontend --> Q4{¿componente o ruta?}
-    Q4 -- componente --> CT[componente: render + interacción + MSW]
-    Q4 -- ruta / layout --> E2[e2e solo si es flujo crítico; si no, excluido]
-    UT & IT & CT --> COV[cuenta: 100 sobre el diff]
+    Q1 -- no --> Q2{"¿se ve sin DB ni red?\npura, use case con fakes, guard"}
+    Q2 -- sí --> UT[unitario sociable. Acá van TODOS sus bordes]
+    Q2 -- no --> Q3{¿qué integra?}
+    Q3 -- una query --> IN[int estrecha: repository + DB real]
+    Q3 -- un request --> IE["int amplia: endpoint, 2-3.\nCableado y contrato, no lógica"]
+    Q3 -- componente --> CT[componente: render + interacción + MSW]
+    Q3 -- flujo crítico --> E2[e2e, pocos]
+    UT & IN & IE & CT --> COV[cuenta: 100 sobre el diff]
 ```
 
 | Regla | Cagada que evita |
 |---|---|
-| Si para testear algo hace falta un mock de algo propio (repo, service, use case), ese test no existe: sube a integración | un "unitario" del controller con todo mockeado pasa, cubre y no prueba nada |
-| El diff no se mueve de archivo ni se renombra para cambiar su cobertura | sacar lógica a un helper para que el unitario "alcance" en vez de escribir el de integración |
+| Un fake implementa el port y guarda estado; el test afirma el estado, no las llamadas | `vi.fn()` con `toHaveBeenCalledWith` rompe al reordenar dos llamadas sin cambiar comportamiento |
+| Si hace falta `vi.mock` de un módulo propio, ese test no existe: o entra un fake por el port, o sube a integración | "unitario" del controller con todo mockeado pasa, cubre y no prueba nada |
+| Un caso, una capa: los bordes en unitario; integración amplia no los repite | ocho bordes como ocho requests + ocho truncates, en serie |
+| El diff no se mueve de archivo ni se renombra para cambiar su cobertura | sacar lógica a un helper para que "alcance" |
 
 ## Nombres
 
@@ -76,8 +89,8 @@ El nombre del código fuente no decide la cobertura. Decide dos cosas más chica
 
 | Test | Capa | Qué puede importar | Qué no |
 |---|---|---|---|
-| `*.unit.test.ts` | unitario | helpers, mappers, dominio puro, types, contratos | módulos de I/O (`.controller`, `.use-case`, `.repository`, `.adapter`, `app`), el driver de DB, mocks de módulos propios |
-| `*.int.test.ts` | integración | `app`, factories, contratos, cliente HTTP en memoria | mocks de rutas propias (`./`, `@/`) |
+| `*.unit.test.ts` | unitario | helpers, mappers, dominio, use cases, guards, fakes de ports, builders, contratos | `.controller`, `.repository`, `.adapter`, `app`, el driver de DB, `vi.mock` |
+| `*.int.test.ts` | integración estrecha o amplia | `app` o el repository real, factories, contratos, cliente HTTP en memoria | mocks de rutas propias (`./`, `@/`) |
 | `*.component.test.tsx` | componente | el componente, MSW, Testing Library | módulos `api/`, hijos mockeados |
 | e2e en su carpeta | e2e | el browser | nada del código |
 
@@ -85,8 +98,8 @@ El nombre del código fuente no decide la cobertura. Decide dos cosas más chica
 |---|---|---|---|
 | `.module`, `main`, `*.config`, migraciones, `.seed`, barrels, `generated/` | wiring | excluido | ninguno |
 | `.entity`, `.dto`, `.types`, `.interface`, `.enum`, `.constant`, `.schema` | forma | excluido | contrato, si es schema |
-| `.helper`, `.util`, `.mapper`, dominio sin sufijo | entrada → salida | cuenta | unitario |
-| `.controller`, `.use-case`, `.repository`, `.adapter` | el camino del request | cuenta | integración |
+| `.helper`, `.util`, `.mapper`, `.use-case`, `.guard`, dominio sin sufijo | lógica | cuenta | unitario |
+| `.controller`, `.repository`, `.adapter` | el camino del request y la DB | cuenta | integración |
 | `.tsx` componente | lo que ve el usuario | cuenta | componente |
 | rutas, layouts, páginas | wiring del router | excluido | e2e, pocos |
 
@@ -111,6 +124,8 @@ flowchart TD
 | Sobre datos compartidos se afirma propiedad: todos cumplen el filtro, el orden es el pedido, es subconjunto | vale con cualquier población |
 | Seed base solo tablas de referencia. Si hay duda, factory | un dump "completo" acopla todos los tests a un estado que nadie controla |
 | Edge cases salen de factories con el caso raro (`seedOrder({ total: 0 })`) | no se busca un registro raro: se fabrica |
+| Builders con defaults para toda entrada, en unitario también (`aDraft({ clientId })`); un fake por port, en un lugar | un campo nuevo obligatorio se agrega en un lugar, no en cien tests |
+| Afirmar solo lo que el caso prueba: `toMatchObject` sobre esos campos, no `toEqual` del objeto entero | la forma completa la valida el `parse` del contrato en integración, una vez |
 | DB real y efímera por corrida; truncate entre tests; serial | rollback se rompe si el código abre su transacción; paralelo pide schema por worker, cuando mida |
 
 ```ts
@@ -166,7 +181,7 @@ Escalera, de lo más atómico a lo menos; quedarse en el primer nivel que reprod
 flowchart LR
     U["runner, proyecto unit, con cobertura\n→ coverage/unit"] --> LU[reporte unit]
     I["runner, proyecto int, con cobertura\n→ coverage/int"] --> LI[reporte int]
-    LU --> C1["diff del PR ∩ sufijos puros\ncontra reporte unit: 100"]
+    LU --> C1["diff del PR ∩ sufijos de lógica\ncontra reporte unit: 100"]
     LI --> C2["diff del PR ∩ sufijos de I/O\ncontra reporte int: 100"]
     LU & LI --> C3["diff del PR entero\ncontra la unión: 100"]
     C1 & C2 & C3 --> V((verde))
@@ -190,6 +205,17 @@ candidatas = líneas agregadas o modificadas por el PR
 
 El total del paquete no es gate: informativo, sube solo porque cada PR deja al 100 lo que tocó.
 
+## Pipeline
+
+```mermaid
+flowchart LR
+    U[job unit: typecheck, lint, unit + component, C1] -->|verde| I[job int: DB efímera, int, C2, C3] -->|verde| E[job e2e: app levantada, browser]
+    U -->|rojo| X1((corta))
+    I -->|rojo| X2((corta))
+```
+
+Lo rápido primero y corta lo que sigue. E2E en el PR mientras sean pocos y entren en minutos; si no, en `main` y nightly.
+
 ## Lo que rechaza la máquina
 
 La skill dice por qué. Esto es lo que dice que no, sin que nadie se acuerde:
@@ -199,7 +225,8 @@ La skill dice por qué. Esto es lo que dice que no, sin que nadie se acuerde:
 | "unitario" del controller con todo mockeado | lint: `*.unit.test.ts` no importa módulos de I/O ni usa `vi.mock` |
 | unitario que toca la DB "porque andaba" | setup del proyecto unit: sin `DATABASE_URL`, el driver lanza |
 | integración que mockea el repo | lint: `vi.mock` de ruta propia en `*.int.test.ts` |
-| cubrir un controller con un unitario | C2: las líneas de I/O tienen que estar en el reporte de integración |
+| cubrir un controller o un repository con un unitario | C2: las líneas de I/O tienen que estar en el reporte de integración |
+| use case con `vi.mock` del repo | lint: `vi.mock` prohibido en `*.unit.test.ts`; el fake implementa el port |
 | mover lógica a un helper para que alcance | el diff cuenta líneas movidas como nuevas, y C2 sigue exigiendo el controller |
 | diff al 70 | C3: 100 o rojo |
 
@@ -207,4 +234,4 @@ La skill dice por qué. Esto es lo que dice que no, sin que nadie se acuerde:
 
 | No negociable | Cerrado, cambia por PR con motivo | Ajustable |
 |---|---|---|
-| caja negra; DB real en integración; expected derivado de lo que el test creó; response validado con el contrato; unitario sin mocks de módulos propios; 100 sobre el diff en los tres gates; dos reportes de cobertura | truncate (vs rollback); serial (vs schema por worker); contrato dentro de integración (vs suite aparte); `.use-case` en la lista de I/O (vs fakes en memoria como unitario) | cuántos e2e; qué entra en el seed base; qué sufijos tiene cada lista |
+| caja negra; DB real en integración; expected derivado de lo que el test creó; response validado con el contrato; unitario sin `vi.mock` ni `vi.fn()` afirmando llamadas; un caso en una sola capa; 100 sobre el diff en los tres gates; dos reportes de cobertura; unit corta a int, int corta a e2e | fakes en memoria por port como unitario (vs todo por endpoint); truncate (vs rollback); serial (vs schema por worker); contrato dentro de integración (vs suite aparte) | cuántos e2e y si corren en el PR o en `main`; qué entra en el seed base; qué sufijos tiene cada lista |
