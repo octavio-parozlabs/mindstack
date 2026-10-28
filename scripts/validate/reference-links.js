@@ -28,9 +28,9 @@
  *
  * Fenced code blocks are exempt for the same reason. Text inside a fence is
  * an example, not a link an agent will follow — and this rule in particular
- * has to be documentable: the failure message below tells authors to write
- * `../../references/<file>.md` rather than `references/<file>.md`, which no
- * skill could show as an example without failing the very check explaining it.
+ * has to be documentable: the failure message below tells authors how a link
+ * resolves, and a skill could not show a wrong example without failing the very
+ * check explaining it.
  *
  * Exit codes: 0 = all clear, 1 = one or more unresolvable links.
  */
@@ -162,11 +162,10 @@ function main() {
   if (errors > 0) {
     if (errors > anchorErrors) {
       console.log('\nLinks to references/ are resolved from the directory of the file that contains them.');
-      console.log('Shared checklists live in the repo-root references/, two levels up from a SKILL.md:');
-      console.log('use `../../references/<file>.md`, not `references/<file>.md`.');
+      console.log('`references/<file>.md` from a SKILL.md means that skill\'s own references/ directory.');
+      console.log('Another skill\'s file is `../<skill>/references/<file>.md`.');
       if (referenceFileErrors > 0) {
-        console.log('From a file inside skills/<name>/references/ they are three levels up:');
-        console.log('use `../../../references/<file>.md`.');
+        console.log('From a file inside skills/<name>/references/, a sibling is `<file>.md` and another skill\'s is `../../<skill>/references/<file>.md`.');
       }
     }
     if (anchorErrors > 0) {

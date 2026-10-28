@@ -141,7 +141,7 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: el que impleme
 
 ## Quién invoca a quién
 
-Los roles no se llaman entre sí: los invoca la sesión principal (un comando o `/mindstack:orchestrate`), que es la única que puede lanzar `Agent` y hablar con la persona. Claude Code elige la skill por su `description` (por eso toda description dice "Usar cuando …"); los agentes se eligen por nombre, acá:
+Los roles no se llaman entre sí: los invoca la sesión principal (un comando o `/mindstack:orchestrate`), que es la única que puede lanzar `Agent` y hablar con la persona (qué puede cada tipo: `CLAUDE.md` del plugin, "Command, agent o skill"). Claude Code elige la skill por su `description` (por eso toda description dice "Usar cuando …"); los agentes se eligen por nombre, acá:
 
 | Quién invoca | A quién | Cuándo | Con qué |
 |---|---|---|---|

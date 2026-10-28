@@ -32,7 +32,7 @@ export default defineConfig({
 ## Integración de un endpoint
 
 ```ts
-// apps/api/src/orders/order.controller.test.ts
+// apps/api/src/orders/order.controller.int.test.ts
 import { beforeAll, afterAll, it, expect } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
@@ -63,10 +63,10 @@ Lo que `main.ts` configura (filtro global, pipe de Zod, `useLogger`) hay que rep
 
 ## Guards
 
-Un guard se testea sin HTTP, armando el `ExecutionContext` a mano. Están al lado: `*.guard.test.ts`.
+Un guard se testea sin HTTP, armando el `ExecutionContext` a mano. Están al lado: `*.guard.unit.test.ts`.
 
 ```ts
-// apps/api/src/shared/guards/roles.guard.test.ts
+// apps/api/src/shared/guards/roles.guard.unit.test.ts
 const ctx = (handlerRoles: UserRole[] | undefined, cookie?: string) =>
   ({
     getHandler: () => handler,
@@ -91,4 +91,4 @@ Casos que tienen que existir por guard: sin metadata pasa; sin token 401; token 
 
 ## Árbol de filtros
 
-`resolve-filter-tree.test.ts` sin DB: entra un árbol, sale un `where` de TypeORM; se compara el objeto. Un caso por operador, uno por negación, uno por `and` sobre `or` (el producto cruzado), uno por profundidad y cantidad máximas. Y **un** test de integración contra la DB de test por endpoint que lista, con un árbol de dos reglas: es el que atrapa el `::text` y el alias sin comillar.
+`resolve-filter-tree.unit.test.ts` sin DB: entra un árbol, sale un `where` de TypeORM; se compara el objeto. Un caso por operador, uno por negación, uno por `and` sobre `or` (el producto cruzado), uno por profundidad y cantidad máximas. Y **un** test de integración contra la DB de test por endpoint que lista, con un árbol de dos reglas: es el que atrapa el `::text` y el alias sin comillar.

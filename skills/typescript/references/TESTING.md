@@ -42,7 +42,7 @@ export default defineConfig({
 ## Unitario
 
 ```ts
-// apps/api/src/orders/order.service.test.ts
+// apps/api/src/orders/order.service.unit.test.ts
 import { describe, it, expect } from 'vitest';
 import { applyCoupon } from './order.service';
 import { buildOrder, buildCoupon } from './order.test-helpers';

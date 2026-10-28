@@ -10,9 +10,9 @@ src/
 ├── orders/
 │   ├── order.ts              tipos y schema del dominio
 │   ├── order.service.ts      lógica
-│   ├── order.service.test.ts
+│   ├── order.service.unit.test.ts
 │   ├── order.repository.ts   acceso a datos
-│   └── order.repository.test.ts
+│   └── order.repository.int.test.ts
 ├── users/
 │   └── ...
 └── shared/                   solo lo que usan 2+ features. Si lo usa una, va en la feature

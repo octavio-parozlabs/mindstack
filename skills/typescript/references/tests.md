@@ -6,10 +6,10 @@ Vitest. El test vive al lado del archivo que prueba. Se mockea solo la frontera.
 
 | Regla | Por qué |
 |---|---|
-| `foo.test.ts` al lado de `foo.ts` | abrir el archivo y su test es un `Ctrl+P`. Y al mover la feature, el test viaja |
+| `foo.unit.test.ts` o `foo.int.test.ts` al lado de `foo.ts`; el sufijo dice la capa (`mindstack:qa`, "Nombres") | abrir el archivo y su test es un `Ctrl+P`. Y al mover la feature, el test viaja |
 | Un test prueba un comportamiento, y el nombre lo dice: `it('rejects orders with expired coupon')` | si falla, el nombre ya dice qué se rompió. `it('works')` no dice nada |
 | Arrange, act, assert, separados por una línea en blanco | el que lee encuentra en 2 segundos qué se prepara, qué se ejecuta, qué se espera |
-| Mockear **solo** la frontera: red, DB, reloj, filesystem, random. Nunca módulos propios | si mockeás `order.service` para testear `order.handler`, el test pasa aunque el service esté roto |
+| Unitario: sin mocks de módulos propios ni de DB; reloj, random y filesystem entran por parámetro. Integración: DB real, mock solo de la red externa | si mockeás `order.service` para testear `order.handler`, el test pasa aunque el service esté roto |
 | Sin lógica en el test: ni `if`, ni loops que generen casos. `it.each` para tablas | un test con lógica necesita su propio test |
 | Un `expect` por comportamiento. Varios `expect` están bien si verifican el mismo resultado | un test con 10 asserts de 10 cosas distintas falla en la primera y esconde las otras 9 |
 | Datos de prueba con builders: `buildOrder({ status: 'pending' })` | el test muestra solo lo que importa para ese caso; el resto son defaults |

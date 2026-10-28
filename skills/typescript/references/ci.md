@@ -4,7 +4,7 @@ Con qué se implementa `../../docker-ci/references/ci.md` en este stack. Las dec
 
 | Decisión del core | Acá |
 |---|---|
-| cobertura del diff | `@vitest/coverage-v8` genera el reporte Cobertura; `diff-cover` lo cruza con el `git diff` contra la base del PR. Es Python, `ubuntu-latest` ya lo trae; no entra al `package.json` |
+| cobertura del diff | `@vitest/coverage-v8` genera un reporte Cobertura **por proyecto** (`unit`, `int`); `diff-cover` los cruza con el `git diff` contra la base del PR en tres gates (`mindstack:qa`, "Cobertura: dos corridas, tres gates"). Es Python, `ubuntu-latest` ya lo trae; no entra al `package.json` |
 | cobertura total, solo sube | `thresholds.autoUpdate` de Vitest reescribe los umbrales en `vitest.config.ts` cuando suben. Ese cambio se commitea con el PR que lo produjo |
 | tamaño de archivo | ESLint `max-lines`, ya en `eslint.config.js` |
 | secretos | `gitleaks`, en `../../workflow/references/git.md` |
@@ -13,15 +13,26 @@ Con qué se implementa `../../docker-ci/references/ci.md` en este stack. Las dec
 | runtime verificado | `.nvmrc` con la versión exacta, la misma del `FROM`. `setup-node` con `node-version-file`. `node --version` comparado con `.nvmrc` en el runner y dentro de la imagen. Trivy sobre `api:ci`, `HIGH,CRITICAL` con fix disponible falla |
 
 ```ts
-// vitest.config.ts en la raíz (coverage es global al workspace, no por app)
+// vitest.config.ts en la raíz: un proyecto por app y por capa. El nombre del test decide la capa
+// (mindstack:qa, "Nombres"): *.unit.test.ts, *.int.test.ts, *.component.test.tsx.
 export default defineConfig({
   test: {
-    projects: ['apps/*', 'packages/*'],         // cada uno con su vitest.config.ts; reemplaza a vitest.workspace.ts (Vitest 4)
+    projects: [
+      { extends: './apps/api/vitest.config.ts', test: { name: 'api:unit', include: ['apps/api/src/**/*.unit.test.ts'], setupFiles: ['./apps/api/test/unit.setup.ts'] } },
+      { extends: './apps/api/vitest.config.ts', test: { name: 'api:int', include: ['apps/api/src/**/*.int.test.ts'], setupFiles: ['./apps/api/test/int.setup.ts'], fileParallelism: false } },
+      { extends: './apps/web/vitest.config.ts', test: { name: 'web:unit', include: ['apps/web/src/**/*.unit.test.ts'] } },
+      { extends: './apps/web/vitest.config.ts', test: { name: 'web:component', include: ['apps/web/src/**/*.component.test.tsx'] } },
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'cobertura'],          // cobertura.xml es lo que lee diff-cover
-      include: ['apps/*/src/**', 'packages/*/src/**'],
-      exclude: ['**/*.test.{ts,tsx}', '**/test/**'],
+      include: ['apps/*/src/**', 'packages/*/src/**'],   // explícito: un archivo nuevo sin test aparece al 0
+      exclude: [                                  // única válvula; cambiarla es un diff visible en el PR
+        '**/*.test.{ts,tsx}', '**/test/**',
+        '**/*.module.ts', '**/*.entity.ts', '**/*.dto.ts', '**/*.types.ts', '**/*.interface.ts', '**/*.enum.ts', '**/*.constant.ts', '**/*.schema.ts',
+        '**/main.ts', '**/*.config.ts', '**/migrations/**', '**/*.seed.ts', '**/index.ts', '**/generated/**',
+        'apps/web/src/app/**',                    // rutas y layouts: wiring del router
+      ],
       thresholds: {
         lines: 60, branches: 60, functions: 60, statements: 60,   // poner la cobertura actual
         autoUpdate: true,                                           // vitest sube los números solo; nunca bajan
@@ -31,6 +42,51 @@ export default defineConfig({
 });
 ```
 
+```ts
+// apps/api/test/unit.setup.ts: un unitario que toque I/O falla acá, no "anda de casualidad"
+delete process.env.DATABASE_URL;
+globalThis.fetch = () => { throw new Error('unitario sin red: va en *.int.test.ts'); };
+
+// apps/api/test/int.setup.ts: DB real y efímera, limpia entre tests
+import { beforeEach } from 'vitest';
+import { truncateAll } from './db';
+if (!process.env.DATABASE_URL) throw new Error('integración sin DATABASE_URL');
+beforeEach(truncateAll);
+```
+
+```js
+// eslint.config.js: la capa equivocada falla en el editor, antes de correr nada
+{
+  files: ['**/*.unit.test.{ts,tsx}'],
+  rules: {
+    'no-restricted-imports': ['error', { patterns: [
+      { group: ['**/*.controller', '**/*.use-case', '**/*.repository', '**/*.adapter', '**/app'], message: 'Capa de I/O: va en *.int.test.ts' },
+      { group: ['pg', 'postgres', 'drizzle-orm', 'typeorm', 'supertest'], message: 'Unitario sin I/O' },
+    ] }],
+    'no-restricted-syntax': ['error', { selector: "CallExpression[callee.object.name='vi'][callee.property.name='mock']", message: 'Unitario sin mocks de módulos' }],
+  },
+},
+{
+  files: ['**/*.int.test.ts'],
+  rules: {
+    'no-restricted-syntax': ['error', { selector: "CallExpression[callee.object.name='vi'][callee.property.name='mock'] > Literal[value=/^[.@]/]", message: 'Integración no mockea módulos propios' }],
+  },
+},
+```
+
+```bash
+# scripts/coverage-diff.sh: dos corridas, tres gates. Las dos listas de sufijos viven acá y solo acá.
+set -eu
+base=${COVERAGE_BASE:-origin/main}
+PURE='**/*.helper.ts **/*.util.ts **/*.mapper.ts **/domain/**'
+IO='**/*.controller.ts **/*.use-case.ts **/*.repository.ts **/*.adapter.ts'
+vitest run --project '*:unit' --project '*:component' --coverage --coverage.reportsDirectory=coverage/unit
+vitest run --project '*:int' --coverage --coverage.reportsDirectory=coverage/int
+diff-cover coverage/unit/cobertura-coverage.xml --compare-branch="$base" --include $PURE --fail-under=100
+diff-cover coverage/int/cobertura-coverage.xml  --compare-branch="$base" --include $IO   --fail-under=100
+diff-cover coverage/unit/cobertura-coverage.xml coverage/int/cobertura-coverage.xml --compare-branch="$base" --fail-under=100
+```
+
 ```json
 {
   "scripts": {
@@ -38,7 +94,8 @@ export default defineConfig({
     "lint": "eslint . && biome format .",
     "format": "biome format --write .",
     "test": "vitest run",
-    "coverage:diff": "vitest run --coverage && diff-cover coverage/cobertura-coverage.xml --compare-branch=origin/main --fail-under=100"
+    "test:unit": "vitest run --project '*:unit' --project '*:component'",
+    "coverage:diff": "bash scripts/coverage-diff.sh"
   }
 }
 ```
@@ -49,7 +106,7 @@ npm i -D typescript eslint @eslint/js typescript-eslint @vitest/eslint-plugin es
 
 `lint` incluye `biome format .` sin `--write`: falla si algo no está formateado. `eslint-config-prettier` se queda aunque no haya Prettier: su único trabajo es apagar las reglas de formato de ESLint, que es lo que hace falta con cualquier formateador.
 
-`coverage:diff` es el comando que el core pide: lo corre el Done del plan (`../../workflow/SKILL.md`) y el job de CI. El `--fail-under` es el umbral del proyecto; el core argumenta 100.
+`coverage:diff` es el comando que el core pide: lo corre el Done del plan (`../../workflow/SKILL.md`) y el job de CI. Los tres gates van al 100; `.service` entra en `IO` si en el proyecto los services tocan I/O. El job de CI llama a `coverage:diff` en lugar de `diff-cover` suelto.
 
 ```yaml
 # .github/workflows/ci.yml
@@ -73,8 +130,8 @@ jobs:
       - run: bash mindstack/scripts/check.sh   # lo mismo que corre el revisor de código: patrones prohibidos, process.env, digest, .nvmrc, SHA
       - run: npx vitest run --coverage            # thresholds globales fallan acá
       - run: pip install diff-cover
-      - run: diff-cover coverage/cobertura-coverage.xml
-             --compare-branch=origin/${{ github.base_ref }} --fail-under=100
+      - run: npm run coverage:diff                # dos corridas por capa, tres gates al 100 (scripts/coverage-diff.sh)
+        env: { COVERAGE_BASE: origin/${{ github.base_ref }} }
       - run: docker build -f apps/api/Dockerfile -t api:ci .
       - run: test "$(docker run --rm api:ci node --version)" = "v$(cat .nvmrc)"   # la imagen corre la misma
       - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0

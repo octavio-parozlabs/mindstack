@@ -67,7 +67,7 @@ Cada handler devuelve algo que pasa por el schema del contrato: si el contrato c
 ## Componente
 
 ```tsx
-// apps/web/src/orders/OrderForm.test.tsx
+// apps/web/src/orders/OrderForm.component.test.tsx
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

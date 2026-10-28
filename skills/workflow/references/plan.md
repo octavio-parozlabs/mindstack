@@ -32,7 +32,7 @@ flowchart TD
 | `tipo` | `skills` que van | Qué cambia en el plan |
 |---|---|---|
 | `feature` | las que apliquen: `mindstack:api-design` si expone una frontera, `mindstack:observability` si agrega un camino que puede fallar en producción, `mindstack:documentation` si cambia algo que un usuario necesita saber | nada especial |
-| `fix` | `mindstack:debugging`; `mindstack:tdd` la carga `qa` siempre | Diagnóstico en el SPEC, causa raíz confirmada, tarea 1 = test en rojo (ver 2b) |
+| `fix` | `mindstack:debugging`; `mindstack:qa` y `mindstack:tdd` las carga `qa` siempre | Diagnóstico en el SPEC, causa raíz confirmada, tarea 1 = test en rojo (ver 2b) |
 | `refactor` | `mindstack:simplification` | sin cambio de comportamiento: `qa` caracteriza antes y la suite es el Done; el SPEC dice qué queda igual |
 | `migration` | `mindstack:migration` | "Riesgos y vuelta atrás" obligatoria; expandir y contraer son tareas separadas; `qa` caracteriza antes |
 | `performance` | `mindstack:performance` | métrica actual y objetivo como criterio de aceptación verificable; medir antes y después es tarea |

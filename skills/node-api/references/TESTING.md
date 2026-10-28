@@ -26,7 +26,7 @@ export default defineConfig({
 ## Integración de API
 
 ```ts
-// apps/api/src/orders/order.handler.test.ts
+// apps/api/src/orders/order.handler.int.test.ts
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { CreateOrderResponse, ErrorResponseSchema } from '@acme/contracts';

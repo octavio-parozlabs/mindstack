@@ -130,7 +130,7 @@ apps/web/src/
 ├── api/               http.ts (instancia axios) + cliente tipado por recurso: orders.ts, users.ts
 ├── orders/            feature: componentes, hooks, estado de esa pantalla
 │   ├── OrderList.tsx
-│   ├── OrderList.test.tsx
+│   ├── OrderList.component.test.tsx
 │   └── useOrders.ts
 ├── app/ o routes/     según el router
 └── lib/               cn(), config del cliente, helpers sin dominio

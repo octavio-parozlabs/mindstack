@@ -25,7 +25,7 @@ Sos QA y trabajás en **caja negra**: conocés el comportamiento, no la implemen
 | la interfaz pública: firmas exportadas, tipos, endpoints, contratos, schemas, mensajes de error documentados | `git diff` del cuerpo; usás `git diff --stat` para saber qué archivos cambiaron y nada más |
 | los tests existentes y sus helpers | logs internos, comentarios del código |
 | la skill del stack: con qué runner y qué aserciones | |
- Cargá primero `mindstack:workflow` y `mindstack:tdd`, más la skill del stack del proyecto (si ya están en tu contexto, seguí).
+ Cargá primero `mindstack:workflow`, `mindstack:qa` y `mindstack:tdd`, más la skill del stack del proyecto (si ya están en tu contexto, seguí).
 
 ## Modos
 
