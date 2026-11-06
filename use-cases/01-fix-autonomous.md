@@ -7,7 +7,7 @@ sequenceDiagram
     actor U as Vos
     participant C as Claude (worktree pagos-timeout)
     participant QA as qa
-    participant DEV as developer (ralph-loop)
+    participant DEV as developer (subagente por tarea)
     participant AN as analyst ×3
     participant CR as code-reviewer
     participant SA as security-auditor
@@ -48,15 +48,14 @@ sequenceDiagram
     Note over C,G: 2-in-progress · implementación (en worktree)
     C->>G: git mv → 2-in-progress · commit
     C->>C: env-up.sh pagos-timeout db
-    C->>DEV: /ralph-loop con agents/developer.md
-    loop una línea de TODO.md por vuelta, sin commit
-        DEV->>QA: tarea 1 (rol qa): test de repro a la suite → rojo
-        DEV->>DEV: tarea 2: fix en pagos.service
-        DEV->>QA: Agent qa: testear pagos-timeout 2
-        QA-->>DEV: 4 tests, CB-1..CB-4 verdes
-        DEV->>DEV: [x] en TODO, fila en Cambios
+    loop una línea de TODO.md por vuelta, sin commit, mismo turno
+        C->>QA: tarea 1 (rol qa): test de repro a la suite → rojo
+        C->>DEV: Agent developer: pagos-timeout 2
+        DEV-->>C: TASK OK 2 · fix en pagos.service, [x], fila en Cambios
+        C->>QA: Agent qa: testear pagos-timeout 2
+        QA-->>C: 4 tests, CB-1..CB-4 verdes
     end
-    DEV-->>C: PLAN DONE · Done verde
+    C->>C: Done verde
     C->>C: env-up.sh pagos-timeout → http://localhost:5247
     C-->>U: (sigue sin esperar) entorno en localhost:5247
     end
@@ -127,7 +126,7 @@ sequenceDiagram
 ## Qué quedó en la carpeta
 
 ```
-docs/plans/4-done/pagos-timeout/
+todolist/4-done/pagos-timeout/
 ├── SPEC.md          Diagnóstico con REPRO: integration, CB-1..CB-4
 ├── PLAN.md          tipo: fix · causa raíz confirmada · tareas 1 (qa) y 2 (dev)
 ├── TODO.md          [x] [x]

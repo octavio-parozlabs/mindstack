@@ -1,7 +1,7 @@
 ---
 name: workflow
 description: >-
-  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en docs/plans/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan cuando el plan está; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, plan, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar docs/plans/.
+  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en todolist/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done); SPEC.md y PLAN.md se congelan cuando el plan está; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, corrector, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, plan, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar todolist/.
 ---
 
 # Flujo: de la idea al merge
@@ -13,7 +13,7 @@ La persona pide, responde la entrevista, aprueba, prueba y mergea. Los roles hac
 ## Una tarea es una carpeta
 
 ```
-docs/plans/
+todolist/
 ├── 0-draft/          se está escribiendo: /draft, comentarios, /plan (o "generá el plan")
 ├── 1-pending/         plan hecho, SPEC y PLAN congelados, esperando el worktree
 ├── 2-in-progress/ el loop corre en su worktree
@@ -108,6 +108,7 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfi
 |---|---|
 | **analista** | `SPEC.md` |
 | **planificador** | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
+| **investigador** | nada |
 | **desarrollador** | código, `TODO.md`, `CHANGELOG.md` |
 | **qa** | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | **code-reviewer** | `REVIEW-code.md` |
@@ -138,7 +139,7 @@ Las prácticas (`qa`, `tdd`, `debugging`, `code-review`, `security`, `git`, `sim
 |---|---|---|
 | `references/analyze.md` | la entrevista, supuestos con confianza, casos borde, mapa de capacidades, qué va al SPEC | `/draft (analyze)` |
 | `references/plan.md` | acoplamiento, caracterizar, tajadas verticales, tareas con rol, Done, fechas, empates | `/draft (plan)` |
-| `references/implement.md` | precondiciones, el prompt del ralph-loop, reglas del loop, qué hacer al terminar | `fase implement` |
+| `references/implement.md` | precondiciones, el loop de subagentes por tarea, sus reglas, seguir a review sin cortar | `fase implement` |
 | `references/consensus.md` | el protocolo `DECISION:` → tres analistas → persona | el dev encuentra una ambigüedad |
 | `references/review.md` | tres agentes en un turno, rondas, veredicto | `fase review` |
 | `references/fix.md` | corrector por severidad, deuda con origen y vencimiento, qa después | `fase fix` |

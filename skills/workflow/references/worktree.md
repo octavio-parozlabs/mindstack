@@ -17,7 +17,7 @@ sequenceDiagram
     H->>W: symlink node_modules si existe
     H->>W: copia graphify-out/ si existe
     H-->>CC: stdout: path del worktree
-    CC->>CC: SessionStart: principios + estado de docs/plans
+    CC->>CC: SessionStart: principios + estado de todolist
     CC-->>U: sesión lista
 ```
 

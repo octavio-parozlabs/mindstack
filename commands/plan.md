@@ -3,4 +3,4 @@ description: Genera el plan de la tarea de este worktree a partir de su SPEC.md 
 disable-model-invocation: true
 ---
 
-Cargá la skill `mindstack:workflow`. La tarea es la de este worktree (`git branch --show-current` = `worktree-<slug>`); requiere `docs/plans/0-draft/<slug>/SPEC.md`. Si la tarea está en `1-pending/`, primero volvela a borrador como hace `/mindstack:draft` sin texto, y replanificá. Seguí `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/plan.md` al pie de la letra. Invocar este comando es el pedido explícito de los commits que declara.
+Cargá la skill `mindstack:workflow`. La tarea es la de este worktree (`git branch --show-current` = `worktree-<slug>`); requiere `todolist/0-draft/<slug>/SPEC.md`. Si la tarea está en `1-pending/`, primero volvela a borrador como hace `/mindstack:draft` sin texto, y replanificá. Seguí `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/plan.md` al pie de la letra. Invocar este comando es el pedido explícito de los commits que declara.

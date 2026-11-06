@@ -74,8 +74,8 @@ classDiagram
         sesión principal: PLAN, CHANGELOG vacío
     }
     class Desarrollador {
-        ralph-loop en worktree
-        implementa, commitea
+        subagente por tarea, en worktree
+        implementa, sin commit
         no testea, no revisa
         DECISION cuando no puede decidir
     }
@@ -84,6 +84,10 @@ classDiagram
         testear: tests de una tarea
         verificar: CB-n vs tests, REVIEW-qa
         solo tests, REVIEW-qa, CHANGELOG
+    }
+    class Investigador {
+        opus, sin Edit
+        librerías antes que código propio
     }
     class RevisorCodigo {
         opus, sin Edit
@@ -112,6 +116,7 @@ classDiagram
 
     Persona ..> Analista : responde
     Persona ..> Planificador : corrige
+    Planificador ..> Investigador : buscar librería
     Orquestador ..> Desarrollador : implementar
     Orquestador ..> QA : testear, verificar
     Orquestador ..> RevisorCodigo : revisar
@@ -133,6 +138,7 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: el que impleme
 | **planificador** | acoplamiento, tajadas verticales, tareas con rol y verificación, fechas, Done; valida y deja la tarea pendiente | implementar, tachar, preguntar lo que un principio decide | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
 | **desarrollador** | una tarea por vuelta, sin commit, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md` |
 | **qa** | caja negra: entradas y salidas por la interfaz, sin leer la implementación. En un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción, leer el cuerpo de las funciones | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| **researcher** | compara 2 a 4 librerías con datos (release, descargas, licencia, encaje) y recomienda una o "propio" | decidir por recuerdo, instalar | nada |
 | **code-reviewer** | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
 | **security-auditor** | zero trust: toda entrada es hostil hasta que se valida | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
 | **corrector** | cada hallazgo: corrige, o deuda con vencimiento, o rechaza con motivo | agregar hallazgos, tests | código, `CHANGELOG.md` |
@@ -146,8 +152,9 @@ Los roles no se llaman entre sí: los invoca la sesión principal (un comando o 
 | Quién invoca | A quién | Cuándo | Con qué |
 |---|---|---|---|
 | `/draft (analyze)` | `qa` (`reproducir`) | la tarea es un fix | síntoma + punto de entrada; sin la causa |
-| `orchestrate › implement` (ralph-loop) | `qa` (`testear`) | después de cada tarea del TODO | slug + número de tarea |
-| `orchestrate › implement` (ralph-loop) | `analyst` ×3 | el dev devolvió `DECISION:` | la pregunta, las opciones, un ángulo cada uno |
+| `/plan` | `researcher`, uno por necesidad | una tarea pide un componente o algoritmo que el stack no cubre | la necesidad; `research.md` |
+| `orchestrate › implement` | `developer`, después `qa` (`testear`) | después de cada tarea del TODO | slug + número de tarea |
+| `orchestrate › implement` | `analyst` ×3 | el dev devolvió `DECISION:` | la pregunta, las opciones, un ángulo cada uno |
 | `orchestrate › review` | `qa` (`verificar`), `code-reviewer`, `security-auditor` | TODO completo y Done verde | slug, ronda, base `main` (working tree sin commitear); los tres en un turno |
 | `orchestrate › fix` | `fixer`, después `qa` (`testear`) | hay `REVIEW-*.md` con hallazgos | slug, ronda |
 | `orchestrate › conflicts` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
@@ -178,8 +185,9 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: QA no toca pro
 | analista (entrevista) | sesión principal | el de la sesión | `SPEC.md` en `0-draft/` |
 | analista (consenso) | subagente | opus | nada |
 | planificador | sesión principal | el de la sesión | `PLAN.md`, `CHANGELOG.md` en `0-draft/` |
-| desarrollador | sesión principal (ralph-loop) o subagente | opus | código, `TODO.md`, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW |
+| desarrollador | subagente, uno por tarea | opus | código, `TODO.md`, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW |
 | qa | subagente | sonnet | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| researcher | subagente | opus | nada |
 | code-reviewer | subagente | opus | `REVIEW-code.md` |
 | security-auditor | subagente | opus | `REVIEW-security.md` |
 | corrector | subagente | opus | código, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW |

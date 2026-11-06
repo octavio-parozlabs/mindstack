@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Hook PreToolUse global (Edit|Write|MultiEdit|NotebookEdit|Bash).
-# Red de contención: SPEC.md y PLAN.md no se editan fuera de docs/plans/0-draft/.
+# Red de contención: SPEC.md y PLAN.md no se editan fuera de todolist/0-draft/.
 # Exit 2 bloquea la herramienta y el mensaje de stderr vuelve al modelo. Exit 0 deja pasar.
 # Recibe por stdin el JSON del hook: { tool_name, tool_input: { file_path | command }, agent_type? ... }
 set -u
@@ -20,8 +20,8 @@ else
   agent=$(grep -o '"agent_type"[[:space:]]*:[[:space:]]*"[^"]*"' <<<"$input" | head -1 | sed 's/.*:[[:space:]]*"//; s/"$//')
 fi
 
-CONGELADO='docs/plans/[1-4]-[^/ ]+/[^/ ]+/(PLAN|SPEC)\.md'
-REVIEW='docs/plans/[0-4]-[^/ ]+/[^/ ]+/REVIEW-(qa|code|security)\.md'
+CONGELADO='todolist/[1-4]-[^/ ]+/[^/ ]+/(PLAN|SPEC)\.md'
+REVIEW='todolist/[0-4]-[^/ ]+/[^/ ]+/REVIEW-(qa|code|security)\.md'
 MSG_CONGELADO='mindstack: PLAN.md y SPEC.md son inmutables fuera de 0-draft/. Lo que cambia va a CHANGELOG.md › Decisiones, o es otra tarea.'
 
 case "$tool" in

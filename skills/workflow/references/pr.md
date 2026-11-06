@@ -17,13 +17,13 @@ flowchart LR
 
 ## Pasos
 
-1. Verificá: carpeta en `docs/plans/3-in-review/<slug>/`; `CHANGELOG › Revisión` tiene al menos una ronda y ningún hallazgo crítica/alta sin `corregido`. Si la persona quiere abrir igual con algo abierto, que lo diga explícitamente y queda en Decisiones.
+1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; `CHANGELOG › Revisión` tiene al menos una ronda y ningún hallazgo crítica/alta sin `corregido`. Si la persona quiere abrir igual con algo abierto, que lo diga explícitamente y queda en Decisiones.
 2. Done de `PLAN.md` pasa ahora. Si no, pará.
 2b. **El commit del código.** `git add -A` y un commit `feat(<slug>): <title del PLAN>` (o `fix(` si es un fix) con el código, los tests, `TODO.md` y `CHANGELOG.md`. Es el primer commit de código de la rama: todo lo anterior fueron docs. Si preferís commits por tarea para leer el historial, no: la unidad revisada es el conjunto, y ese es el commit.
 3. `PR.md` desde `../templates/PR.md`: Objetivo en pasado, Estado final con cada casilla y su evidencia del CHANGELOG, cómo probar cada CB, resumen de rondas, lo que la persona tiene que mirar. Commit `plan(<slug>): PR`.
 4. `git push -u origin HEAD`.
 4b. **Si la rama ya tiene un PR abierto** (`gh pr list --head $(git branch --show-current)`): es una iteración (`skills/workflow/references/iterate.md`). No abras otro: push, `gh pr comment <n>` con el resumen de la iteración, `pr:` y `url:` del padre en el `PR.md` de la hija, fila en Cambios, commit, push. Terminá ahí.
-5. `gh pr create --title "<title del PLAN>" --body-file docs/plans/3-in-review/<slug>/PR.md --base main`. Guardá la URL que imprime.
+5. `gh pr create --title "<title del PLAN>" --body-file todolist/3-in-review/<slug>/PR.md --base main`. Guardá la URL que imprime.
 6. Al final de `PR.md`: `pr: <n>` y `url: https://github.com/<org>/<repo>/pull/<n>`. Fila en `CHANGELOG › Cambios` (quién `person`, qué "PR #n abierto", evidencia = la URL). Commit, push. El link directo queda en los dos archivos, y los dos viajan con el repo.
 7. Si `gh pr view <n> --json mergeable` dice `CONFLICTING`: `skills/workflow/references/conflicts.md` (en modo orquestado se corre solo; a mano, sugerí `/mindstack:rebase`).
 8. **CI verde es parte del trabajo.** El PR no está "abierto" hasta que sus checks pasan:
@@ -57,7 +57,7 @@ Un PR en GitHub no se borra: se cierra. Lo que puede desaparecer es la rama. Qu�
 
 | Caso | Código | SPEC, PLAN, CHANGELOG, REVIEWs | Link |
 |---|---|---|---|
-| mergeado | en `main` | en `main`, en `docs/plans/4-done/<slug>/` después de `fase finalize` | `PR.md › url` y `CHANGELOG › Cierre`, siguen abriendo el PR cerrado |
+| mergeado | en `main` | en `main`, en `todolist/4-done/<slug>/` después de `fase finalize` | `PR.md › url` y `CHANGELOG › Cierre`, siguen abriendo el PR cerrado |
 | cerrado sin merge, rama viva | en la rama | en la rama | ídem |
 | cerrado sin merge, rama borrada | perdido | **perdido**: todo vivía en la rama, borrador incluido | el PR cerrado sigue en GitHub con su diff, y el diff incluye la carpeta de la tarea |
 

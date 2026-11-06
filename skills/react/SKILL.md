@@ -16,7 +16,8 @@ El front. Asume la skill `typescript` (tipos, errores, estructura, tests, lint):
 | Para | Se usa | Nunca | Regla |
 |---|---|---|---|
 | UI | React | | `references/frontend.md` |
-| estilos estáticos | Tailwind CSS | CSS modules, styled-components, Emotion, `style={}` | `references/frontend.md` |
+| estilos estáticos | Tailwind CSS, siempre primero | styled-components, Emotion, `style={}`, CSS global fuera del entry de Tailwind | `references/frontend.md` |
+| CSS que Tailwind no puede expresar | CSS module al lado del componente (`Componente.module.css`), selectores colgados de una clase local | `.css` global, `:global` suelto, selectores por tag o por clase de otro componente | `references/frontend.md` |
 | estilos calculados en runtime | UnoCSS runtime (`@unocss/runtime`), solo si toma el nonce de la CSP; si no, no entra | concatenar clases de Tailwind con strings dinámicos | `references/frontend.md`, `../web-security/references/csp.md` |
 | componentes | shadcn/ui, copiados en `packages/ui` y modificados ahí | instalarlos de npm, otra librería de componentes | `references/frontend.md` |
 | variantes y merge de clases | `cva` y `cn()` (vienen con shadcn) | ternarios encadenados de clases | `references/frontend.md` |

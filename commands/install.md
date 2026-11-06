@@ -1,5 +1,5 @@
 ---
-description: Deja un proyecto trabajando con mindstack: tablero docs/plans/, bloque en CLAUDE.md, .gitignore, plugins necesarios. No commitea.
+description: Deja un proyecto trabajando con mindstack: tablero todolist/, bloque en CLAUDE.md, .gitignore, plugins necesarios. No commitea.
 disable-model-invocation: true
 ---
 
@@ -7,8 +7,8 @@ Sos la sesión principal. La persona te pidió instalar la forma de trabajo en e
 
 Principio: **el plugin no copia nada al proyecto** salvo lo que el proyecto necesita como archivo propio y versionado (tablero, `CLAUDE.md`, `.gitignore`). Skills, comandos, agentes y hooks viajan en el plugin.
 
-1. Precondiciones: `git rev-parse --show-toplevel` es la raíz y estás en el checkout principal. `claude plugin list` muestra `mindstack` habilitado. Hay `jq` y `gh`. Si falta `ralph-wiggum` (necesario para el orquestador (fase implement)), decí cómo habilitarlo.
-2. Tablero: `docs/plans/{0-draft,1-pending,2-in-progress,3-in-review,4-done}/`, cada una con `.gitkeep`.
+1. Precondiciones: `git rev-parse --show-toplevel` es la raíz y estás en el checkout principal. `claude plugin list` muestra `mindstack` habilitado. Hay `jq` y `gh`.
+2. Tablero: `todolist/{0-draft,1-pending,2-in-progress,3-in-review,4-done}/`, cada una con `.gitkeep`.
 3. `.gitignore`: agregá al final las líneas de `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/gitignore` que no estén. No borres nada. Verificación: `git check-ignore .env .claude/worktrees/x` responde los dos.
 4. `CLAUDE.md`: si no existe, escribilo desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/CLAUDE.md` completando "Este proyecto", "Stack" (qué skills `mindstack:*` aplican, leyendo `package.json`, `pyproject.toml`, `go.mod`) y "Comandos" (los scripts reales: typecheck, lint, test, cobertura). Si existe, agregá las secciones que falten sin pisar las existentes y mostrá el diff.
 5. Si hay `package.json`: compará sus scripts con lo que el Done de un PLAN necesita (typecheck, lint, test, cobertura del diff). Listá lo que falta; **preguntá antes de instalar nada**.

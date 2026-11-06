@@ -6,7 +6,8 @@ Cada `npm install` es código de otro que ahora es tuyo: lo mantenés, lo audit�
 
 | Regla | Por qué |
 |---|---|
-| Antes de agregar una: ¿lo hace Node? ¿lo hace una que ya está en el stack fijo? ¿son 20 líneas? | `fetch`, `AbortSignal`, `structuredClone`, `util.parseArgs`: Node ya trae mucho. Y `lodash-es`, Zod, Tailwind ya están: no agregar `ramda`, `yup` o `date-fns-tz` para algo que el stack ya cubre |
+| Antes de agregar una: ¿lo hace Node? ¿lo hace una que ya está en el stack fijo? ¿son unas líneas sin algoritmo propio? | `fetch`, `AbortSignal`, `structuredClone`, `util.parseArgs`: Node ya trae mucho. Y `lodash-es`, Zod, Tailwind ya están: no agregar `ramda`, `yup` o `date-fns-tz` para algo que el stack ya cubre |
+| Un componente o algoritmo con nombre (layout de grafos, editor de PDF, drag and drop) no se escribe a mano: se investiga primero | `../../workflow/references/research.md`. Lo propio es la última opción |
 | Una dependencia nueva se justifica en el PR: qué hace, por qué esa, cuántos downloads y último release | el que revisa decide con datos. "La vi en un tutorial" no es justificación |
 | Lockfile commiteado siempre. `npm ci` en CI, nunca `npm install` | sin lockfile, el build de hoy y el de mañana instalan cosas distintas |
 | No cambiar el gestor de paquetes del repo | si hay `pnpm-lock.yaml`, es pnpm. Mezclar lockfiles rompe el install de todos |
@@ -20,6 +21,6 @@ La lista completa es la tabla "Con qué" de `../SKILL.md` (y la de `react` o `no
 
 ## Qué pedirle a Claude
 
-> "¿Se puede hacer sin agregar dependencia? Si no, proponé una y justificala."
+> "¿Se puede hacer con lo que hay? Si no, ¿qué librería con trayectoria ya lo resuelve? Compará dos o tres."
 
-Claude tiende a agregar la librería que conoce. Con esto, primero mira lo que hay.
+Claude tiende a dos extremos: agregar la librería que recuerda, o escribir a mano algo que ya existe. Con esto mira primero lo que hay y después busca con datos.

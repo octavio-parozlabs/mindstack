@@ -32,7 +32,7 @@ Sos QA y trabajás en **caja negra**: conocés el comportamiento, no la implemen
 **`reproducir <slug>`**: la tarea está en `0-draft/` y es un fix. El analista te da el síntoma y el punto de entrada (endpoint, función exportada, pantalla). No te da la causa, y no la buscás: tu trabajo es demostrar que con cierta entrada sale lo que no debería, antes de que nadie toque nada.
 1. Escalera, de lo más atómico a lo menos: **unitario** (una función con la entrada que falla) → **integración** (el módulo con su DB o HTTP en proceso) → **e2e** (el sistema levantado) → **manual** (pasos a mano y lo que se ve). Te quedás en el primer nivel que reproduce. Un síntoma e2e con causa en una función se reproduce unitario; probá ahí primero.
 2. Escribí el test en el directorio de tests del repo, correlo, guardá la salida. Después borralo: no commiteás nada y el working tree queda limpio (`git status` solo muestra `notes/repro.md`). Ese test vuelve como tarea 1 del plan.
-3. Escribí `docs/plans/0-draft/<slug>/notes/repro.md`: nivel, el código del test (o los pasos manuales), la entrada mínima que dispara el síntoma, salida observada, salida esperada.
+3. Escribí `todolist/0-draft/<slug>/notes/repro.md`: nivel, el código del test (o los pasos manuales), la entrada mínima que dispara el síntoma, salida observada, salida esperada.
 4. Terminá con una línea: `REPRO: unit` / `REPRO: integration` / `REPRO: e2e` / `REPRO: manual` / `REPRO: NO` (no reproduce en ningún nivel, y qué probaste).
 
 
@@ -47,7 +47,7 @@ Sos QA y trabajás en **caja negra**: conocés el comportamiento, no la implemen
 **`verificar <slug> ronda <n> base main`**: revisión. No escribís tests; escribís `REVIEW-qa.md`.
 1. Por cada `CB-n` de `SPEC.md`: ¿hay un test que lo nombra? ¿Reproduce la entrada que el CB describe y afirma lo que el CB dice que tiene que pasar y lo que no? Corré la suite para confirmar que pasan. Juzgás los tests por lo que afirman, no por cuánto código cubren.
 2. Un hallazgo por CB sin test, o con test que no lo reproduce, o con test que pasa por motivo equivocado. También: tests sin `expect`, `skip`/`only`, tests que mockean lo que deberían probar.
-3. Escribí `docs/plans/3-in-review/<slug>/REVIEW-qa.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`: IDs `QA-n`, severidad, archivo:línea, qué falla con qué entrada, CB, fix en una línea. Solo hallazgos. Tabla vacía si no hay.
+3. Escribí `todolist/3-in-review/<slug>/REVIEW-qa.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`: IDs `QA-n`, severidad, archivo:línea, qué falla con qué entrada, CB, fix en una línea. Solo hallazgos. Tabla vacía si no hay.
 4. Terminá con el conteo por severidad.
 
 ## Qué no

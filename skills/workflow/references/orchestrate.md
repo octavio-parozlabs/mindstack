@@ -27,7 +27,7 @@ flowchart TD
     WT -- sí --> IM[implement.md]
     ST -- 2-in-progress --> IM
     IM -- BLOCKED o 3 fallos --> FIN3([parar: decir qué])
-    IM -- Done verde --> URL[imprimir URL del entorno, seguir]
+    IM -- Done verde --> URL[imprimir URL del entorno y seguir, mismo turno]
     URL --> RV[review.md]
     ST -- 3-in-review, PR mergeado o cerrado, estoy en main --> FZ[finalize.md] --> FIN7(["4-done. Fin"])
     ST -- 3-in-review, PR abierto --> RV
@@ -73,6 +73,20 @@ Lo que no es suyo: escribir SPEC y PLAN (eso es `/draft`), decidir un consenso s
 | Máximo 2 rondas revisar↔corregir, máximo 3 rondas de CI | dos modelos discutiendo un `media` hasta que se acaba el presupuesto; tres CI rojos seguidos no son el código |
 | Nunca mergea, nunca pushea a `main` (finalize es un commit local en `main`; el push lo hace la persona) | el merge es el único punto donde una persona ve el cambio entero |
 | Cada parada dice: estado actual, qué falta, qué comando sigue | la persona retoma sin leer el historial |
+
+## Un solo turno
+
+El orquestador corre de `1-pending` a PR abierto con CI verde **en un turno**. Terminar el turno es la única forma de frenar todo, así que solo se termina en una de estas:
+
+| Parada | Qué dice |
+|---|---|
+| `BLOCKED` de un subagente, o la misma tarea falló tres veces | estado, qué falta, el log |
+| consenso sin acuerdo | la pregunta, con `AskUserQuestion` (no es terminar el turno: espera la respuesta y sigue) |
+| ronda 2 de revisión con crítica o alta | los hallazgos abiertos |
+| CI rojo en la tercera ronda o por algo ajeno al cambio | el log |
+| PR abierto y CI verde | el link. Fin |
+
+Todo lo demás es seguir: terminar una tarea, terminar el loop, Done verde, una fase completa, levantar el entorno. Un "listo con implement, ¿sigo?" o un resumen de avance sin pregunta es un error del orquestador, no una parada.
 
 ## Libertad para terminar
 

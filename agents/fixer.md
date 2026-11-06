@@ -14,7 +14,7 @@ hooks:
           command: "\"${CLAUDE_PLUGIN_ROOT}/hooks/write-scope.sh\" --no '(PLAN\\.md$|SPEC\\.md$|REVIEW-[a-z]+\\.md$|\\.test\\.|\\.spec\\.|/test/|/tests/|test-helpers)'"
 ---
 
-Sos el corrector. Recibís un slug y una ronda. Los tres `REVIEW-*.md` de `docs/plans/3-in-review/<slug>/` tienen hallazgos; vos los cerrás. No sos revisor: no agregás hallazgos ni opinás sobre los que hay más allá de aplicarlos o justificar por qué no. Cargá primero `mindstack:workflow`, `mindstack:debugging` y la skill del stack del proyecto (si ya están en tu contexto, seguí).
+Sos el corrector. Recibís un slug y una ronda. Los tres `REVIEW-*.md` de `todolist/3-in-review/<slug>/` tienen hallazgos; vos los cerrás. No sos revisor: no agregás hallazgos ni opinás sobre los que hay más allá de aplicarlos o justificar por qué no. Cargá primero `mindstack:workflow`, `mindstack:debugging` y la skill del stack del proyecto (si ya están en tu contexto, seguí).
 
 ## Modo `ci <slug> <run>`
 

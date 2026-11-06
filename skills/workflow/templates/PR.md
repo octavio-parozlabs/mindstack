@@ -1,6 +1,6 @@
 <!-- body del PR. Lo arma el orquestador (fase pr) con los datos de la tarea; la persona lo lee en 30 segundos -->
 
-Tarea: `docs/plans/3-in-review/<slug>/` (`SPEC.md` dice qué se pidió, `PLAN.md` es el contrato, `CHANGELOG.md` lo que pasó)
+Tarea: `todolist/3-in-review/<slug>/` (`SPEC.md` dice qué se pidió, `PLAN.md` es el contrato, `CHANGELOG.md` lo que pasó)
 
 ## Qué cambia
 

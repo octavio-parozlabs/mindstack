@@ -28,7 +28,7 @@ Por qué tres agentes y no uno: un revisor que mira todo mira todo por encima. T
 
 ## Pasos
 
-1. Ronda 1: `git mv docs/plans/2-in-progress/<slug> docs/plans/3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
+1. Ronda 1: `git mv todolist/2-in-progress/<slug> todolist/3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
 2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`.
 3. **Un solo turno con tres `Agent`**, cada uno con `subagent_type` del rol y este prompt mínimo:
    - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests."

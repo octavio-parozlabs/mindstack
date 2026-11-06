@@ -5,7 +5,7 @@
 set -u
 base="${1:-origin/main}"
 violaciones=$(git diff --name-status -M100% "$base"...HEAD \
-  | awk '$NF ~ /docs\/plans\/[1-4]-[^\/]+\/[^\/]+\/(PLAN|SPEC)\.md$/ && $1 !~ /^(R100|D)$/')
+  | awk '$NF ~ /todolist\/[1-4]-[^\/]+\/[^\/]+\/(PLAN|SPEC)\.md$/ && $1 !~ /^(R100|D)$/')
 if [ -n "$violaciones" ]; then
   echo "mindstack: SPEC.md/PLAN.md modificados fuera de 0-draft/:" >&2
   echo "$violaciones" >&2

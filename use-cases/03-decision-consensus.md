@@ -16,7 +16,7 @@ sequenceDiagram
     DEV-->>C: DECISION: ¿clave de idempotencia del proveedor o propia? | A: del proveedor (menos código, depende de que exista) / B: propia en tabla pagos (más código, no depende)
 
     par un solo turno, en paralelo
-        C->>A1: ángulo historial: Decisiones de docs/plans/4-done/*/CHANGELOG.md
+        C->>A1: ángulo historial: Decisiones de todolist/4-done/*/CHANGELOG.md
         C->>A2: ángulo código: ¿cómo se resolvió lo mismo en otro módulo?
         C->>A3: ángulo principios: PRINCIPLES.md, SPEC, PLAN
     end

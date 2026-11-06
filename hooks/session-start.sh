@@ -4,9 +4,9 @@
 cat "${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md"
 echo
 # 2. El tablero: una línea por estado con sus tareas.
-if [ -d docs/plans ]; then
-  echo "## Tareas (docs/plans)"
-  for d in docs/plans/[0-4]-*/; do
+if [ -d todolist ]; then
+  echo "## Tareas (todolist)"
+  for d in todolist/[0-4]-*/; do
     [ -d "$d" ] || continue
     estado=$(basename "$d")
     slugs=$(find "$d" -mindepth 1 -maxdepth 1 -type d -printf '%f ' 2>/dev/null)

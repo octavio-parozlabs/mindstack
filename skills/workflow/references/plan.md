@@ -1,6 +1,6 @@
 # Planificar: del SPEC al PLAN
 
-Lo corre `/mindstack:plan`, o la misma conversación de `/mindstack:draft` cuando la persona pide el plan en palabras ("generá el plan"); es lo mismo. Requiere `docs/plans/0-draft/<slug>/SPEC.md` de la tarea activa; si no está, pará y decí que primero va `/mindstack:draft`. Pedir el plan es decir que el SPEC está: si al leerlo ves algo que no cierra, decilo antes de planificar. **Termina con la tarea en `1-pending/`**: el plan es la checklist del orquestador, no un documento que la persona aprueba; lo que sí lee es el resumen final. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
+Lo corre `/mindstack:plan`, o la misma conversación de `/mindstack:draft` cuando la persona pide el plan en palabras ("generá el plan"); es lo mismo. Requiere `todolist/0-draft/<slug>/SPEC.md` de la tarea activa; si no está, pará y decí que primero va `/mindstack:draft`. Pedir el plan es decir que el SPEC está: si al leerlo ves algo que no cierra, decilo antes de planificar. **Termina con la tarea en `1-pending/`**: el plan es la checklist del orquestador, no un documento que la persona aprueba; lo que sí lee es el resumen final. Termina con `PLAN.md` y `CHANGELOG.md` (esqueleto) al lado del SPEC. No implementa nada.
 
 ```mermaid
 flowchart TD
@@ -44,6 +44,7 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
 2b. **Si es un fix: confirmar la causa.** El SPEC trae una causa probable; vos leés el código y la confirmás o refutás, con `archivo:línea` y por qué, en "Acoplamiento". Refutada y el alcance no cambia: Decisiones con la causa real. Refutada y el alcance cambia: pará, vuelve a `/mindstack:draft`. Las tareas de un fix tienen orden fijo: 1) `qa` lleva el test de `notes/repro.md` a la suite, al nivel de la causa confirmada, y queda en rojo; 2) `developer` arregla; el Done incluye ese test en verde. Si la reproducción fue manual y ningún test automático es viable, lo decís en Decisiones con principio y queda en Deuda técnica con vencimiento; nunca "arreglado, confiá".
 3. **Caracterizar antes de tocar.** Una fila de riesgo alto sin test convierte la primera tarea en tests de caracterización, rol `qa`. Marcá la decisión en el plan.
 4. **Tajadas verticales.** Una tarea = un camino completo que se puede probar (schema + api + ui de *una* cosa), no una capa entera. Mal: "toda la DB, toda la API, toda la UI". Bien: "el usuario puede X", "el usuario puede Y". Cada tajada deja el sistema funcionando.
+4b. **Buscar antes de construir.** Por cada necesidad que no cubre la tabla "Con qué" del stack y no es trivial (un componente, un algoritmo, una integración), lanzá un agente `researcher` con la necesidad; si son varias, todos en un turno. La recomendada va en la tarea ("con `elkjs`") y la tabla en `CHANGELOG › Decisiones`. Implementar algo propio es la última opción: `research.md`.
 5. **Cada tarea** tiene número, rol (`developer` o `qa`), y verificación (un comando o un test que dice que está). Las de tests van a `qa`, nunca al que implementa. Una tarea que no entra en una iteración del loop son dos. Dibujá el grafo de dependencias entre tareas (flowchart) si son más de cuatro.
 6. **Estado final** = Criterios de aceptación del SPEC + lo que el plan agrega (cobertura del diff, lint, docs). Cada línea verificable.
 7. **Done** = los comandos del stack que el loop corre para parar. Salen de la skill del stack o del `CLAUDE.md` del proyecto. Todos, no alguno. **Done tiene que correr lo mismo que CI**: mirá `.github/workflows/` (o equivalente) y si CI corre un check que el Done no, agregalo. Un Done más chico que CI es un PR rojo asegurado.
@@ -59,7 +60,7 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
     - Preguntas abiertas del SPEC que quedaron: a "Riesgos y vuelta atrás" del PLAN.
     - `TODO.md` desde `../templates/TODO.md`: una línea por tarea, mismo número, rol y verificación, sin tachar.
     - `chmod a-w SPEC.md PLAN.md` (cosmético; la red real es el hook y CI).
-    - `git mv docs/plans/0-draft/<slug> docs/plans/1-pending/<slug>`; commit propio `plan(<slug>): pending`.
+    - `git mv todolist/0-draft/<slug> todolist/1-pending/<slug>`; commit propio `plan(<slug>): pending`.
 14. **Resumen de cinco líneas**, lo único que la persona lee: tipo y skills; N tareas y fechas; Done; qué agregaste a "Fuera de alcance" que no estaba en el SPEC; riesgos. Y el siguiente paso: `claude -w <slug>` y `/mindstack:orchestrate` ahí. Si quiere cambiar algo: `/mindstack:draft` sin texto la vuelve a borrador.
 
 ## Qué no

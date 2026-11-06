@@ -74,7 +74,7 @@ sequenceDiagram
 ## Qué queda cuando termina
 
 ```
-docs/plans/4-done/
+todolist/4-done/
 ├── facturas-pdf/      SPEC, PLAN, TODO, CHANGELOG (Cierre: PR #88, url, iteración facturas-pdf-2), REVIEW-*, PR.md (pr: 88, url)
 ├── facturas-pdf-2/    SPEC (padre: facturas-pdf), PLAN, TODO, CHANGELOG, REVIEW-*, PR.md (pr: 88, url)
 └── pagos-timeout/     …, PR.md (pr: 89, url)

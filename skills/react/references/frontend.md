@@ -18,8 +18,50 @@ Ojo con la CSP: el runtime inyecta `<style>` en el browser, y la política del c
 Nunca:
 
 - `style={{ color: x }}` cuando hay utilidad. Inline rompe el sistema de diseño y no se puede overridear.
-- CSS modules, styled-components, Emotion. Un sistema de estilos, no tres.
+- styled-components, Emotion, Sass. Un sistema de estilos, no tres.
+- CSS escrito cuando Tailwind lo resuelve. Ver "CSS que no queda de otra" abajo.
 - Concatenar strings para armar clases de Tailwind. No las genera y falla en silencio.
+
+## CSS que no queda de otra
+
+Tailwind primero, siempre. Antes de escribir CSS: utilidad, valor arbitrario (`w-[37px]`, `[mask-type:luminance]`), variante arbitraria (`[&>svg]:size-4`, `has-[:checked]:bg-blue-50`), `@theme` para un token. Recién si nada de eso alcanza (keyframes de varios pasos, el DOM de una librería de terceros que no acepta `className`, un pseudo-elemento con contenido generado complejo), va CSS, y aislado al componente que afecta. Principio: "Los namespaces son buena idea" (`../../../PRINCIPLES.md`).
+
+```mermaid
+flowchart TD
+    N[hace falta un estilo] --> T{¿utilidad, valor o variante arbitraria de Tailwind?}
+    T -- sí --> TW[className]
+    T -- no --> D{¿depende de datos en runtime?}
+    D -- sí --> UNO[UnoCSS runtime o style del caso de arriba]
+    D -- no --> M[Componente.module.css al lado del componente]
+    M --> G{¿toca DOM que no es tuyo: librería de terceros?}
+    G -- sí --> S[":global(.lib-x) colgado de una clase local: .root :global(.lib-x)"]
+    G -- no --> L[solo clases locales]
+```
+
+| Regla | Por qué |
+|---|---|
+| Un CSS module por componente, mismo nombre, misma carpeta: `Canvas.tsx` + `Canvas.module.css`. Lo importa solo ese componente | si otro lo importa, el estilo ya no es de un componente y el aislamiento es mentira |
+| Todo selector arranca en una clase local (`.root`, `.node`). Nunca un tag suelto (`div`, `svg`) ni `*` arriba de todo | un selector por tag en un module sigue siendo local de nombre pero pega en cualquier hijo, incluidos componentes ajenos |
+| `:global(...)` solo anidado bajo una clase local: `.root :global(.elk-edge)` | un `:global` suelto es CSS global con otra extensión |
+| Sin colores, espacios ni fuentes a mano: `var(--color-…)` de los tokens de `@theme` | el CSS module no tiene que inventar otro sistema de diseño |
+| El único `.css` global es el entry de Tailwind (`@import "tailwindcss"`, `@theme`, reset mínimo) | todo lo demás global es estilo que nadie sabe a quién afecta |
+| Arriba del archivo, un comentario: qué no pudo Tailwind | el revisor y el próximo que lo lea saben por qué existe; si Tailwind ya lo puede, se borra |
+
+```css
+/* Canvas.module.css: el DOM del layout lo genera la librería sin className; Tailwind no llega */
+.root :global(.edge-label) { font-size: var(--text-xs); color: var(--color-muted-foreground); }
+@keyframes pulse-node { 0%, 100% { opacity: 1 } 40% { opacity: .4 } 60% { opacity: .7 } }
+.nodeActive { animation: pulse-node 1.2s var(--ease-out) infinite; }
+```
+
+```js
+// eslint.config.js: un .css que no es module ni el entry no se importa
+'no-restricted-imports': ['error', { patterns: [
+  { regex: '\\.(?<!module\\.)css$', message: 'CSS aislado: Componente.module.css, y solo si Tailwind no alcanza' },
+] }],
+```
+
+El entry (`src/styles.css`) se importa una vez en `main.tsx` con `// eslint-disable-next-line no-restricted-imports`. Los `.css` compilan a archivos del bundle, así que la CSP los cubre con `'self'` igual que a Tailwind.
 
 ## Componentes: shadcn/ui
 

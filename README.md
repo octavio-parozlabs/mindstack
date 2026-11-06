@@ -35,11 +35,11 @@ claude --plugin-dir /ruta/a/mindstack
 
 O desde el clon local: `/plugin marketplace add /ruta/a/mindstack`. Se actualiza con `/plugin update mindstack@mindstack`, o con `git pull` si el marketplace es el clon.
 
-Para implementar hace falta además el plugin `ralph-wiggum` (el loop). Validar el clon: `node scripts/validate/skills.js && bash hooks/test.sh`.
+Validar el clon: `node scripts/validate/skills.js && bash hooks/test.sh`.
 
 ### En cada proyecto
 
-`/mindstack:install`, una vez, en el checkout principal. Crea el tablero `docs/plans/`, el bloque de `CLAUDE.md`, el `.gitignore`, los permisos de `git` y `gh` para que el orquestador no frene, y te dice qué falta.
+`/mindstack:install`, una vez, en el checkout principal. Crea el tablero `todolist/`, el bloque de `CLAUDE.md`, el `.gitignore`, los permisos de `git` y `gh` para que el orquestador no frene, y te dice qué falta.
 
 En tu `~/.claude/CLAUDE.md`, si tenés una regla que prohíbe commits sin pedido explícito, agregá: *"Invocar `/mindstack:draft`, `plan`, `orchestrate` o `rebase` es el pedido explícito de los commits y push que su descripción declara."*
 
@@ -50,7 +50,7 @@ Diagramas de secuencia con vos como actor, de "arreglame esto" al PR: [`use-case
 ## Una tarea es una carpeta
 
 ```
-docs/plans/
+todolist/
 ├── 0-draft/           claude -w slug · /draft → comentás → /plan → comentás
 ├── 1-pending/          plan hecho → SPEC y PLAN congelados (/draft sin texto los reabre)
 ├── 2-in-progress/  fase implement, en worktree
@@ -80,10 +80,10 @@ Cinco. Tres en el día a día. Ninguno lleva el nombre de la tarea: la tarea es 
 
 | Comando | Vos | Hace | git |
 |---|---|---|---|
-| `/mindstack:install` | una vez por proyecto | tablero `docs/plans/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
+| `/mindstack:install` | una vez por proyecto | tablero `todolist/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
 | `/mindstack:draft "<qué querés>"` | en el worktree: respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
 | `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | commit |
-| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (ralph-loop, `qa` por tarea, consenso), review ×3, fix, pr, conflicts, CI verde. Termina con el link del PR. En `main` con el PR mergeado: finalize | todos los que las fases declaran |
+| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (`developer` y `qa` por tarea, consenso), review ×3, fix, pr, conflicts, CI verde. Termina con el link del PR. En `main` con el PR mergeado: finalize | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
 
 Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee las mismas referencias en orden. Cero lógica en los comandos.
@@ -93,6 +93,7 @@ Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee
 | Agente | Modelo | Hace | Escribe solo |
 |---|---|---|---|
 | `analyst` | opus | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
+| `researcher` | opus | al planificar: compara librerías que ya resuelven una necesidad, con datos; lo propio es la última opción | nada |
 | `developer` | opus | una tarea del TODO, sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
 | `qa` | sonnet | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | `code-reviewer` | opus | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |

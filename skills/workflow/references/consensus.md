@@ -7,7 +7,7 @@ flowchart TD
     D["dev: DECISION: ¿pregunta? | A: ... / B: ..."] --> S{¿lo resuelve SPEC, PLAN\no un principio?}
     S -- sí --> R[decidir, fila en Decisiones, seguir]
     S -- no --> X[Agent ×3 en un solo turno, en paralelo]
-    X --> H[analista · ángulo historial:\nDecisiones de docs/plans/4-done/*/CHANGELOG.md]
+    X --> H[analista · ángulo historial:\nDecisiones de todolist/4-done/*/CHANGELOG.md]
     X --> C[analista · ángulo código:\npatrones ya aplicados en el repo]
     X --> P[analista · ángulo principios:\nPRINCIPLES.md]
     H & C & P --> V{¿las tres OPTION\nson la misma?}
@@ -32,7 +32,7 @@ Mismo agente (`analyst`), mismo prompt base, distinto ángulo. Se lanzan en un s
 
 | Ángulo | Qué busca | Dónde |
 |---|---|---|
-| `historial` | una decisión igual o parecida ya tomada, y qué principio la respaldó | `docs/plans/4-done/*/CHANGELOG.md` sección Decisiones, y `3-in-review/` si hay |
+| `historial` | una decisión igual o parecida ya tomada, y qué principio la respaldó | `todolist/4-done/*/CHANGELOG.md` sección Decisiones, y `3-in-review/` si hay |
 | `código` | cómo se resolvió el mismo problema en otro módulo del repo | `grep`, `graphify query`, los tests existentes |
 | `principios` | qué opción cumple más principios y cuál rompe alguno | `${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md` |
 

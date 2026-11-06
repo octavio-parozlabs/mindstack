@@ -34,7 +34,7 @@ sequenceDiagram
     FX->>FX: SEC-1: verifica dueño en el handler (sin commit)
     FX->>FX: QA-1: pide test a qa en su resumen
     FX->>FX: CODE-1: deuda #52 vence 2026-12-15 · CODE-2: deuda #53
-    FX->>H: Edit docs/plans/3-in-review/facturas-pdf/PLAN.md
+    FX->>H: Edit todolist/3-in-review/facturas-pdf/PLAN.md
     H-->>FX: exit 2: PLAN.md es inmutable fuera de 0-draft
     FX->>FX: la nota va a CHANGELOG › Decisiones
     FX-->>C: Revisión: 1 corregido, 2 deuda, 1 para qa
