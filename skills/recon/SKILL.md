@@ -1,7 +1,7 @@
 ---
 name: recon
 description: >-
-  Describe un repo existente para auditarlo, en solo lectura y con evidencia archivo:línea. Escribe dos salidas separadas: ARCHITECTURE.md (stack, inventario de versiones con purl listo para buscar CVEs, datos y ORM, topología con proxies y caches, endpoints con auth y autorización, flujos de autenticación y sesión, políticas CORS/CSP/framing/cookies, headers en los que se confía, máquinas de estado por entidad, mapa de superficies, exposición, cadena de suministro, integraciones) y LEADS.md (46 cadenas de preguntas por clase de vulnerabilidad que cortan en el primer "no" con evidencia, y dejan pistas abiertas sin severidad). No juzga si algo es vulnerable ni ejecuta la app. Usar al auditar un repo propio o ajeno, antes de una revisión de seguridad o un pentest de caja blanca, o cuando se pide mapear arquitectura, versiones, endpoints, permisos o superficies de ataque.
+  Describe un repo existente para auditarlo, en solo lectura y con evidencia archivo:línea. Escribe dos salidas separadas: ARCHITECTURE.md (stack, inventario de versiones con purl listo para buscar CVEs, datos y ORM, topología con proxies y caches, endpoints con auth y autorización, flujos de autenticación y sesión, políticas CORS/CSP/framing/cookies, headers en los que se confía, máquinas de estado por entidad, mapa de superficies, exposición, cadena de suministro, integraciones) y LEADS.md (47 cadenas de preguntas por clase de vulnerabilidad que cortan en el primer "no" con evidencia, y dejan pistas abiertas sin severidad). No juzga si algo es vulnerable ni ejecuta la app. Usar al auditar un repo propio o ajeno, antes de una revisión de seguridad o un pentest de caja blanca, o cuando se pide mapear arquitectura, versiones, endpoints, permisos o superficies de ataque.
 ---
 
 # Recon: cómo está hecho, y dónde mirar
@@ -38,7 +38,7 @@ flowchart TD
     T --> F
     F --> SM[7. máquinas de estado<br/>A9, state-machines.md]
     F --> X[8. exposición<br/>A11]
-    SM & X --> C[9. 46 cadenas<br/>chains.md]
+    SM & X --> C[9. 47 cadenas<br/>chains.md]
     C --> L[LEADS.md + índice por entrada]
     F -. librerías de superficie .-> I
 ```
@@ -48,7 +48,7 @@ flowchart TD
 3. **Inventario de versiones** (A2): versión resuelta del lockfile, `purl` por fila, transitivas en `inventory.csv`. Reglas en [references/architecture.md](references/architecture.md#a2-inventario-de-versiones).
 4. **Mapa de superficies** (A10): cada categoría con su búsqueda por ecosistema en [references/detection.md](references/detection.md#superficies-por-categoría). Cada librería que aparece acá entra también en A2.
 5. **Máquinas de estado** (A9): un diagrama por entidad con estado mutable, derivado de lo que el código escribe. Método en [references/state-machines.md](references/state-machines.md).
-6. **Recorrer las 46 cadenas** de [references/chains.md](references/chains.md), en sus diez grupos, contestando cada paso con secciones de `ARCHITECTURE.md`. Si un paso pide un hecho que no está, primero se agrega a `ARCHITECTURE.md`, después se contesta.
+6. **Recorrer las 47 cadenas** de [references/chains.md](references/chains.md), en sus diez grupos, contestando cada paso con secciones de `ARCHITECTURE.md`. Si un paso pide un hecho que no está, primero se agrega a `ARCHITECTURE.md`, después se contesta.
 7. **Índice por entrada** al final de `LEADS.md`: endpoint o entrada → pistas abiertas que la tocan.
 
 ## Salidas
@@ -57,7 +57,7 @@ flowchart TD
 recon/
 ├── ARCHITECTURE.md   hechos: A1–A13           templates/ARCHITECTURE.md
 ├── inventory.csv     todas las piezas, también transitivas   templates/inventory.csv
-└── LEADS.md          46 cadenas + índice por entrada         templates/LEADS.md
+└── LEADS.md          47 cadenas + índice por entrada         templates/LEADS.md
 ```
 
 | Archivo | Lleva | No lleva |
@@ -120,7 +120,7 @@ flowchart LR
 - [ ] A2 coincide con el lockfile, cada fila tiene `purl`, las librerías de A10 están; `inventory.csv` tiene las transitivas
 - [ ] A5 tiene todas las rutas del framework detectado, incluidas las de convención, con Auth y Autorización efectivas
 - [ ] A9 tiene un diagrama por entidad con estado mutable, con acción y guardia en cada transición
-- [ ] `LEADS.md` tiene las 46 clases; ninguna falta
+- [ ] `LEADS.md` tiene las 47 clases; ninguna falta
 - [ ] Cada `descartada` tiene la búsqueda que la respalda; cada `pista abierta` dice qué verificar
 - [ ] El índice por entrada lista todas las pistas abiertas
 - [ ] Nada se escribió fuera de `recon/`

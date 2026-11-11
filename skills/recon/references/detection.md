@@ -119,6 +119,7 @@ Autorización por recurso: buscar, en el handler o el service, una comparación 
 | Máquinas declaradas | XState, `javascript-state-machine`, `aasm`, `statesman`, `django-fsm`, Spring Statemachine |
 | Escrituras del campo | `status =`, `{ status: … }` en `update`/`save`, `update_column(:status`, `UPDATE … SET status` |
 | Guardias | `if (x.status !== …) throw`, `where: { id, status: … }`, `@transition(source=…)` |
+| Métodos seguros que escriben | handler de `get`/`@Get`/`@GetMapping`/`def get`/`methods=['GET']` que llama `create`/`update`/`save`/`delete`/`INSERT`/`UPDATE`, `sendMail`, `queue.add`, `req.session.… =`; rutas para cualquier método: `app.all`, `router.use(path, handler)`, `@RequestMapping` sin `method`, vista de Django sin `@require_POST`/`@require_http_methods`, Rails `match … via: :all`, Flask `methods` con GET y POST que lee `request.values` |
 | Atomicidad | `$transaction`, `transaction.atomic`, `@Transactional`, `SELECT … FOR UPDATE`, update condicional con `WHERE` sobre el estado |
 
 ## Políticas e infra

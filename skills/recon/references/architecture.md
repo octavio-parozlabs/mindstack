@@ -101,6 +101,7 @@ Tabla bruta, una fila por ruta y método, agrupada por app:
 - **Params con id**: cualquier identificador de recurso o de usuario en path, query, body o cookie (`:id`, `userId`, `username`, GUIDs).
 - **Campos del body**: los que el handler lee, o `body completo` si pasa el body entero al modelo.
 - Entran también: rutas por convención (file-based, decoradores, server actions, loaders), canales y eventos de websocket, operaciones GraphQL (queries, mutations, subscriptions) con su guarda, webhooks entrantes, y versiones viejas de la API que siguen montadas. Cómo se declaran por framework: [detection.md](detection.md#rutas-y-auth-por-framework).
+- **Métodos seguros que escriben**: debajo de la tabla, las rutas GET, HEAD u OPTIONS cuyo handler escribe en la base, manda mails, encola jobs o cambia la sesión, con el `archivo:línea` de la escritura; y las rutas registradas para cualquier método (`app.all`, `@RequestMapping` sin `method`, vistas de Django sin decorador de método). Si no hay: `no detectadas` con la búsqueda.
 - Si el repo es solo front: una tabla de **endpoints externos llamados**, con el `archivo:línea` del cliente.
 
 ## A6 Autenticación y sesión
@@ -133,6 +134,8 @@ Además del diagrama, por cada flujo:
 | ¿cambiar contraseña invalida las otras sesiones? | sí / no detectada |
 | ¿el login responde distinto si el usuario existe? | mismo mensaje, pero early return antes del hash `auth.ts:55` |
 | ¿de dónde sale el usuario en reset, 2FA y cambio de contraseña? | del token / de la sesión / del body |
+| ¿cómo se marca la sesión pendiente de MFA: en la misma escritura que la autentica o en dos? | una escritura `auth.ts:60` / dos: `session.userId` en `auth.ts:58`, `session.mfaPending` en `auth.ts:63` |
+| ¿el contador de intentos de MFA se incrementa de forma atómica? | `UPDATE … SET attempts = attempts + 1` / lee, suma y guarda |
 
 ## A7 Políticas
 

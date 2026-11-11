@@ -1,6 +1,6 @@
 # LEADS: <proyecto>
 
-<!-- Lo escribe la skill recon. Cadenas: skills/recon/references/chains.md. Las 46 clases van siempre, en este orden.
+<!-- Lo escribe la skill recon. Cadenas: skills/recon/references/chains.md. Las 47 clases van siempre, en este orden.
 Cada una termina como: descartada en paso n (con la búsqueda) · pista abierta P-n (qué verificar, impacto si se confirma) · no aplica (por qué).
 Sin severidad. Evidencia: archivo:línea si es sí; qué se buscó y dónde si es no. -->
 
@@ -87,6 +87,12 @@ Fecha: AAAA-MM-DD · Commit: `<sha>` · Hechos: [ARCHITECTURE.md](ARCHITECTURE.m
 | 1 ✂ | | | |
 
 ### CSRF — <pista abierta P-n | descartada en paso n | no aplica>
+
+| Paso | Pregunta | Respuesta | Evidencia |
+|---|---|---|---|
+| 1 ✂ | | | |
+
+### Métodos seguros que mutan — <pista abierta P-n | descartada en paso n | no aplica>
 
 | Paso | Pregunta | Respuesta | Evidencia |
 |---|---|---|---|

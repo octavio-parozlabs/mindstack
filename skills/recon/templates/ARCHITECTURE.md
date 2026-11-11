@@ -51,6 +51,8 @@ Servicios internos y puertos alcanzables desde el back:
 | Método | Ruta | Handler `archivo:línea` | Auth | Autorización | Params con id | `Content-Type` aceptado | Campos del body |
 |---|---|---|---|---|---|---|---|
 
+Métodos seguros que escriben y rutas que aceptan cualquier método (`archivo:línea` de la escritura):
+
 WebSockets, GraphQL, server actions, webhooks entrantes, versiones viejas de la API:
 
 ## A6 Autenticación y sesión
@@ -68,6 +70,8 @@ WebSockets, GraphQL, server actions, webhooks entrantes, versiones viejas de la 
 | ¿cambiar contraseña invalida las otras sesiones? | |
 | ¿el login responde distinto si el usuario existe? | |
 | ¿de dónde sale el usuario en reset, 2FA y cambio de contraseña? | |
+| ¿cómo se marca la sesión pendiente de MFA: en la misma escritura que la autentica o en dos? | |
+| ¿el contador de intentos de MFA se incrementa de forma atómica? | |
 
 ## A7 Políticas
 
