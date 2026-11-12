@@ -39,6 +39,8 @@ flowchart TD
 | `ci` | `mindstack:ci-cd` (+ `mindstack:docker-ci` si aplica) | el Done corre en CI, no solo local |
 | `docs` | `mindstack:documentation` | sin código; `qa` verifica que los ejemplos corran |
 
+Si el SPEC tiene la sección UX/UI, `mindstack:design` va en `skills:` sea cual sea el `tipo`.
+
 Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso como `tipo` y poné las dos skills.
 
 2b. **Si es un fix: confirmar la causa.** El SPEC trae una causa probable; vos leés el código y la confirmás o refutás, con `archivo:línea` y por qué, en "Acoplamiento". Refutada y el alcance no cambia: Decisiones con la causa real. Refutada y el alcance cambia: pará, vuelve a `/mindstack:draft`. Las tareas de un fix tienen orden fijo: 1) `qa` lleva el test de `notes/repro.md` a la suite, al nivel de la causa confirmada, y queda en rojo; 2) `developer` arregla; el Done incluye ese test en verde. Si la reproducción fue manual y ningún test automático es viable, lo decís en Decisiones con principio y queda en Deuda técnica con vencimiento; nunca "arreglado, confiá".

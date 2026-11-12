@@ -47,6 +47,43 @@ sequenceDiagram
     A-->>W: 200 (propuesto: no reintenta, no duplica)
 ```
 
+## UX/UI (solo si toca la interfaz)
+
+Lo que el developer no puede adivinar mirando el código: qué ve la persona, qué dispara cada cosa y qué se queda quieto. Los criterios generales (contraste, modos claro y oscuro, layout estable, accesibilidad) están en la skill `mindstack:design`; acá va lo de esta pantalla. La propuesta inicial la escribe el agente `designer` en `notes/ux.md`; esta sección es esa propuesta corregida con la persona. Sin esta sección, el developer decide el diseño y QA no tiene contra qué comparar.
+
+**Flujo de pantallas**: qué pantalla, modal o panel lleva a cuál, y con qué acción.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pedido: /orders/:id
+    Pedido --> ConfirmarReintento: clic "Reintentar pago"
+    ConfirmarReintento --> Pedido: "Cancelar" o Escape
+    ConfirmarReintento --> Procesando: "Confirmar"
+    Procesando --> Pedido: cobrado (toast "Pago acreditado")
+    Procesando --> ConfirmarReintento: rechazado (error en el modal, sin cerrarlo)
+```
+
+**Interacciones**: una fila por cosa que la persona hace o que le pasa.
+
+| Cuando | Se muestra | Cómo | Dónde | Qué no se mueve |
+|---|---|---|---|---|
+| clic en "Reintentar pago" | confirmación con el monto | AlertDialog | centro | la página de fondo |
+| "Confirmar" | spinner en el botón | el botón muestra que está cargando, mismo tamaño | pie del AlertDialog | título y botones del AlertDialog |
+| el cobro falla | mensaje del proveedor | texto en el renglón reservado bajo el título | dentro del AlertDialog | botones del AlertDialog |
+| el cobro pasa | "Pago acreditado" | toast, 5 s | abajo a la derecha | contenido de la página |
+
+**Estados de cada pantalla**: qué se ve en cada uno; si alguno no aplica, se dice.
+
+| Pantalla | Cargando | Vacío | Error | Sin permiso | Con datos |
+|---|---|---|---|---|---|
+| Pedido | skeleton con las medidas del detalle | — | mensaje + "Reintentar" | 403: "No tenés acceso a este pedido" | detalle + botón |
+
+**Componentes y medidas**: modales y paneles con su tamaño (chico, mediano, grande), qué parte scrollea y qué queda fijo; qué contenido aparece o cambia y cómo reserva su lugar.
+
+**Textos**: títulos, botones, mensajes de error y de éxito, textuales. Lo que la persona va a leer no lo inventa el developer.
+
+**Responsive y accesibilidad propios de esta pantalla**: qué cambia en mobile, orden de foco, a dónde va el foco al abrir y cerrar, atajos. Si no hay nada fuera de lo de `mindstack:design`, se dice "lo de `mindstack:design`".
+
 ## Qué no se hace
 
 Lo que alguien va a querer meter y no entra. Una línea cada uno, con el motivo si no es obvio.

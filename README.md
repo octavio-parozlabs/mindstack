@@ -93,6 +93,7 @@ Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee
 | Agente | Modelo | Hace | Escribe solo |
 |---|---|---|---|
 | `analyst` | opus | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
+| `designer` | opus | en el borrador, si toca la interfaz: propone la sección UX/UI del SPEC con la skill `design` y las pantallas que ya existen, y devuelve las preguntas | `notes/ux.md` |
 | `researcher` | opus | al planificar: compara librerías que ya resuelven una necesidad, con datos; lo propio es la última opción | nada |
 | `developer` | opus | una tarea del TODO, sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
 | `qa` | sonnet | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
@@ -112,6 +113,7 @@ Cuando el dev encuentra una ambigüedad que ni el SPEC, ni el PLAN, ni un princi
 | flujo | `workflow` | el núcleo: estados, artefactos, roles, cada fase en `references/`, templates |
 | prácticas (agnósticas) | `qa` · `tdd` · `debugging` · `code-review` · `security` · `git` · `simplification` · `performance` · `api-design` · `migration` · `observability` · `documentation` · `ci-cd` | las cargan los roles según `tipo:` y `skills:` del PLAN (tabla en `skills/workflow/references/plan.md`) |
 | stack | `typescript` · `react` · `node-api` · `nestjs` · `architecture` · `web-security` · `docker-ci` · `auth-jwt-sessions` | cargan solas por `paths:` o por nombre; dicen con qué librería, con qué comando, qué nunca |
+| diseño | `design` | criterios de diseño sobre shadcn/ui, no reglas de CSS: qué componente se abre cuándo, color con primary y estados iguales en claro y oscuro, layout que no salta, estados, textos, accesibilidad WCAG 2.2 AA; script de contraste. La aplica el agente `designer` en el borrador |
 | auditoría | `recon` | describe un repo existente en solo lectura: `ARCHITECTURE.md` con hechos y versiones, `LEADS.md` con cadenas de preguntas por clase de vulnerabilidad. Se carga por nombre o al pedir mapear un repo |
 
 Los principios que desempatan cuando dos reglas chocan están en `PRINCIPLES.md` y entran al contexto en cada sesión.

@@ -44,6 +44,9 @@ caso "dev escribe src"                           0 ./write-scope.sh --no '(PLAN\
 caso "dev escribe TODO"                          0 ./write-scope.sh --no '(PLAN\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|test-helpers)' <<<"$(E Edit todolist/2-in-progress/x/TODO.md)"
 caso "dev no escribe test"                       2 ./write-scope.sh --no '(PLAN\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|test-helpers)' <<<"$(E Write src/a.test.ts)"
 caso "dev no escribe REVIEW"                     2 ./write-scope.sh --no '(PLAN\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|test-helpers)' <<<"$(E Write todolist/3-in-review/x/REVIEW-code.md)"
+caso "designer escribe notes/ux.md"              0 ./write-scope.sh '/notes/ux\.md$' <<<"$(E Write todolist/0-draft/x/notes/ux.md)"
+caso "designer no escribe SPEC"                  2 ./write-scope.sh '/notes/ux\.md$' <<<"$(E Write todolist/0-draft/x/SPEC.md)"
+caso "designer no escribe código"                2 ./write-scope.sh '/notes/ux\.md$' <<<"$(E Edit src/a.tsx)"
 caso "sin file_path pasa"                        0 ./write-scope.sh 'REVIEW-code\.md$' <<<'{"tool_name":"Edit","tool_input":{}}'
 
 echo "$n casos, $fallos fallos"

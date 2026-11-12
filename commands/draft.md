@@ -1,5 +1,5 @@
 ---
-description: El borrador de la tarea de este worktree, en diálogo. Con texto: tarea nueva (entrevista, reproducción por qa si es un fix, SPEC.md con un diagrama por caso borde); después tus comentarios corrigen el SPEC y "generá el plan" (o /mindstack:plan) escribe PLAN.md, lo valida y deja la tarea en 1-pending. Sin texto: retoma la tarea a borrador para corregirla. Si la tarea ya tiene PR: abre la tarea hija con lo que falta. Un commit por vuelta. No implementa.
+description: El borrador de la tarea de este worktree, en diálogo. Con texto: tarea nueva (entrevista, reproducción por qa si es un fix, propuesta de UX/UI por designer si toca la interfaz, SPEC.md con un diagrama por caso borde); después tus comentarios corrigen el SPEC y "generá el plan" (o /mindstack:plan) escribe PLAN.md, lo valida y deja la tarea en 1-pending. Sin texto: retoma la tarea a borrador para corregirla. Si la tarea ya tiene PR: abre la tarea hija con lo que falta. Un commit por vuelta. No implementa.
 argument-hint: <qué querés hacer> | (nada: retomar) | <qué falta>
 disable-model-invocation: true
 ---

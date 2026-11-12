@@ -56,7 +56,7 @@ sequenceDiagram
     end
 ```
 
-Si es un bug, antes de escribir el SPEC el analista lanza a `qa` para reproducirlo (caso 01): sin reproducción no hay plan.
+Si es un bug, antes de escribir el SPEC el analista lanza a `qa` para reproducirlo (caso 01): sin reproducción no hay plan. Si toca la interfaz, lanza a `designer`: propone flujo, componentes, estados y textos en `notes/ux.md`, y sus preguntas te llegan una por vez como las del analista.
 
 ## Las etapas, y qué las dispara
 

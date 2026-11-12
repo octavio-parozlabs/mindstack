@@ -9,7 +9,7 @@ paths:
 
 # React
 
-El front. Asume la skill `typescript` (tipos, errores, estructura, tests, lint): lo que está ahí no se repite. La seguridad del lado del cliente (XSS, tokens, CSP) está en `../typescript/references/security.md` y en la skill `web-security`.
+El front. Asume la skill `typescript` (tipos, errores, estructura, tests, lint): lo que está ahí no se repite. La seguridad del lado del cliente (XSS, tokens, CSP) está en `../typescript/references/security.md` y en la skill `web-security`. Esta skill escribe componentes; no decide diseño. Qué componente de shadcn va en cada interacción, colores del tema, estados, textos y qué no se mueve salen de la sección UX/UI del SPEC y de la skill `design`; si falta una decisión, se pide (al SPEC o al agente `designer` en el borrador), no se inventa.
 
 ## Con qué
 

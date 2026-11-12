@@ -7,9 +7,14 @@ sequenceDiagram
     participant P as persona
     participant A as analista (sesión principal, en el worktree)
     participant R as repo
+    participant D as designer
     P->>A: /mindstack:draft "que los pagos reintenten"
     A->>R: leer lo que el pedido toca (grep, graphify si hay)
     A->>A: lista de supuestos, con % de confianza
+    opt toca la interfaz
+        A->>D: Agent designer: proponer <slug> + pedido + pantallas
+        D-->>A: notes/ux.md: propuesta UX/UI + preguntas con hipótesis
+    end
     loop una pregunta por vez, hasta que no quede ambigüedad
         A->>P: pregunta + hipótesis + confianza
         P-->>A: respuesta
@@ -42,6 +47,7 @@ Lo que está arriba de 80% se afirma y se deja corregir; lo que está abajo se p
 - **Opciones cerradas cuando se puede.** Tres opciones con consecuencia cada una valen más que una pregunta abierta.
 - **Parar cuando no queda ambigüedad que cambie el SPEC.** No cuando se acaban las preguntas posibles. Si una respuesta no cambiaría ni el alcance ni un caso borde, no se pregunta.
 - **Cada respuesta genera o descarta casos borde.** Anotalos al momento, numerados. Un caso borde es una entrada o situación donde el camino feliz no alcanza: vacío, duplicado, timeout, concurrencia, permiso, cantidad cero o enorme, estado intermedio.
+- **Si toca la interfaz, el diseño lo propone `designer`.** Antes de la primera pregunta de UX, lanzá `Agent` (`subagent_type: designer`, prompt `proponer <slug>` más el pedido, las pantallas o rutas que toca y lo que la persona ya respondió). Devuelve `notes/ux.md` con la propuesta completa y sus preguntas. Sus preguntas entran a la entrevista como las tuyas: una por vez, con su hipótesis; lo que está arriba de 80% se afirma y se deja corregir. Si la persona trae un mockup o nombra una pantalla parecida, pasáselo en el prompt. Si las respuestas cambian mucho la propuesta (otra pantalla, otro flujo), relanzalo con las respuestas; si no, ajustá vos la sección.
 - **Pedido grande.** Si el pedido junta varias capacidades que se prueban por separado (identidad + facturación + notificaciones), antes del SPEC proponé un mapa: una tabla `módulo | responsabilidad | depende de` y un orden. La persona lo aprueba y se hace un SPEC por módulo, en orden de dependencia, cada uno con su slug y `padre:` en el PLAN apuntando al primero. Un pedido normal no pasa por acá.
 
 ## Si es un fix
@@ -74,6 +80,7 @@ Plantilla: `../templates/SPEC.md`. Lo que no se negocia:
 | Pedido original | textual, sin interpretar |
 | Cómo funciona hoy | un diagrama, no prosa. Secuencia, flowchart o stateDiagram según la forma del problema |
 | Qué se hace | un párrafo y el diagrama propuesto, del mismo tipo que el de "hoy" |
+| UX/UI | **si toca la interfaz, obligatoria**: flujo de pantallas en stateDiagram, una fila por interacción (cuándo → qué se muestra, cómo, dónde, qué no se mueve), estados por pantalla (cargando, vacío, error, sin permiso, con datos), medidas de modales y paneles, textos literales. Sale de `notes/ux.md` del `designer`, corregido con las respuestas. Los criterios generales no se repiten: están en `mindstack:design` |
 | Qué no se hace | lo que la persona dijo que no, y lo que vos ves que alguien va a querer meter |
 | Supuestos | los que quedaron arriba de 80% sin confirmar |
 | Diagnóstico | solo en un fix: síntoma, reproducción (de `qa`, con nivel), causa probable con confianza, descartado |
