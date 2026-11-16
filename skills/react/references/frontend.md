@@ -120,12 +120,142 @@ Tres librerías de TanStack, cada una para un problema. No se reemplazan por `us
 | tablas: sort, filtro, paginación, selección, columnas | `@tanstack/react-table` | implementar sort y paginación a mano, otra librería de tablas |
 | listas largas (cientos o miles de filas) | `@tanstack/react-virtual` | renderizar 5000 filas y "después vemos" |
 
-Reglas:
-
-- Toda lectura de la API es un `useQuery` con `queryKey` por recurso e id: `['orders', orderId]`. Toda escritura es un `useMutation` que invalida las keys que afecta.
 - Estado de servidor (viene de la API) con Query. Estado de UI (modal abierto, tab activa, fila seleccionada) con `useState` o un store chico. No mezclar.
 - Una tabla que muestra datos de la API usa Table sobre los datos de Query; la paginación server-side pasa `page` y `sort` por la `queryKey`.
-- Lista con más de ~100 ítems visibles a la vez: Virtual. Antes, no hace falta.
+- Lista con más de ~100 ítems visibles a la vez: Virtual. Antes, no hace falta. Scroll infinito: `useInfiniteQuery` + Virtual, con `maxPages` si la lista no tiene fin.
+
+Lo que sigue usa la API de Query v5 (`queryOptions`, `isPending`, `gcTime`, `skipToken`).
+
+### Keys y opciones: un lugar por recurso
+
+El módulo del recurso en `api/` exporta, además de las funciones, sus queries. Nadie escribe una `queryKey` a mano.
+
+```ts
+// apps/web/src/api/orders.ts
+import { queryOptions, keepPreviousData } from '@tanstack/react-query';
+
+export const orderQueries = {
+  all: () => ['orders'] as const,
+  list: (filters: OrderFilters) =>
+    queryOptions({
+      queryKey: [...orderQueries.all(), 'list', filters],
+      queryFn: ({ signal }) => listOrders(filters, signal),
+      placeholderData: keepPreviousData,
+    }),
+  detail: (id: string) =>
+    queryOptions({
+      queryKey: [...orderQueries.all(), 'detail', id],
+      queryFn: ({ signal }) => getOrder(id, signal),
+    }),
+};
+
+// uso: useQuery(orderQueries.detail(id)) · queryClient.prefetchQuery(orderQueries.detail(id))
+// invalidar todo el recurso: queryClient.invalidateQueries({ queryKey: orderQueries.all() })
+```
+
+| Regla | Por qué |
+|---|---|
+| Keys y `queryFn` solo desde `<recurso>Queries`; el componente llama `useQuery(orderQueries.detail(id))` directo, sin hook propio salvo que componga algo | la misma key en todos lados; `getQueryData(orderQueries.detail(id).queryKey)` sale tipado |
+| La key lleva toda variable que usa la `queryFn`, y va de lo general a lo particular: recurso, tipo, parámetros | sin la variable, la cache devuelve datos de otros parámetros; con el orden, invalidar `['orders']` alcanza a listas y detalles |
+| Los filtros van como objeto en la key, no como string armado | Query hashea el objeto de forma estable; el string se arma distinto en dos lugares |
+| `@tanstack/eslint-plugin-query` con `recommended` | `exhaustive-deps` marca la variable que falta en la key |
+| Los datos de una query no se copian a `useState`; lo derivado se calcula en render o con `select` | la copia queda vieja en el próximo refetch. Excepción: valores iniciales de un form, con `values` de react-hook-form |
+
+### Valores por defecto
+
+```ts
+// apps/web/src/api/query-client.ts
+import { QueryClient, QueryCache } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { ApiError } from './api-error';
+
+const isClientError = (e: unknown) => e instanceof ApiError && e.status >= 400 && e.status < 500;
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      retry: (failures, error) => !isClientError(error) && failures < 2,
+    },
+    mutations: { retry: false },
+  },
+  queryCache: new QueryCache({
+    // solo falla de refetch: hay datos en pantalla y el error no tiene dónde mostrarse
+    onError: (error, query) => {
+      if (query.state.data !== undefined) toast.error('No se pudieron actualizar los datos');
+    },
+  }),
+});
+```
+
+| Regla | Por qué |
+|---|---|
+| `staleTime` global de 30 s; por recurso se sube (catálogos, config: minutos o `Infinity` con invalidación) o se baja a 0 (lo que cambia solo) | con el 0 por defecto, cada componente que monta vuelve a pedir: requests duplicados y parpadeo |
+| `refetchOnWindowFocus` queda en `true` | al volver a la pestaña, lo viejo se refresca y la pantalla no miente; con `staleTime` no hay tormenta de requests |
+| Sin reintento en 4xx; hasta 2 en 5xx y red | un 400 o 404 no cambia por reintentar, solo demora el error |
+| Las mutaciones no se reintentan solas | no son idempotentes: un reintento puede crear dos pedidos |
+| Un `QueryClient` por app, a nivel módulo; Devtools solo en desarrollo, lazy | crearlo dentro de un componente pierde la cache en cada render |
+| El 401 lo resuelve el interceptor de axios (`../../web-security/references/jwt.md`), no cada query | un solo lugar refresca o saca la sesión |
+
+### Estados en pantalla
+
+Cómo se ve cada estado lo dice `mindstack:design` (`../../design/references/states.md`). Esto es de qué flag sale cada uno:
+
+```mermaid
+flowchart TD
+    Q[useQuery] --> D{¿hay data?}
+    D -- sí --> V{¿lista vacía?}
+    V -- sí --> E[Empty]
+    V -- no --> C[contenido;<br/>isFetching no lo reemplaza]
+    D -- no --> R{¿isError?}
+    R -- sí --> K{error.code}
+    K -- FORBIDDEN / NOT_FOUND --> P[sin permiso / no existe]
+    K -- otro --> A[Alert con reintentar: refetch]
+    R -- no --> S[isPending: Skeleton]
+```
+
+| Regla | Por qué |
+|---|---|
+| Se pregunta primero por `data`, después por `error`, al final por `isPending` | un refetch que falla no borra lo que la persona estaba viendo |
+| Skeleton solo con `isPending` (sin datos). Un refetch en segundo plano (`isFetching`) deja el contenido; a lo sumo un indicador que no mueve nada | reemplazar la tabla por un Skeleton en cada refetch es un salto de layout |
+| Paginación y filtros con `placeholderData: keepPreviousData`; `isPlaceholderData` deshabilita "siguiente" | la tabla mantiene las filas mientras llega la página nueva, sin colapsar y volver a crecer |
+| `useQuery` con flags por defecto. `useSuspenseQuery` solo si la ruta ya tiene Suspense y error boundary con `QueryErrorResetBoundary`; nunca los dos modelos en la misma pantalla | un modelo de carga por pantalla, y el reintento resetea la query |
+
+### Mutaciones
+
+```mermaid
+flowchart TD
+    M[useMutation] --> R{¿la respuesta trae la entidad?}
+    R -- sí --> S[setQueryData del detalle<br/>+ invalidar las listas]
+    R -- no --> I[invalidar el recurso]
+    M --> O{¿el cambio se tiene que ver al instante<br/>y deshacerlo es obvio?<br/>toggle, reordenar, marcar}
+    O -- sí, en un solo lugar --> V[mostrar variables mientras isPending]
+    O -- sí, en varios lugares --> C[optimista en la cache:<br/>onMutate cancela, guarda y escribe<br/>onError restaura]
+    O -- no --> W[esperar al servidor]
+```
+
+| Regla | Por qué |
+|---|---|
+| `onSettled: () => queryClient.invalidateQueries(...)` con `return` | la mutación sigue en `isPending` hasta que llegan los datos nuevos: el botón no termina antes que la lista |
+| Se invalida el recurso por prefijo y lo que depende de él (crear un pedido invalida `orderQueries.all()` y el contador del cliente) | lo que se ve en otra parte de la pantalla no queda viejo |
+| Nunca optimista en pagos, borrados sin deshacer ni nada que el servidor rechaza por regla de negocio | mostrar éxito y después revertir es peor que esperar un segundo |
+| Lógica de cache en la definición de `useMutation`; efectos de pantalla (toast, navegar, cerrar el Dialog) en `mutate(vars, { onSuccess })` | si el componente se desmonta, la cache igual se actualiza y el toast no aparece en una pantalla que ya no está |
+| El botón que dispara la mutación se deshabilita con `isPending` | no hay doble submit |
+| Nadie llama `refetch()` de otra query para "actualizar después de guardar" | eso es invalidar, y la mutación sabe qué |
+
+### Cuándo pedir antes
+
+| Caso | Criterio |
+|---|---|
+| ruta con datos | si el router tiene loaders, `queryClient.ensureQueryData(...)` en el loader: los datos llegan antes del render, sin cascada |
+| link al detalle que probablemente se abra | `prefetchQuery` en hover o foco |
+| query que depende de otra | `queryFn: userId ? () => … : skipToken`; si no dependen, en paralelo (`useQueries` o dos `useQuery`), nunca encadenadas de más |
+| datos que cambian solos | evento de WebSocket que invalida o hace `setQueryData`; si no hay socket, `refetchInterval`, que se frena con la pestaña en segundo plano |
+
+### Sesión y cache
+
+- Logout o sesión perdida: `queryClient.clear()`. Los datos de un usuario no sobreviven al siguiente.
+- La cache no se persiste en `localStorage` (`persistQueryClient`) si tiene datos personales: queda en el disco de una máquina compartida.
 
 ## Editores de código y texto rico
 
@@ -169,7 +299,7 @@ Lo mínimo, siempre. El resto en `../../typescript/references/security.md`.
 
 ```
 apps/web/src/
-├── api/               http.ts (instancia axios) + cliente tipado por recurso: orders.ts, users.ts
+├── api/               http.ts (instancia axios), query-client.ts, cliente tipado y queries por recurso: orders.ts, users.ts
 ├── orders/            feature: componentes, hooks, estado de esa pantalla
 │   ├── OrderList.tsx
 │   ├── OrderList.component.test.tsx
@@ -181,5 +311,6 @@ apps/web/src/
 ## Tests
 
 - Componentes: Testing Library, por comportamiento visible ("muestra el error del cupón"), no por implementación (`state.error === ...`).
+- Un `QueryClient` nuevo por test con `retry: false`, nunca el de la app: la cache no pasa de un test a otro y un error no tarda en aparecer.
 - API mockeada en la frontera con MSW, usando los schemas de `contracts` para generar respuestas válidas. No mockear `http` ni los módulos de `api/`: MSW intercepta por debajo de axios.
 - Sin snapshot tests de componentes enteros. Rompen con cualquier cambio y nadie los lee.
