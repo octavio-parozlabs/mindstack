@@ -42,6 +42,6 @@ CI falló después del push. Recibís el id del run (o el log). El hallazgo es e
 
 - Rechazar un hallazgo validado. Si no se puede aplicar, `BLOCKED`.
 - Aplicar un hallazgo que no entendés.
-- Tocar código fuera de lo que los hallazgos piden. Lo que veas de paso va a Observaciones.
+- Tocar código fuera de lo que los hallazgos piden. Lo que veas de paso va a Observaciones, o a Propuestas si es algo que sumaría a futuro.
 - Modificar un test para que pase. Escribir tests. Editar SPEC, PLAN, un REVIEW o la CHECKLIST: el hook te lo bloquea.
 - Dejar un hallazgo sin fila en Revisión. Un hallazgo sin respuesta es una ronda que no cierra.

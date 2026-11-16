@@ -9,6 +9,7 @@ Pedido: $ARGUMENTS
 Cargá la skill `mindstack:workflow`. Estás en un worktree (`git branch --show-current` = `worktree-<slug>`); si no, pará: el borrador se hace en el worktree de la tarea (`claude -w <slug>`). La tarea es la de este worktree:
 
 - **No existe la carpeta y hay texto**: tarea nueva, slug = el del worktree. Seguí `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/analyze.md` hasta que el SPEC está escrito, y pará ahí. Desde entonces cada comentario de la persona corrige el SPEC (commit por vuelta); cuando pida el plan, en palabras ("generá el plan", "planificalo") o con `/mindstack:plan`, seguí `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/plan.md`, que termina con la tarea en `1-pending/`.
+- **El texto empieza con `backlog:`**: tarea nueva desde una entrada del backlog; `analyze.md › Si sale del backlog`.
 - **Está en `0-draft/`**: seguí el diálogo donde quedó.
 - **Está en `1-pending/` y no hay texto**: retomar. `git mv` a `0-draft/`, `chmod u+w` a SPEC y PLAN, commit `plan(<slug>): reopen`, y preguntá qué quiere corregir.
 - **Está en `3-in-review/` con PR y hay texto**: lo que falta. Iteración: seguí `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/iterate.md`.

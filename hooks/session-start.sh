@@ -12,6 +12,12 @@ if [ -d todolist ]; then
     slugs=$(find "$d" -mindepth 1 -maxdepth 1 -type d -printf '%f ' 2>/dev/null)
     echo "- $estado: ${slugs:-—}"
   done
+  # El backlog no es un estado: solo cuántas hay. Se lee cuando la persona quiere.
+  if [ -d todolist/backlog ]; then
+    ideas=$(grep -cs '^## ' todolist/backlog/IDEAS.md)
+    props=$(grep -cs '^## ' todolist/backlog/PROPUESTAS.md)
+    echo "- backlog: ${ideas:-0} ideas tuyas · ${props:-0} propuestas de agentes (todolist/backlog/)"
+  fi
   echo
 fi
 # 3. El marco, para una sesión que no corre ningún comando.

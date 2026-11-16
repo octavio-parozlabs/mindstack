@@ -36,6 +36,12 @@ caso "Bash echo > PLAN en blocked bloquea"       2 ./plan-immutable.sh <<<"$(B '
 caso "CHECKLIST por verifier pasa"               0 ./plan-immutable.sh <<<"$(E Edit todolist/3-in-review/x/CHECKLIST.md ',"agent_type":"verifier"')"
 caso "CHECKLIST por developer bloquea"           2 ./plan-immutable.sh <<<"$(E Edit todolist/2-in-progress/x/CHECKLIST.md ',"agent_type":"developer"')"
 caso "CHECKLIST sin agent_type (/plan) pasa"     0 ./plan-immutable.sh <<<"$(E Write todolist/0-draft/x/CHECKLIST.md)"
+caso "backlog por developer bloquea"            2 ./plan-immutable.sh <<<"$(E Edit todolist/backlog/PROPUESTAS.md ',"agent_type":"developer"')"
+caso "backlog sin agent_type (orquestador) pasa" 0 ./plan-immutable.sh <<<"$(E Edit todolist/backlog/PROPUESTAS.md)"
+caso "Edit wireframe en pending bloquea"         2 ./plan-immutable.sh <<<"$(E Edit todolist/1-pending/x/wireframes/pedido.wireloom)"
+caso "Edit wireframe en draft pasa"              0 ./plan-immutable.sh <<<"$(E Edit todolist/0-draft/x/wireframes/pedido.wireloom)"
+caso "designer escribe wireloom"                 0 ./write-scope.sh '(/notes/ux\.md|/wireframes/[^/]+\.wireloom)$' <<<"$(E Write todolist/0-draft/x/wireframes/a.wireloom)"
+caso "designer no escribe SPEC"                  2 ./write-scope.sh '(/notes/ux\.md|/wireframes/[^/]+\.wireloom)$' <<<"$(E Write todolist/0-draft/x/SPEC.md)"
 caso "Read no se evalúa"                         0 ./plan-immutable.sh <<<"$(E Read todolist/1-pending/x/PLAN.md)"
 
 echo "write-scope.sh"

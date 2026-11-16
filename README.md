@@ -58,26 +58,30 @@ todolist/
 ├── 3-in-review/        fase review ↔ fase fix
 ├── 4-done/         lista para mergear: todo commiteado, PR abierto, CI verde
 ├── blocked/        necesita a la persona: BLOCKED.md dice por qué
+├── backlog/        no es un estado: IDEAS.md (tuyas) · PROPUESTAS.md (de los agentes)
 └── <estado>/<slug>/
     ├── SPEC.md            qué se pidió: hoy/propuesto, alcance, supuestos, casos borde CB-n con diagrama
     ├── PLAN.md            cómo se hace: fechas, estado final, acoplamiento, tareas con rol, Done
     ├── TODO.md            qué se hizo: las tareas del PLAN, las tacha el dev
     ├── CHECKLIST.md       qué tiene que ser cierto (CA-n, CB-n): la tacha solo el verificador
-    ├── CHANGELOG.md       qué pasó: cambios, observaciones, decisiones, deuda, revisión, conflictos, cierre
+    ├── CHANGELOG.md       qué pasó: cambios, observaciones, propuestas, decisiones, deuda, revisión, conflictos, cierre
     ├── REVIEW-qa.md       hallazgos de QA contra los CB del SPEC
     ├── REVIEW-code.md   hallazgos del revisor de código
     ├── REVIEW-security.md hallazgos del auditor, zero trust
     ├── PR.md              body del PR
-    └── BLOCKED.md         solo en blocked/: motivos cortos, con opciones; lo único que leés
+    ├── BLOCKED.md         solo en blocked/: motivos cortos, con opciones; lo único que leés
+    └── wireframes/        si toca la interfaz: una pantalla por .wireloom; rendered/*.svg es lo que ves en el SPEC y en el PR
 ```
 
 | Archivo | Quién | Cuándo cambia |
 |---|---|---|
-| `SPEC.md`, `PLAN.md` | analista, planificador, con la persona | solo en `0-draft/`. Después **nunca**: un hook lo bloquea y CI lo verifica |
+| `SPEC.md`, `wireframes/`, `PLAN.md` | analista (y `designer`), planificador, con la persona | solo en `0-draft/`. Después **nunca**: un hook lo bloquea y CI lo verifica |
 | `TODO.md` | el dev tacha | en cada tarea |
 | `CHECKLIST.md` | `verifier` tacha, con código, test y evidencia | en cada ronda de revisión |
 | `CHANGELOG.md` | todos, cada uno su sección | siempre se agrega, nunca se reescribe |
 | `REVIEW-*.md` | un rol cada uno | se reescribe por ronda. Solo hallazgos, con severidad |
+| `backlog/IDEAS.md` | vos; ningún agente | cuando se te ocurre algo. `/mindstack:draft backlog: <título>` la convierte en tarea |
+| `backlog/PROPUESTAS.md` | el orquestador, con lo que los agentes propusieron en su tarea (con dónde se vio, máx. 3 por tarea) | al llegar a done. Borrás lo que no te sirve |
 
 ## Comandos
 
@@ -142,7 +146,7 @@ Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR si
 
 1. El prompt de cada rol dice qué no hace.
 2. `hooks/write-scope.sh` por agente: fuera de sus archivos, bloqueado.
-3. `hooks/plan-immutable.sh` global: `SPEC.md` y `PLAN.md` fuera de `0-draft/`, bloqueado; `CHECKLIST.md` solo la tacha `verifier`.
+3. `hooks/plan-immutable.sh` global: `SPEC.md`, `PLAN.md` y `wireframes/` fuera de `0-draft/`, bloqueado; `CHECKLIST.md` solo la tacha `verifier`.
 4. `chmod a-w` local al pasar a pendiente.
 5. `scripts/ci-plans-immutable.sh` en el CI del proyecto.
 6. Cada hallazgo que bloquea lo valida otro agente antes de corregirse.

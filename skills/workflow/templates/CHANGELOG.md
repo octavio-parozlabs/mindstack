@@ -20,6 +20,16 @@ Lo que se vio y no es de esta tarea: bugs ajenos, código raro, módulos sin tes
 |---|---|---|---|
 | | qa | `parseDate` acepta `""` y devuelve hoy | `shared/dates.ts:12` |
 
+## Propuestas
+
+Lo que mientras trabajabas viste que sumaría a futuro y no es de esta tarea: una feature, una pantalla, una integración. No es un bug (Observaciones) ni algo que dejaste a medias (Deuda). Sin "dónde se vio" no se propone. El orquestador las pasa a `todolist/backlog/PROPUESTAS.md` al llegar a done.
+
+La fecha es la de cuando se vio, no la de done: es la que viaja al backlog. Contexto: lo curioso que acompaña (una observación relacionada, un dato del log, qué lo disparó), en una línea.
+
+| Fecha | Quién | Qué | Por qué suma | Dónde se vio | Contexto | Tamaño |
+|---|---|---|---|---|---|---|
+| | qa | reintento manual desde el detalle | soporte no puede forzarlo | CB-3 · `pagos.controller.ts:58` | 3 de 12 tests de timeout terminan en "fallido" sin salida; ver Observaciones | S |
+
 ## Decisiones
 
 Elecciones que alguien va a cuestionar después, y todo giro respecto del PLAN. Con la alternativa descartada, para que no se vuelva a discutir desde cero, y el principio que la respalda (`PRINCIPLES.md` del plugin). Si la decidió un consenso, quién es `consensus` y la evidencia de cada analista va en una línea debajo.
@@ -38,7 +48,7 @@ Lo que se dejó a propósito. Sin issue no es deuda, es olvido. Sin vencimiento 
 
 ## Revisión
 
-Una fila por hallazgo por ronda. La escribe el corrector al cerrar la ronda. Un CI rojo después del push es una ronda `ci-n` con rol `ci` e ID `CI-n`. Resultado: `corregido` · `deuda #issue` · `rechazado: <motivo>` · `fuera de alcance: <motivo>`.
+Una fila por hallazgo por ronda. La escribe el corrector al cerrar la ronda. Un CI rojo después del push es una ronda `ci-n` con rol `ci` e ID `CI-n`. Resultado: `validado` · `refutado: evidencia` · `corregido` · `deuda #issue` · `bloqueado: motivo` (`fix.md`).
 
 | Ronda | Rol | ID | Severidad | Resultado |
 |---|---|---|---|---|

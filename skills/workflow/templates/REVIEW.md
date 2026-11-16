@@ -21,3 +21,7 @@ ID por rol: `QA-n` · `CODE-n` · `SEC-n`. Severidad: **crítica** (pérdida de 
 ## A verificar
 
 Lo que parece un fallo y no pudiste confirmar con una entrada concreta. Una línea cada uno. No cuenta como hallazgo ni bloquea.
+
+## Propuestas
+
+Lo que al revisar viste que sumaría a futuro y no es un fallo. Una línea: qué, por qué suma, dónde se vio. No cuenta como hallazgo; el orquestador lo pasa al backlog.

@@ -20,17 +20,19 @@ todolist/
 ├── 3-in-review/       cuatro revisores, validación, corrector
 ├── 4-done/        lista para mergear: todo commiteado, PR abierto, CI verde
 ├── blocked/       necesita a la persona: BLOCKED.md dice por qué
+├── backlog/       no es un estado: IDEAS.md (de la persona) y PROPUESTAS.md (de los agentes)
 └── <estado>/<slug>/
     ├── SPEC.md          qué se pidió: hoy/propuesto, alcance, supuestos, casos borde CB-n con diagrama, criterios
     ├── PLAN.md          cómo se hace: fechas, estado final, acoplamiento, tareas con rol, Done
     ├── TODO.md          qué se hizo: las tareas del PLAN, las tacha el dev
     ├── CHECKLIST.md     qué tiene que ser cierto: CA-n, CB-n, Estado final; la tacha solo el verifier
-    ├── CHANGELOG.md     qué pasó: cambios, observaciones, decisiones, deuda, revisión, conflictos, cierre
+    ├── CHANGELOG.md     qué pasó: cambios, observaciones, propuestas, decisiones, deuda, revisión, conflictos, cierre
     ├── REVIEW-qa.md     hallazgos de QA contra los CB del SPEC
     ├── REVIEW-code.md hallazgos del revisor de código
     ├── REVIEW-security.md hallazgos del auditor, zero trust
     ├── PR.md            body del PR
     ├── BLOCKED.md       solo en blocked/: motivos cortos, con opciones
+    ├── wireframes/      si toca la interfaz: SCR-n en .wireloom (los leen los agentes) y rendered/*.svg (los ves vos, linkeados en el SPEC)
     └── notes/           lo que se investigó para decidir. Libre
 ```
 
@@ -57,14 +59,28 @@ En el checkout principal (`main`) no se corre ningún comando del flujo. Al abri
 
 | Archivo | Lo escribe | Cuándo cambia | Qué responde |
 |---|---|---|---|
-| `SPEC.md` | analista con la persona; en un fix, `qa` aporta la reproducción | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica. Para cambiarlo, `/draft` sin texto lo vuelve a borrador | ¿qué se pidió y cómo sabemos que está? |
+| `SPEC.md` y `wireframes/` | analista con la persona; `designer` propone los wireframes; en un fix, `qa` aporta la reproducción | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica. Para cambiarlo, `/draft` sin texto lo vuelve a borrador | ¿qué se pidió y cómo sabemos que está? |
 | `PLAN.md` | planificador con la persona | solo en `0-draft/`. Después, **nunca** | ¿cómo se hace, en qué orden, con qué Done? |
 | `TODO.md` | el planificador lo deriva al pasar a pendiente; el dev tacha | en cada tarea terminada | ¿qué se hizo? |
 | `CHECKLIST.md` | el planificador la deriva de los `CA-n`, `CB-n` y Estado final; solo `verifier` tacha | en cada ronda de revisión | ¿está todo lo pedido, con código, test y evidencia? |
 | `CHANGELOG.md` | todos los roles, cada uno su sección | en cada paso. Solo se agrega, nunca se reescribe | ¿qué pasó, qué se vio, qué se decidió y por qué, qué se dejó? |
 | `REVIEW-*.md` | un rol cada uno | se reescribe entero por ronda | ¿qué está mal? (solo eso) |
+| `backlog/IDEAS.md` | solo la persona; ningún agente (hook) | cuando se le ocurre algo; `/draft backlog:` saca la entrada | ¿qué quiero hacer algún día? |
+| `backlog/PROPUESTAS.md` | el orquestador en la fase pr, filtrando `CHANGELOG › Propuestas` y `REVIEW-*.md › Propuestas` | al llegar a done; la persona borra lo que no le sirve | ¿qué vieron los agentes que sumaría? |
 
 Por qué el PLAN no se tacha: si el contrato cambia debajo del loop, "está hecho" deja de significar algo. El avance va al TODO; los giros van a Decisiones con fecha, quién y principio. Así la persona sabe en todo momento por qué se tomó un camino distinto al planeado.
+
+Por qué el backlog son dos archivos: una idea tuya es una intención; una propuesta de agente es una hipótesis con evidencia ("en CB-3 soporte no puede forzar el reintento"). Mezcladas, no sabés cuál pediste vos. Los agentes hacen y proponen, pero no escriben el backlog: proponen en su tarea y el orquestador filtra (con dónde se vio, sin repetidas, tres por tarea), para que no sea un cajón que nadie lee.
+
+```mermaid
+flowchart LR
+    P([persona]) --> I[backlog/IDEAS.md]
+    A[developer · qa · revisores · fixer] --> C["CHANGELOG › Propuestas<br/>REVIEW-*.md › Propuestas"]
+    C -->|fase pr: filtra, deduplica, máx. 3| PR[backlog/PROPUESTAS.md]
+    I & PR -->|"/mindstack:draft backlog: título"| D[0-draft/slug]
+```
+
+Si la persona pregunta qué del backlog conviene hacer: leé las dos listas y, de cada candidata, la tarea de origen. Ordená primero por peso: cuántas tareas distintas la vieron (la de origen más sus `Visto también`); una necesidad que aparece en cuatro tareas ya costó cuatro veces. Después, qué tan cerca está de lo que se viene haciendo (las últimas tareas de `4-done/`), tamaño y antigüedad; las ideas de la persona pesan más que una propuesta vista una sola vez. Respondé con tres, una línea cada una con el porqué, y el comando para empezar la primera. No se escribe nada.
 
 Por qué un changelog por tarea: la memoria de un agente termina con su sesión. QA ve un bug ajeno y no lo arregla: Observaciones. El dev elige una librería sobre otra: Decisiones, con la descartada y el principio. El corrector deja un hallazgo como deuda: Deuda técnica, con origen, vencimiento e issue. Sin eso, cada rol que entra empieza de cero y la persona que mergea no sabe qué se dejó afuera.
 
@@ -136,9 +152,9 @@ Las prácticas (`qa`, `tdd`, `debugging`, `code-review`, `security`, `git`, `sim
 
 1. El prompt del rol dice qué no hace.
 2. `hooks/write-scope.sh` en cada agente: Edit/Write fuera de sus archivos → bloqueado.
-3. `hooks/plan-immutable.sh` global: Edit/Write/Bash sobre `SPEC.md` o `PLAN.md` fuera de `0-draft/` → bloqueado.
+3. `hooks/plan-immutable.sh` global: Edit/Write/Bash sobre `SPEC.md`, `PLAN.md` o `wireframes/` fuera de `0-draft/` → bloqueado.
 4. `chmod a-w` local al pasar a pendiente: frena un `>` distraído.
-5. `scripts/ci-plans-immutable.sh` en el CI del proyecto: un PR que modifique SPEC o PLAN fuera de `0-draft/` no entra.
+5. `scripts/ci-plans-immutable.sh` en el CI del proyecto: un PR que modifique SPEC, PLAN o wireframes fuera de `0-draft/` no entra.
 6. `CHECKLIST.md` la tacha solo `verifier`, con código, test y evidencia: sin todas las líneas, no hay PR.
 7. Cada hallazgo que bloquea lo valida otro agente antes de corregirse; si no coinciden, consenso; si no hay acuerdo, `blocked/`.
 8. Cinco rondas de revisión como máximo; después, `blocked/`.

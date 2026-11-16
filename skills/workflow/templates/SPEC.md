@@ -63,6 +63,20 @@ stateDiagram-v2
     Procesando --> ConfirmarReintento: rechazado (error en el modal, sin cerrarlo)
 ```
 
+**Referencias de UI**: una `SCR-n` por pantalla, modal o panel del flujo, con su nodo del diagrama. Un estado que cambia la disposición (vacío, error, sin permiso) es su propio wireframe (`SCR-1b`); el que no, queda en la tabla de estados. La fuente es `wireframes/<nombre>.wireloom` ([Wireloom](https://github.com/StardockCorp/Wireloom)): qué hay, dónde y agrupado con qué, no con qué componente ni con qué CSS. Las `annotation` citan el `CA-n` o `CB-n` del elemento. El SVG lo genera `node ${CLAUDE_PLUGIN_ROOT}/scripts/wireframes.mjs <carpeta>/wireframes`; acá va solo el link, nunca el SVG pegado. El SVG es para la persona; los agentes leen la fuente.
+
+### SCR-1: Pedido
+
+Nodo: `Pedido` · Fuente: `wireframes/pedido.wireloom`
+
+![Pedido](wireframes/rendered/pedido.svg)
+
+### SCR-2: Confirmar reintento
+
+Nodo: `ConfirmarReintento` · Fuente: `wireframes/confirmar-reintento.wireloom`
+
+![Confirmar reintento](wireframes/rendered/confirmar-reintento.svg)
+
 **Interacciones**: una fila por cosa que la persona hace o que le pasa.
 
 | Cuando | Se muestra | Cómo | Dónde | Qué no se mueve |

@@ -4,7 +4,7 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 
 ## Estructura
 
-- `skills/workflow/` es el núcleo: `SKILL.md` (estados, artefactos, roles), `references/<fase>.md` (qué hace cada comando), `templates/` (SPEC, PLAN, TODO, CHANGELOG, REVIEW, PR, CLAUDE, gitignore).
+- `skills/workflow/` es el núcleo: `SKILL.md` (estados, artefactos, roles), `references/<fase>.md` (qué hace cada comando), `templates/` (SPEC, PLAN, TODO, CHECKLIST, CHANGELOG, REVIEW, PR, BLOCKED, IDEAS y PROPUESTAS del backlog, CLAUDE, gitignore).
 - `commands/`: cinco (`install`, `draft`, `plan`, `orchestrate`, `rebase`), sin lógica propia: apuntan a `references/<fase>.md`. Las fases implement, review, fix, pr, conflicts e iterate no son comandos: las corre el orquestador leyendo esas referencias. Si una fase necesita algo nuevo, va a la reference.
 - `agents/*.md`: un rol cada uno, con `hooks:` que limita qué escribe (`hooks/write-scope.sh`). Cambiar qué escribe un rol es cambiar su regex ahí y su caso en `hooks/test.sh`.
 - `hooks/`: `plan-immutable.sh` (global), `write-scope.sh` (por agente), `orchestrate-start.sh` y `orchestrate-stop.sh` (el orquestador solo termina en `4-done` con CI verde o en `blocked/`), `session-start.sh` (tablero y avisos), `worktree-create.sh`, `test.sh`.

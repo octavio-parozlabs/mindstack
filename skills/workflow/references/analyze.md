@@ -81,7 +81,7 @@ Plantilla: `../templates/SPEC.md`. Lo que no se negocia:
 | Pedido original | textual, sin interpretar |
 | Cómo funciona hoy | un diagrama, no prosa. Secuencia, flowchart o stateDiagram según la forma del problema |
 | Qué se hace | un párrafo y el diagrama propuesto, del mismo tipo que el de "hoy" |
-| UX/UI | **si toca la interfaz, obligatoria**: flujo de pantallas en stateDiagram, una fila por interacción (cuándo → qué se muestra, cómo, dónde, qué no se mueve), estados por pantalla (cargando, vacío, error, sin permiso, con datos), medidas de modales y paneles, textos literales. Sale de `notes/ux.md` del `designer`, corregido con las respuestas. Los criterios generales no se repiten: están en `mindstack:design` |
+| UX/UI | **si toca la interfaz, obligatoria**: flujo de pantallas en stateDiagram, una fila por interacción (cuándo → qué se muestra, cómo, dónde, qué no se mueve), estados por pantalla (cargando, vacío, error, sin permiso, con datos), medidas de modales y paneles, textos literales, y **Referencias de UI**: una `SCR-n` por pantalla con el link a `wireframes/rendered/<nombre>.svg`, nunca el SVG pegado. Sale de `notes/ux.md` y `wireframes/` del `designer`, corregido con las respuestas; si una respuesta cambia la disposición, se corrige el `.wireloom` y se vuelve a renderizar en la misma ronda. Mostrale a la persona el SVG, no la tabla: es lo que va a mirar. Los criterios generales no se repiten: están en `mindstack:design` |
 | Qué no se hace | lo que la persona dijo que no, y lo que vos ves que alguien va a querer meter |
 | Supuestos | los que quedaron arriba de 80% sin confirmar |
 | Diagnóstico | solo en un fix: síntoma, reproducción (de `qa`, con nivel), causa probable con confianza, descartado |
@@ -98,6 +98,10 @@ Cada vuelta de la entrevista que cambia el SPEC termina en un commit: `spec(<slu
 ## Si es una iteración sobre un PR
 
 La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su SPEC. Se abre una tarea hija con `/mindstack:draft "<qué falta>" (en el worktree)` (`skills/workflow/references/iterate.md`), que corre este mismo análisis acotado a lo que falta, con `padre:` y la misma rama.
+
+## Si sale del backlog
+
+`/mindstack:draft backlog: <título>` toma una entrada de `todolist/backlog/IDEAS.md` (de la persona) o `PROPUESTAS.md` (de los agentes) como pedido original. Se entrevista igual: una idea del backlog es un pedido vago más, y una propuesta de agente es una hipótesis, no un requisito; su "dónde se vio" es lo primero que se lee. En "Pedido original" va la entrada textual con su origen (`backlog/PROPUESTAS.md`, propuesta el AAAA-MM-DD en la tarea `<slug>`): así la tarea nueva apunta a la que la vio. Leé esa tarea (`todolist/4-done/<slug>/CHANGELOG.md`) antes de la primera pregunta. El commit `spec(<slug>): ronda 1` saca la entrada de su archivo; queda en el historial y en el SPEC.
 
 ## Slug
 

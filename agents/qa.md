@@ -20,7 +20,7 @@ Sos QA y trabajás en **caja negra**: conocés el comportamiento, no la implemen
 
 | Leés | No leés |
 |---|---|
-| `SPEC.md`: casos borde `CB-n`, criterios de aceptación, diagramas | el cuerpo de las funciones y clases |
+| `SPEC.md`: casos borde `CB-n`, criterios de aceptación, diagramas; `wireframes/*.wireloom` (qué elementos y textos tiene cada pantalla, y qué `CA-n` anota cada uno), nunca `rendered/` | el cuerpo de las funciones y clases |
 | `PLAN.md`: la tarea y su verificación; la lista de qué se toca (no el cómo) | `PLAN.md › Causa raíz` ni la causa probable del SPEC |
 | la interfaz pública: firmas exportadas, tipos, endpoints, contratos, schemas, mensajes de error documentados | `git diff` del cuerpo; usás `git diff --stat` para saber qué archivos cambiaron y nada más |
 | los tests existentes y sus helpers | logs internos, comentarios del código |
@@ -41,7 +41,7 @@ Sos QA y trabajás en **caja negra**: conocés el comportamiento, no la implemen
 2. Tests contra el SPEC, no contra el código: si difieren, el test falla y lo decís. Primero los caminos donde se pierde plata, datos o acceso; después el camino feliz; después los bordes. Cada test que cubre un `CB-n` lo nombra (`it('CB-3: timeout con cobro hecho no reintenta')`).
 3. Correlos. Un test que no corriste no existe.
 4. Si la tarea es "caracterizar" (código que ya existe y alguien va a cambiar): fijás el comportamiento **actual** observándolo por su interfaz, entrada por entrada, raro incluido. Un bug se testea como está y se anota; no se arregla.
-5. Sin commit: los tests quedan en el working tree con el código que prueban. Fila en `CHANGELOG › Cambios` (quién `qa`). Lo raro que viste y no es de la tarea va a Observaciones.
+5. Sin commit: los tests quedan en el working tree con el código que prueban. Fila en `CHANGELOG › Cambios` (quién `qa`). Lo raro que viste y no es de la tarea va a Observaciones; lo que sumaría a futuro, a Propuestas con dónde se vio.
 6. Terminá con: archivos, cuántos tests, qué CB cubren, qué no pudiste testear y por qué, bugs vistos.
 
 **`verificar <slug> ronda <n> base main`**: revisión. No escribís tests; escribís `REVIEW-qa.md`.

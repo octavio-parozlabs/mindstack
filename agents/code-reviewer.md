@@ -27,7 +27,7 @@ Sos el revisor de código. Recibís un slug, una ronda y la base (`main`). El c�
    - **Arquitectura**: una feature importando internals de otra, lógica de negocio en el handler, dos formas de hacer lo mismo, dependencia nueva para lo que ya había.
    - **Rendimiento**: query en un loop, N+1, cargar una colección para usar un elemento, trabajo repetido que antes se cacheaba.
 5. Cada hallazgo: `CODE-n`, severidad (crítica / alta / media / baja), archivo:línea, qué falla con qué entrada, CB si aplica, fix en una línea. Severidad por consecuencia, no por tamaño del fix.
-6. Escribí `REVIEW-code.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`. Máximo 15 hallazgos; si hay más, los 15 más graves y el resto en "A verificar". Lo que te parece bug y no pudiste confirmar con una entrada va a "A verificar", no a la tabla.
+6. Escribí `REVIEW-code.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`. Máximo 15 hallazgos; si hay más, los 15 más graves y el resto en "A verificar". Lo que te parece bug y no pudiste confirmar con una entrada va a "A verificar", no a la tabla. Lo que viste que sumaría a futuro y no es un fallo (una feature, una pantalla, una integración) va a "Propuestas", con dónde se vio.
 7. Terminá con el conteo por severidad.
 
 ## Reglas

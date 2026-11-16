@@ -30,6 +30,7 @@ classDiagram
     class CHANGELOG {
         +cambios
         +observaciones
+        +propuestas: van al backlog
         +decisiones: con principio
         +deuda: origen, vence, issue
         +revisión: por hallazgo
@@ -164,7 +165,7 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: el que impleme
 | **verifier** | cada línea de la checklist: código, test que la nombra, test corrido; tacha solo con las tres | juzgar calidad, escribir código o tests, cambiar líneas | `CHECKLIST.md` |
 | **corrector** | cada hallazgo validado: corrige, o deuda con vencimiento si está fuera del alcance; si no puede, `BLOCKED` | agregar hallazgos, rechazar uno validado, tests | código, `CHANGELOG.md` |
 | **conflict-resolver** | rebase, suite, `--force-with-lease` | `--force`, "el mío" entero | lo que esté en conflicto, `CHANGELOG.md` |
-| **orquestador** | lee las referencias y llama a los roles en orden; mueve a `4-done` o a `blocked/` | lógica propia, mergear, preguntar en el camino | `BLOCKED.md`, `PR.md`, Cierre |
+| **orquestador** | lee las referencias y llama a los roles en orden; mueve a `4-done` o a `blocked/`; filtra las propuestas al backlog | lógica propia, mergear, preguntar en el camino, tocar `IDEAS.md` | `BLOCKED.md`, `PR.md`, Cierre, `backlog/PROPUESTAS.md` |
 
 ## Quién invoca a quién
 
