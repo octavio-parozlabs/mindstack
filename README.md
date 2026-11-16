@@ -80,7 +80,7 @@ todolist/
 | `CHECKLIST.md` | `verifier` tacha, con código, test y evidencia | en cada ronda de revisión |
 | `CHANGELOG.md` | todos, cada uno su sección | siempre se agrega, nunca se reescribe |
 | `REVIEW-*.md` | un rol cada uno | se reescribe por ronda. Solo hallazgos, con severidad |
-| `backlog/IDEAS.md` | vos; ningún agente. Una fila por idea: Idea, Descripción, Prioridad, Fecha, Notas | cuando se te ocurre algo. `/mindstack:draft backlog: <título>` la convierte en tarea |
+| `backlog/IDEAS.md` | vos; ningún agente. Una fila por idea: Descripción, Prioridad, Fecha, Notas | cuando se te ocurre algo. `/mindstack:draft backlog: <unas palabras>` la convierte en tarea |
 | `backlog/PROPUESTAS.md` | el orquestador, con lo que los agentes propusieron en su tarea (con dónde se vio, máx. 3 por tarea) | al llegar a done. Borrás lo que no te sirve |
 
 ## Comandos
