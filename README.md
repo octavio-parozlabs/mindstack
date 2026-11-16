@@ -6,10 +6,11 @@ Forma de trabajo por tareas para Claude Code. Una tarea es una carpeta con estad
 flowchart LR
     A([persona pide]) --> S[analista: SPEC] --> OK([persona: generá el plan]) --> P[planificador: PLAN, a pendiente]
     P --> D[dev: una tarea por vuelta] --> Q[qa: tests] --> D
-    D --> PR([persona prueba]) --> R[qa + revisor + auditor] --> C[corrector] --> R
-    R --> G[PR] --> M([persona mergea]) --> F[finalizar]
+    D --> R[qa + revisor + auditor + verificador] --> V[validar hallazgos] --> C[corrector] --> R
+    R --> G["4-done: PR con CI verde"] --> PR([persona prueba]) --> M([persona mergea])
+    R -. no cierra .-> B["blocked: BLOCKED.md"] -.-> PB([persona responde])
     classDef persona fill:#fc9,color:#000
-    class A,OK,PR,M persona
+    class A,OK,PR,M,PB persona
 ```
 
 Naranja: la persona. Todo lo demás lo hacen los roles: `/mindstack:draft` y `/mindstack:plan` para lo que necesita diálogo, `/mindstack:orchestrate` para el resto, sin parar. La tarea es el worktree: `claude -w <slug>` y todo pasa adentro, del borrador al PR; si hay Compose, con su propio entorno en `localhost` y copia de tu DB. Nada se publica.
@@ -54,23 +55,27 @@ todolist/
 ├── 0-draft/           claude -w slug · /draft → comentás → /plan → comentás
 ├── 1-pending/          plan hecho → SPEC y PLAN congelados (/draft sin texto los reabre)
 ├── 2-in-progress/  fase implement, en worktree
-├── 3-in-review/        fase review ↔ fase fix, fase pr
-├── 4-done/         fase finalize, después del merge
+├── 3-in-review/        fase review ↔ fase fix
+├── 4-done/         lista para mergear: todo commiteado, PR abierto, CI verde
+├── blocked/        necesita a la persona: BLOCKED.md dice por qué
 └── <estado>/<slug>/
     ├── SPEC.md            qué se pidió: hoy/propuesto, alcance, supuestos, casos borde CB-n con diagrama
     ├── PLAN.md            cómo se hace: fechas, estado final, acoplamiento, tareas con rol, Done
-    ├── TODO.md            qué se hizo: lo único que se tacha
+    ├── TODO.md            qué se hizo: las tareas del PLAN, las tacha el dev
+    ├── CHECKLIST.md       qué tiene que ser cierto (CA-n, CB-n): la tacha solo el verificador
     ├── CHANGELOG.md       qué pasó: cambios, observaciones, decisiones, deuda, revisión, conflictos, cierre
     ├── REVIEW-qa.md       hallazgos de QA contra los CB del SPEC
     ├── REVIEW-code.md   hallazgos del revisor de código
     ├── REVIEW-security.md hallazgos del auditor, zero trust
-    └── PR.md              body del PR y su número
+    ├── PR.md              body del PR
+    └── BLOCKED.md         solo en blocked/: motivos cortos, con opciones; lo único que leés
 ```
 
 | Archivo | Quién | Cuándo cambia |
 |---|---|---|
 | `SPEC.md`, `PLAN.md` | analista, planificador, con la persona | solo en `0-draft/`. Después **nunca**: un hook lo bloquea y CI lo verifica |
 | `TODO.md` | el dev tacha | en cada tarea |
+| `CHECKLIST.md` | `verifier` tacha, con código, test y evidencia | en cada ronda de revisión |
 | `CHANGELOG.md` | todos, cada uno su sección | siempre se agrega, nunca se reescribe |
 | `REVIEW-*.md` | un rol cada uno | se reescribe por ronda. Solo hallazgos, con severidad |
 
@@ -82,8 +87,8 @@ Cinco. Tres en el día a día. Ninguno lleva el nombre de la tarea: la tarea es 
 |---|---|---|---|
 | `/mindstack:install` | una vez por proyecto | tablero `todolist/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
 | `/mindstack:draft "<qué querés>"` | en el worktree: respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
-| `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | commit |
-| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (`developer` y `qa` por tarea, consenso), review ×3, fix, pr, conflicts, CI verde. Termina con el link del PR. En `main` con el PR mergeado: finalize | todos los que las fases declaran |
+| `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md` y `CHECKLIST.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | commit |
+| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (`developer` y `qa` por tarea, consenso), review ×4, validar y fix, pr, conflicts, CI verde. Termina en `4-done` con el link del PR, o en `blocked/` con `BLOCKED.md`. Sobre una tarea bloqueada: te pregunta y sigue | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
 
 Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee las mismas referencias en orden. Cero lógica en los comandos.
@@ -92,19 +97,20 @@ Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee
 
 | Agente | Modelo | Hace | Escribe solo |
 |---|---|---|---|
-| `analyst` | opus | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
+| `analyst` | opus | consenso: busca evidencia desde un ángulo (historial, código, principios); valida cada hallazgo crítico o alto antes de corregirlo | nada |
 | `designer` | opus | en el borrador, si toca la interfaz: propone la sección UX/UI del SPEC con la skill `design` y las pantallas que ya existen, y devuelve las preguntas | `notes/ux.md` |
 | `researcher` | opus | al planificar: compara librerías que ya resuelven una necesidad, con datos; lo propio es la última opción | nada |
 | `developer` | opus | una tarea del TODO, sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
 | `qa` | sonnet | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | `code-reviewer` | opus | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |
 | `security-auditor` | opus | zero trust | `REVIEW-security.md` |
-| `fixer` | opus | cierra cada hallazgo | código, `CHANGELOG.md` |
+| `verifier` | opus | si está hecho: cada línea de la checklist con código, test que la nombra y test corrido | `CHECKLIST.md` |
+| `fixer` | opus | aplica los hallazgos validados; no rechaza | código, `CHANGELOG.md` |
 | `conflict-resolver` | opus | rebase, suite, push | lo que esté en conflicto, `CHANGELOG.md` |
 
 El "escribe solo" lo garantiza un hook por agente (`hooks/write-scope.sh`), no el prompt. El dev no escribe tests ni reviews; QA no toca producción; los revisores no editan; nadie mergea.
 
-Cuando el dev encuentra una ambigüedad que ni el SPEC, ni el PLAN, ni un principio resuelven, no adivina: tres analistas buscan en paralelo (lo decidido en tareas finalizadas, patrones del código, principios). Si coinciden, se decide y queda en el CHANGELOG; si no, recién ahí la persona.
+Cuando el dev encuentra una ambigüedad que ni el SPEC, ni el PLAN, ni un principio resuelven, no adivina: tres analistas buscan en paralelo (lo decidido en tareas terminadas, patrones del código, principios). Si coinciden, se decide y queda en el CHANGELOG; si no, la tarea va a `blocked/` y te enterás al abrir `claude`.
 
 ## Skills
 
@@ -122,11 +128,12 @@ Los principios que desempatan cuando dos reglas chocan están en `PRINCIPLES.md`
 
 ```
 0-draft        spec(slug): ronda n · plan(slug): ronda n      cada vuelta, commit
-estados        plan(slug): pending | reopen | implement | in review | PR | finalize
+estados        plan(slug): pending | reopen | implement | in review | done | blocked | unblocked
 implementar    nada: el código vive en el working tree del worktree
-revisar        review(slug): round n                           solo los REVIEW-*.md
+revisar        review(slug): round n                           solo los REVIEW-*.md y CHECKLIST.md
 fix            nada
-pr             feat|fix(slug): título                          el único commit de código, después push y PR
+pr             plan(slug): done · feat|fix(slug): título       a 4-done, el único commit de código, UN push, PR
+ci             fix(slug): CI-n                                 solo si CI falla
 ```
 
 Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR sin pedir permiso: `/mindstack:install` deja los permisos de `git` y `gh` en el proyecto.
@@ -135,11 +142,14 @@ Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR si
 
 1. El prompt de cada rol dice qué no hace.
 2. `hooks/write-scope.sh` por agente: fuera de sus archivos, bloqueado.
-3. `hooks/plan-immutable.sh` global: `SPEC.md` y `PLAN.md` fuera de `0-draft/`, bloqueado.
+3. `hooks/plan-immutable.sh` global: `SPEC.md` y `PLAN.md` fuera de `0-draft/`, bloqueado; `CHECKLIST.md` solo la tacha `verifier`.
 4. `chmod a-w` local al pasar a pendiente.
 5. `scripts/ci-plans-immutable.sh` en el CI del proyecto.
-6. Dos rondas de revisión como máximo; después, la persona.
-7. Nadie mergea.
+6. Cada hallazgo que bloquea lo valida otro agente antes de corregirse.
+7. Cinco rondas de revisión como máximo; después, `blocked/`.
+8. `hooks/orchestrate-stop.sh`: el orquestador no termina el turno fuera de `4-done` con CI verde o de `blocked/`.
+9. `hooks/session-start.sh`: al abrir `claude`, las tareas bloqueadas de cualquier worktree y las mergeadas sin limpiar.
+10. Nadie mergea.
 
 ## Validar el plugin
 

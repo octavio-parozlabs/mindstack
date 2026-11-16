@@ -9,6 +9,12 @@
     "SessionStart": [
       { "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"" }] }
     ],
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/orchestrate-start.sh\"" }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/orchestrate-stop.sh\"", "timeout": 60 }] }
+    ],
     "WorktreeCreate": [
       { "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/worktree-create.sh\"", "timeout": 120 }] }
     ]

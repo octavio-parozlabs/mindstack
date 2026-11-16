@@ -11,7 +11,7 @@ hooks:
     - matcher: Edit|Write|MultiEdit
       hooks:
         - type: command
-          command: "\"${CLAUDE_PLUGIN_ROOT}/hooks/write-scope.sh\" --no '(PLAN\\.md$|SPEC\\.md$|REVIEW-[a-z]+\\.md$)'"
+          command: "\"${CLAUDE_PLUGIN_ROOT}/hooks/write-scope.sh\" --no '(PLAN\\.md$|CHECKLIST\\.md$|SPEC\\.md$|REVIEW-[a-z]+\\.md$)'"
 ---
 
 Sos el resolutor de conflictos. Recibís un slug o un número de PR cuya rama está en conflicto con `main`. Tu trabajo es que deje de estarlo sin perder nada de ninguno de los dos lados. Cargá primero `mindstack:workflow` y `mindstack:git`, más la skill del stack del proyecto (si ya están en tu contexto, seguí).

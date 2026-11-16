@@ -31,6 +31,11 @@ caso "REVIEW-qa por agente qa pasa"              0 ./plan-immutable.sh <<<"$(E W
 caso "REVIEW-qa por code-reviewer bloquea"      2 ./plan-immutable.sh <<<"$(E Write todolist/3-in-review/x/REVIEW-qa.md ',"agent_type":"code-reviewer"')"
 caso "REVIEW-security por auditor pasa"         0 ./plan-immutable.sh <<<"$(E Write todolist/3-in-review/x/REVIEW-security.md ',"agent_type":"security-auditor"')"
 caso "REVIEW-code sin agent_type pasa"         0 ./plan-immutable.sh <<<"$(E Write todolist/3-in-review/x/REVIEW-code.md)"
+caso "Edit SPEC en blocked bloquea"            2 ./plan-immutable.sh <<<"$(E Edit todolist/blocked/x/SPEC.md)"
+caso "Bash echo > PLAN en blocked bloquea"       2 ./plan-immutable.sh <<<"$(B 'echo hola > todolist/blocked/x/PLAN.md')"
+caso "CHECKLIST por verifier pasa"               0 ./plan-immutable.sh <<<"$(E Edit todolist/3-in-review/x/CHECKLIST.md ',"agent_type":"verifier"')"
+caso "CHECKLIST por developer bloquea"           2 ./plan-immutable.sh <<<"$(E Edit todolist/2-in-progress/x/CHECKLIST.md ',"agent_type":"developer"')"
+caso "CHECKLIST sin agent_type (/plan) pasa"     0 ./plan-immutable.sh <<<"$(E Write todolist/0-draft/x/CHECKLIST.md)"
 caso "Read no se evalúa"                         0 ./plan-immutable.sh <<<"$(E Read todolist/1-pending/x/PLAN.md)"
 
 echo "write-scope.sh"
@@ -47,7 +52,48 @@ caso "dev no escribe REVIEW"                     2 ./write-scope.sh --no '(PLAN\
 caso "designer escribe notes/ux.md"              0 ./write-scope.sh '/notes/ux\.md$' <<<"$(E Write todolist/0-draft/x/notes/ux.md)"
 caso "designer no escribe SPEC"                  2 ./write-scope.sh '/notes/ux\.md$' <<<"$(E Write todolist/0-draft/x/SPEC.md)"
 caso "designer no escribe código"                2 ./write-scope.sh '/notes/ux\.md$' <<<"$(E Edit src/a.tsx)"
+caso "verifier escribe CHECKLIST"               0 ./write-scope.sh '/CHECKLIST\.md$' <<<"$(E Edit todolist/3-in-review/x/CHECKLIST.md)"
+caso "verifier no escribe código"                2 ./write-scope.sh '/CHECKLIST\.md$' <<<"$(E Edit src/a.ts)"
+caso "dev no escribe CHECKLIST"                  2 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|test-helpers)' <<<"$(E Edit todolist/2-in-progress/x/CHECKLIST.md)"
 caso "sin file_path pasa"                        0 ./write-scope.sh 'REVIEW-code\.md$' <<<'{"tool_name":"Edit","tool_input":{}}'
+
+echo "orchestrate-stop.sh"
+hooks=$(pwd)
+tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+mkdir -p "$tmp/repo" "$tmp/gh" "$tmp/nogh"
+git -C "$tmp/repo" init -q
+# gh falso: 'pr view' sale con GH_VIEW, 'pr checks' con GH_RC (0 verde, 8 pendiente, 1 rojo)
+printf '#!/usr/bin/env bash\n[ "$2" = view ] && exit "${GH_VIEW:-0}"\nexit "${GH_RC:-0}"\n' >"$tmp/gh/gh"
+chmod +x "$tmp/gh/gh"
+# PATH sin gh: solo lo que usa el hook
+for t in bash cat git grep sed rm find xargs basename jq; do p=$(command -v "$t") && ln -sf "$p" "$tmp/nogh/$t"; done
+stop() { (cd "$tmp/repo" && "$hooks/orchestrate-stop.sh"); }
+marca() { echo "${1:-s1}" >"$tmp/repo/.git/mindstack-orchestrating"; }
+mover() { rm -rf "$tmp/repo/todolist"; mkdir -p "$tmp/repo/todolist/$1/x" "$tmp/repo/todolist/4-done/vieja"; }
+S='{"session_id":"s1"}'
+export PATH="$tmp/gh:$PATH"
+mover 3-in-review
+caso "sin marcador deja parar"                   0 stop <<<"$S"
+marca s2; caso "marcador de otra sesión deja parar" 0 stop <<<"$S"
+marca; caso "3-in-review no deja parar"          2 stop <<<"$S"
+marca; mover blocked; caso "blocked sin BLOCKED.md no deja parar" 2 env GH_RC=1 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks" <<<"$S"
+marca; touch "$tmp/repo/todolist/blocked/x/BLOCKED.md"; caso "blocked con BLOCKED.md deja parar" 0 stop <<<"$S"
+caso "blocked borra el marcador"                 1 test -f "$tmp/repo/.git/mindstack-orchestrating" <<<""
+marca; mover 4-done; caso "4-done con CI verde deja parar" 0 stop <<<"$S"
+marca; mkdir -p "$tmp/repo/todolist/2-in-progress/x-2"; caso "hija en curso con padre en 4-done no deja parar" 2 stop <<<"$S"
+marca; mover 4-done; export GH_RC=8; caso "4-done con CI pendiente no deja parar" 2 stop <<<"$S"
+marca; export GH_RC=1; caso "4-done con CI rojo no deja parar" 2 stop <<<"$S"
+marca; export GH_RC=0 GH_VIEW=1; caso "4-done sin PR no deja parar" 2 stop <<<"$S"
+marca; caso "4-done sin gh deja parar"           0 env PATH="$tmp/nogh" bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks" <<<"$S"
+
+echo "orchestrate-start.sh"
+start() { (cd "$tmp/repo" && "$hooks/orchestrate-start.sh"); }
+rm -f "$tmp/repo/.git/mindstack-orchestrating"
+git -C "$tmp/repo" checkout -q -b main 2>/dev/null || git -C "$tmp/repo" switch -q -c main
+caso "en main no marca"                          1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
+git -C "$tmp/repo" switch -q -c worktree-x
+caso "otro prompt no marca"                      1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"hola"}'
+caso "/mindstack:orchestrate en worktree marca"  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -qx s1 .git/mindstack-orchestrating' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
 
 echo "$n casos, $fallos fallos"
 [ "$fallos" -eq 0 ]

@@ -21,7 +21,7 @@ sequenceDiagram
         opt DECISION
             O->>A: consensus.md
             A-->>O: acuerdo → Decisiones, y se relanza n
-            A-->>P: sin acuerdo → AskUserQuestion
+            A-->>O: sin acuerdo → blocked/
         end
     end
     O->>O: Done entero, env-up
@@ -58,13 +58,13 @@ mientras TODO.md tenga una línea sin [x]:
   rol developer → Agent developer "<slug> <n>"
       TASK OK n      → Agent qa "testear <slug> <n>" → siguiente
       DECISION: ...  → consensus.md → la respuesta queda en Decisiones → relanzar n
-      BLOCKED: ...   → parar, decir qué
+      BLOCKED: ...   → blocked/ (orchestrate.md › Bloquear)
   rol qa        → Agent qa "testear <slug> <n>" → siguiente
-  la misma n falla tres veces → parar, decir por qué
+  la misma n falla tres veces → blocked/, con por qué
 Done entero; rojo → Agent developer con el log, como una tarea más
 ```
 
-**No se termina el turno entre tareas ni al final del loop.** Un resumen de "voy por la 3 de 8" no es una parada: la persona no lo pidió y frena todo. Las únicas paradas son las de la tabla de `orchestrate.md`.
+**No se termina el turno entre tareas ni al final del loop.** Un resumen de "voy por la 3 de 8" no es una parada: la persona no lo pidió y frena todo. El turno termina solo en `4-done/` o en `blocked/` (`orchestrate.md › Un solo turno`).
 
 Reglas dentro del loop:
 
@@ -76,7 +76,7 @@ Reglas dentro del loop:
 | No bajar umbral de cobertura ni desactivar lint | el Done cambia debajo del loop |
 | Sin refactors grandes. Lo que molesta y no es de la tarea va a Observaciones o Deuda | un refactor es otra tarea con su SPEC |
 | **Nada se commitea durante el loop.** Código, `TODO.md` y `CHANGELOG.md` quedan en el working tree del worktree hasta que la revisión pasa; el commit lo hace el orquestador (fase pr) | lo que está commiteado parece terminado. Un commit por tarea a medio revisar es un historial de estados que nadie validó; el worktree aislado es la red mientras tanto |
-| La misma tarea falla tres veces seguidas: parar y decir por qué, no insistir | tres fallos es una ambigüedad o un bloqueo, no mala suerte |
+| La misma tarea falla tres veces seguidas: `blocked/` con por qué, no insistir | tres fallos es una ambigüedad o un bloqueo, no mala suerte |
 
 ## Al terminar
 

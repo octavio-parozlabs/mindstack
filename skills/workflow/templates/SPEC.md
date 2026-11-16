@@ -130,10 +130,15 @@ flowchart LR
 
 ## Criterios de aceptación
 
-Lo que tiene que ser cierto cuando está hecho. Cada línea verificable por un comando o un test, no por opinión. Entre paréntesis, los CB que cubre.
+Lo que tiene que ser cierto cuando está hecho. Una regla por línea, con id `CA-n`, verificable por un test con una entrada concreta, no por opinión. Entre paréntesis, los CB que cubre. `/mindstack:plan` copia cada `CA-n` a `CHECKLIST.md`, y el `verifier` no tacha ninguno sin código, test y evidencia: **lo que no está acá, nadie lo exige.**
 
-- [ ] ... (CB-1, CB-3)
-- [ ] ...
+Por cada endpoint (o comando, o evento) que se toca, una línea por regla: cada campo (tipo, rango, obligatorio, existe), quién puede llamarlo, y qué responde cuando falla.
+
+- CA-1 `POST /orders` con `quantity` ≤ 0 o no entero → 400 `VALIDATION_ERROR`, campo `quantity`
+- CA-2 `POST /orders` con `productId` que no existe → 400 `VALIDATION_ERROR`, campo `productId`
+- CA-3 `POST /orders` sin `address` → 400 `VALIDATION_ERROR`, campo `address`
+- CA-4 `POST /orders` sin sesión → 401
+- CA-5 stock insuficiente → 409 `OUT_OF_STOCK` y no se crea nada (CB-1)
 
 ## Preguntas abiertas
 

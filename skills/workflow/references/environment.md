@@ -35,7 +35,7 @@ flowchart LR
 | `db` | `docker compose -p <slug> up -d db` | al arrancar el loop: solo la DB, liviano |
 | todo | `docker compose -p <slug> up -d --build db api web` | al terminar el loop: api y web buildeados desde la rama, lo mismo que iría a producción |
 
-Cada tarea es un proyecto de Compose aparte (`-p <slug>`): red, volúmenes y contenedores propios. Idempotente: correrlo de nuevo rebuildea api y web y no toca la DB. `env-down.sh <slug>` lo baja y borra volúmenes y seed; lo corre el orquestador (fase finalize).
+Cada tarea es un proyecto de Compose aparte (`-p <slug>`): red, volúmenes y contenedores propios. Idempotente: correrlo de nuevo rebuildea api y web y no toca la DB. `env-down.sh <slug>` lo baja y borra volúmenes y seed; lo corrés vos en el worktree después del merge, cuando el aviso de sesión lo sugiere.
 
 | | Checkout principal | Entorno de una tarea |
 |---|---|---|
@@ -44,7 +44,7 @@ Cada tarea es un proyecto de Compose aparte (`-p <slug>`): red, volúmenes y con
 | db | la tuya, persistente | copia de la tuya al levantar; se tira con `env-down` |
 | puertos | los de siempre | `3100+n`, `5200+n`, `5500+n` |
 | observabilidad | sí, si querés | no: es lo único pesado y no hace falta para probar una feature |
-| cuándo se baja | nunca | el orquestador (fase finalize), después del merge |
+| cuándo se baja | nunca | vos, después del merge: el aviso al abrir `claude` en `main` muestra el comando (`env-down.sh` y `git worktree remove`) |
 
 Claude no trabaja adentro de los contenedores: edita en el worktree y el contenedor corre el resultado. Para hot reload mientras iterás, el dev server del stack en el host lee el `.env` del worktree, que ya apunta a la DB y los puertos de la tarea.
 

@@ -19,7 +19,7 @@ flowchart TD
     W --> H{¿empate sin principio\no pregunta abierta?}
     H -- sí --> Q([preguntar a la persona]) --> W
     H -- no --> V[validar: tipo, estado final, roles, Done, fechas, REPRO si es fix]
-    V --> T[TODO.md · chmod a-w · git mv → 1-pending · commit]
+    V --> T[TODO.md · CHECKLIST.md · chmod a-w · git mv → 1-pending · commit]
     T --> OK(["resumen de 5 líneas. Siguiente: claude -w slug y /orchestrate"])
 ```
 
@@ -57,10 +57,11 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
 11. **Preguntas, solo las necesarias.** Un empate sin principio o una pregunta abierta del SPEC que cambie el plan se pregunta ahora; todo lo demás se decide y queda en Decisiones. No se pide "¿está bien el plan?": el plan es técnico.
 12. **Commit.** `plan(<slug>): ronda n` con PLAN.md y CHANGELOG.md.
 13. **A pendiente, en el mismo turno.** Validá y mové:
-    - `tipo:` es uno de la tabla; cada línea de "Estado final" es verificable; cada tarea tiene `rol:` y verificación; Done es un bloque bash no vacío que cubre lo que corre CI; `fecha_inicio` y `fecha_fin` están.
+    - `tipo:` es uno de la tabla; el SPEC tiene `CA-n` en Criterios de aceptación; cada línea de "Estado final" es verificable; cada tarea tiene `rol:` y verificación; Done es un bloque bash no vacío que cubre lo que corre CI; `fecha_inicio` y `fecha_fin` están.
     - Si el SPEC tiene "Diagnóstico": Reproducción no está vacía ni es `NO`, "Causa raíz: confirmada", tarea 1 con rol `qa`. Sin eso, un fix no pasa a pendiente.
     - Preguntas abiertas del SPEC que quedaron: a "Riesgos y vuelta atrás" del PLAN.
     - `TODO.md` desde `../templates/TODO.md`: una línea por tarea, mismo número, rol y verificación, sin tachar.
+    - `CHECKLIST.md` desde `../templates/CHECKLIST.md`: una línea por cada `CA-n` y `CB-n` del SPEC y por cada línea de "Estado final" que no sea uno de ellos, sin tachar. Cada `CA-n` tiene que estar cubierto por al menos una tarea del PLAN (que lo nombre en su texto o su verificación); si alguno no, falta una tarea.
     - `chmod a-w SPEC.md PLAN.md` (cosmético; la red real es el hook y CI).
     - `git mv todolist/0-draft/<slug> todolist/1-pending/<slug>`; commit propio `plan(<slug>): pending`.
 14. **Resumen de cinco líneas**, lo único que la persona lee: tipo y skills; N tareas y fechas; Done; qué agregaste a "Fuera de alcance" que no estaba en el SPEC; riesgos. Y el siguiente paso: `claude -w <slug>` y `/mindstack:orchestrate` ahí. Si quiere cambiar algo: `/mindstack:draft` sin texto la vuelve a borrador.

@@ -1,47 +1,50 @@
-# Revisar: tres roles, tres archivos, un turno
+# Revisar: cuatro roles, cuatro archivos, un turno
 
-Lo corre el orquestador (fase review). Requiere `TODO.md` completo y Done verde. El código todavía no está commiteado: se revisa el working tree contra `main` (`git diff main`), no un rango de commits. La primera ronda mueve la carpeta a `3-in-review/`; las siguientes la encuentran ahí. Termina con `REVIEW-qa.md`, `REVIEW-code.md` y `REVIEW-security.md` escritos y commiteados.
+Lo corre el orquestador (fase review). Requiere `TODO.md` completo y Done verde. El código todavía no está commiteado: se revisa el working tree contra `main` (`git diff main`), no un rango de commits. La primera ronda mueve la carpeta a `3-in-review/`; las siguientes la encuentran ahí. Termina con `REVIEW-qa.md`, `REVIEW-code.md`, `REVIEW-security.md` y `CHECKLIST.md` escritos y commiteados.
 
 ```mermaid
 flowchart LR
     C[working tree vs main] --> Q[Agent qa\nmodo verificar]
     C --> R[Agent code-reviewer]
     C --> S[Agent security-auditor]
+    C --> V[Agent verifier]
     Q --> FQ[REVIEW-qa.md]
     R --> FR[REVIEW-code.md]
     S --> FS[REVIEW-security.md]
-    FQ & FR & FS --> K["commit review(slug): round n"]
-    K --> T{¿hallazgos?}
-    T -- ninguno, o solo media/baja aceptable --> PR["fase pr"]
-    T -- sí --> CO["fase fix"]
+    V --> FV[CHECKLIST.md tachada]
+    FQ & FR & FS & FV --> K["commit review(slug): round n"]
+    K --> T{¿crítica, alta o\nlínea sin tachar?}
+    T -- no --> PR["fase pr"]
+    T -- "sí, ronda < 5" --> CO["fase fix"]
+    T -- "sí, ronda 5" --> BL([blocked/])
 ```
 
-Por qué tres agentes y no uno: un revisor que mira todo mira todo por encima. Tres con un solo encargo cada uno encuentran lo suyo y no se sesgan entre sí. Por qué en un solo turno: corren en paralelo, no se leen entre sí, y lo que escriben no se pisa porque cada uno tiene su archivo y el hook se lo garantiza.
+Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima. Tres miran **cómo** está hecho (tests, código, seguridad) y uno mira **si** está hecho: el `verifier` recorre la checklist línea por línea y no tacha sin código, test y evidencia. Por qué en un solo turno: corren en paralelo, no se leen entre sí, y lo que escriben no se pisa porque cada uno tiene su archivo y el hook se lo garantiza.
 
 ## Precondiciones
 
 - Carpeta en `2-in-progress/` (ronda 1) o `3-in-review/` (ronda ≥ 2). Si está en otra, pará.
-- Todas las líneas de `TODO.md` con `[x]`. Si no, pará: la revisión es de la tarea entera.
-- Done de `PLAN.md` pasa ahora. Si no, pará y decí qué falla.
-- Si lo corre la persona a mano: ¿probó en el entorno de la tarea? (la URL está en `CHANGELOG › Cambios`). Si no está seguro, preguntá antes de lanzar revisores: lo que quiera cambiar después de ver la feature es más barato acá que como ronda. Si lo corre `/mindstack:orchestrate`, no se pregunta: sigue.
-- Ronda = última fila de `CHANGELOG › Revisión` + 1; sin filas, 1.
+- Todas las líneas de `TODO.md` con `[x]`. Si no, volvé a `implement.md`: la revisión es de la tarea entera.
+- Done de `PLAN.md` pasa ahora. Si no, volvé a `implement.md` con el log como una tarea más.
+- Ronda = filas de rondas en `CHANGELOG › Revisión` desde la última vez que la tarea salió de `blocked/`, + 1; sin filas, 1.
 
 ## Pasos
 
 1. Ronda 1: `git mv todolist/2-in-progress/<slug> todolist/3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
 2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`.
-3. **Un solo turno con tres `Agent`**, cada uno con `subagent_type` del rol y este prompt mínimo:
+3. **Un solo turno con cuatro `Agent`**, cada uno con `subagent_type` del rol y este prompt mínimo:
    - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests."
    - `code-reviewer`: "revisar <slug> ronda <n> base main. Lógica, legibilidad, arquitectura, rendimiento. Escribí REVIEW-code.md."
    - `security-auditor`: "auditar <slug> ronda <n> base main. Zero trust. Escribí REVIEW-security.md."
-4. Cuando los tres terminan: un commit `review(<slug>): round <n>` **solo con los tres `REVIEW-*.md`** (`git add` de esos archivos, nada más). El código sigue sin commitear.
-5. Resumen en la salida: por rol, cuántos hallazgos por severidad. Y el veredicto:
-   - ninguno, o solo media/baja que la persona acepte como deuda: siguiente paso el orquestador (fase pr), que es el que commitea el código.
-   - cualquier crítica o alta: siguiente paso el orquestador (fase fix).
-   - ronda 2 con crítica o alta todavía abierta: pará y pedí a la persona. Dos rondas que no cierran son un desacuerdo, no un bug.
+   - `verifier`: "verificar <slug> ronda <n>. Tachá CHECKLIST.md con evidencia."
+4. Cuando los cuatro terminan: un commit `review(<slug>): round <n>` **solo con los tres `REVIEW-*.md` y `CHECKLIST.md`** (`git add` de esos archivos, nada más). El código sigue sin commitear.
+5. Veredicto:
+   - ninguna crítica ni alta, y `CHECKLIST` completa: fase pr (`pr.md`). Media y baja pasan al corrector solo si hay otra cosa que corregir; si no, quedan como deuda en el CHANGELOG.
+   - alguna crítica o alta, o una línea sin tachar, en ronda 1 a 4: fase fix (`fix.md`). Una línea sin tachar cuenta como hallazgo alto.
+   - lo mismo en la ronda 5: `blocked` (`orchestrate.md › Bloquear`), con cada ID o línea abierta como motivo.
 
 ## Qué no
 
 - Correr los agentes de a uno. Pierden independencia y tiempo.
-- Un revisor que escribe el archivo de otro. El hook lo bloquea; si pasa, es un bug del hook.
-- Corregir nada en este comando. Lo que se encontró se corrige con el orquestador (fase fix), por el corrector, no por el revisor.
+- Un revisor que escribe el archivo de otro, o alguien que no es `verifier` tachando la checklist. El hook lo bloquea; si pasa, es un bug del hook.
+- Corregir nada en esta fase. Lo que se encontró se valida y se corrige en la fase fix.

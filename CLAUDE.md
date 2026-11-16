@@ -5,9 +5,9 @@ Plugin de Claude Code: forma de trabajo por tareas con estados, roles separados 
 ## Estructura
 
 - `skills/workflow/` es el núcleo: `SKILL.md` (estados, artefactos, roles), `references/<fase>.md` (qué hace cada comando), `templates/` (SPEC, PLAN, TODO, CHANGELOG, REVIEW, PR, CLAUDE, gitignore).
-- `commands/`: cinco (`install`, `draft`, `plan`, `orchestrate`, `rebase`), sin lógica propia: apuntan a `references/<fase>.md`. Las fases implement, review, fix, pr, conflicts, finalize e iterate no son comandos: las corre el orquestador leyendo esas referencias. Si una fase necesita algo nuevo, va a la reference.
+- `commands/`: cinco (`install`, `draft`, `plan`, `orchestrate`, `rebase`), sin lógica propia: apuntan a `references/<fase>.md`. Las fases implement, review, fix, pr, conflicts e iterate no son comandos: las corre el orquestador leyendo esas referencias. Si una fase necesita algo nuevo, va a la reference.
 - `agents/*.md`: un rol cada uno, con `hooks:` que limita qué escribe (`hooks/write-scope.sh`). Cambiar qué escribe un rol es cambiar su regex ahí y su caso en `hooks/test.sh`.
-- `hooks/`: `plan-immutable.sh` (global), `write-scope.sh` (por agente), `session-start.sh`, `worktree-create.sh`, `test.sh`.
+- `hooks/`: `plan-immutable.sh` (global), `write-scope.sh` (por agente), `orchestrate-start.sh` y `orchestrate-stop.sh` (el orquestador solo termina en `4-done` con CI verde o en `blocked/`), `session-start.sh` (tablero y avisos), `worktree-create.sh`, `test.sh`.
 - `skills/{qa,tdd,debugging,code-review,security,git,simplification,performance,api-design,migration,observability,documentation,ci-cd}`: prácticas agnósticas; el PLAN de cada tarea dice cuáles carga el developer (`tipo:`, `skills:`). `skills/{typescript,react,node-api,nestjs,architecture,web-security,docker-ci,auth-jwt-sessions}`: stack. `skills/design`: criterios de diseño sobre shadcn (los aplica el agente `designer` en `/draft`). `skills/recon`: describe un repo existente para auditarlo (hechos en `ARCHITECTURE.md`, pistas en `LEADS.md`).
 - `use-cases/`: diagramas de secuencia de cómo la persona interactúa con el flujo. Si cambia una fase, se actualiza el caso que la muestra.
 - `PRINCIPLES.md`: lo que desempata. Toda regla nueva cita uno; si no cita ninguno, es preferencia.
@@ -24,7 +24,7 @@ Algo nuevo va en una de las tres carpetas según qué necesita poder hacer:
 | Lanza agentes | sí | no | no |
 | Permisos | los de la sesión | propios: `tools:`, `model:`, `hooks:` (`write-scope.sh`) | ninguno |
 
-Por eso `draft`, `plan` y `orchestrate` son commands (entrevistan, preguntan, lanzan `qa`, analistas y revisores) y `qa`, revisores, `fixer` y `conflict-resolver` son agentes (contexto aislado y escritura acotada por hook). Un command no lleva lógica: resuelve `${CLAUDE_PLUGIN_ROOT}` y `$ARGUMENTS` y apunta a la reference; la lógica está ahí para que el modo manual y el orquestado lean lo mismo.
+Por eso `draft`, `plan` y `orchestrate` son commands (entrevistan, preguntan, lanzan `qa`, analistas y revisores) y `qa`, revisores, `verifier`, `fixer` y `conflict-resolver` son agentes (contexto aislado y escritura acotada por hook). Un command no lleva lógica: resuelve `${CLAUDE_PLUGIN_ROOT}` y `$ARGUMENTS` y apunta a la reference; la lógica está ahí para que el modo manual y el orquestado lean lo mismo.
 
 ## Convenciones
 

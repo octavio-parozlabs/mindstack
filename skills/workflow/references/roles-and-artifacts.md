@@ -3,7 +3,7 @@
 ```mermaid
 classDiagram
     class Tarea {
-        +estado: la carpeta, 0-draft a 4-done
+        +estado: la carpeta, 0-draft a 4-done, o blocked
         +slug: nombre de carpeta, rama y worktree
     }
     class SPEC {
@@ -12,7 +12,7 @@ classDiagram
         +qué se hace / qué no
         +supuestos
         +casos borde CB-n, uno por diagrama
-        +criterios de aceptación
+        +criterios de aceptación CA-n
         congelado desde 1-pending
     }
     class PLAN {
@@ -42,9 +42,19 @@ classDiagram
         +solo hallazgos, con severidad y CB
         se reescribe por ronda
     }
+    class CHECKLIST {
+        +una línea por CA-n, CB-n, Estado final
+        +código, test, evidencia
+        solo la tacha verifier
+    }
+    class BLOCKED {
+        +desde, ronda, PR
+        +motivos con opciones
+        solo en blocked/
+    }
     class PR {
         +body desde PR.md
-        +número
+        +número: gh pr view
     }
 
     Tarea "1" *-- "1" SPEC
@@ -52,7 +62,10 @@ classDiagram
     Tarea "1" *-- "1" TODO
     Tarea "1" *-- "1" CHANGELOG
     Tarea "1" *-- "3" REVIEW
+    Tarea "1" *-- "1" CHECKLIST
+    Tarea "1" *-- "0..1" BLOCKED
     Tarea "1" *-- "0..1" PR
+    CHECKLIST ..> SPEC : CA-n y CB-n
     PLAN ..> SPEC : implementa
     TODO ..> PLAN : derivado al pasar a pendiente
 ```
@@ -63,12 +76,12 @@ classDiagram
         pide, responde la entrevista
         pide el plan cuando el SPEC está
         prueba la feature
-        decide cuando no hay consenso
+        responde BLOCKED.md
         mergea
     }
     class Analista {
         sesión principal: entrevista, SPEC
-        subagente opus: consenso, solo lee
+        subagente opus: consenso y validar hallazgos, solo lee
     }
     class Planificador {
         sesión principal: PLAN, CHANGELOG vacío
@@ -99,9 +112,14 @@ classDiagram
         zero trust
         solo REVIEW-security
     }
+    class Verificador {
+        opus
+        CHECKLIST: código, test, evidencia
+        solo tacha CHECKLIST
+    }
     class Corrector {
         opus
-        aplica cada hallazgo o lo justifica
+        aplica lo validado, o deuda, o BLOCKED
         no agrega hallazgos, no testea
     }
     class Resolutor {
@@ -111,7 +129,7 @@ classDiagram
     class Orquestador {
         sesión principal
         lee las referencias, llama a los roles
-        para en los nodos de la persona
+        termina en 4-done con CI verde o en blocked
     }
 
     Persona ..> Analista : responde
@@ -121,11 +139,13 @@ classDiagram
     Orquestador ..> QA : testear, verificar
     Orquestador ..> RevisorCodigo : revisar
     Orquestador ..> AuditorSeguridad : auditar
+    Orquestador ..> Verificador : verificar
+    Orquestador ..> Analista : validar hallazgo
     Orquestador ..> Corrector : corregir
     Orquestador ..> Resolutor : conflictos
     Desarrollador ..> QA : testear cada tarea
     Desarrollador ..> Analista : consenso ×3
-    Orquestador ..> Persona : AskUserQuestion
+    Orquestador ..> Persona : BLOCKED.md, AskUserQuestion al retomar
 ```
 
 ## Qué hace y qué no cada rol
@@ -141,9 +161,10 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: el que impleme
 | **researcher** | compara 2 a 4 librerías con datos (release, descargas, licencia, encaje) y recomienda una o "propio" | decidir por recuerdo, instalar | nada |
 | **code-reviewer** | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
 | **security-auditor** | zero trust: toda entrada es hostil hasta que se valida | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
-| **corrector** | cada hallazgo: corrige, o deuda con vencimiento, o rechaza con motivo | agregar hallazgos, tests | código, `CHANGELOG.md` |
+| **verifier** | cada línea de la checklist: código, test que la nombra, test corrido; tacha solo con las tres | juzgar calidad, escribir código o tests, cambiar líneas | `CHECKLIST.md` |
+| **corrector** | cada hallazgo validado: corrige, o deuda con vencimiento si está fuera del alcance; si no puede, `BLOCKED` | agregar hallazgos, rechazar uno validado, tests | código, `CHANGELOG.md` |
 | **conflict-resolver** | rebase, suite, `--force-with-lease` | `--force`, "el mío" entero | lo que esté en conflicto, `CHANGELOG.md` |
-| **orquestador** | lee las referencias y llama a los roles en orden | lógica propia, mergear | nada propio |
+| **orquestador** | lee las referencias y llama a los roles en orden; mueve a `4-done` o a `blocked/` | lógica propia, mergear, preguntar en el camino | `BLOCKED.md`, `PR.md`, Cierre |
 
 ## Quién invoca a quién
 
@@ -155,8 +176,9 @@ Los roles no se llaman entre sí: los invoca la sesión principal (un comando o 
 | `/plan` | `researcher`, uno por necesidad | una tarea pide un componente o algoritmo que el stack no cubre | la necesidad; `research.md` |
 | `orchestrate › implement` | `developer`, después `qa` (`testear`) | después de cada tarea del TODO | slug + número de tarea |
 | `orchestrate › implement` | `analyst` ×3 | el dev devolvió `DECISION:` | la pregunta, las opciones, un ángulo cada uno |
-| `orchestrate › review` | `qa` (`verificar`), `code-reviewer`, `security-auditor` | TODO completo y Done verde | slug, ronda, base `main` (working tree sin commitear); los tres en un turno |
-| `orchestrate › fix` | `fixer`, después `qa` (`testear`) | hay `REVIEW-*.md` con hallazgos | slug, ronda |
+| `orchestrate › review` | `qa` (`verificar`), `code-reviewer`, `security-auditor`, `verifier` | TODO completo y Done verde | slug, ronda, base `main` (working tree sin commitear); los cuatro en un turno |
+| `orchestrate › fix` | `analyst` (`validar`), uno por hallazgo crítico o alto; ×3 si el validador lo refuta | antes de corregir | slug, ID del hallazgo |
+| `orchestrate › fix` | `fixer`, después `qa` (`testear`) | hallazgos validados o checklist abierta | slug, ronda |
 | `orchestrate › conflicts` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
 | `/mindstack:orchestrate` | las cuatro fases de arriba, en orden | la persona delega el flujo, normalmente desde `1-pending` en un worktree | lee `references/<fase>.md` |
 | `/draft "qué falta" (en el worktree)` | `qa` (`reproducir`) si lo que falta es un bug | probaste el PR y falta algo | crea la tarea hija; después `/orchestrate` en el mismo worktree |
@@ -170,8 +192,9 @@ El loop no es solo de implementación. Cada fase itera hasta su condición de sa
 | analizar | pregunta → respuesta → supuestos y casos borde | no queda ambigüedad que cambie el SPEC; en un fix, además `REPRO` ≠ `NO` |
 | planificar | plan → corrección de la persona | la persona dice que está y cada tarea tiene rol y verificación |
 | implementar | una tarea del TODO por vuelta, `qa` después | TODO completo y Done verde; para en `BLOCKED:` o tres fallos seguidos |
-| consenso | tres analistas en paralelo | 3/3 misma opción; si no, la persona |
-| revisar ↔ corregir | tres revisores → corrector → tres revisores | sin hallazgos críticos ni altos; máximo dos rondas |
+| consenso | tres analistas en paralelo | 3/3 misma opción; si no, `blocked/` |
+| revisar ↔ corregir | cuatro revisores → validar → corrector → cuatro revisores | sin críticos ni altos y checklist completa; máximo cinco rondas, después `blocked/` |
+| pr ↔ CI | push → checks → `fixer ci` → push | CI verde (`4-done`); tres rondas o fallo ajeno, `blocked/` |
 | pr ↔ conflictos | rebase → suite → push | el PR es mergeable |
 
 ## Skills externas
@@ -183,12 +206,13 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: QA no toca pro
 | Rol | Dónde corre | Modelo | Escribe |
 |---|---|---|---|
 | analista (entrevista) | sesión principal | el de la sesión | `SPEC.md` en `0-draft/` |
-| analista (consenso) | subagente | opus | nada |
-| planificador | sesión principal | el de la sesión | `PLAN.md`, `CHANGELOG.md` en `0-draft/` |
-| desarrollador | subagente, uno por tarea | opus | código, `TODO.md`, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW |
+| analista (consenso, validar) | subagente | opus | nada |
+| planificador | sesión principal | el de la sesión | `PLAN.md`, `TODO.md`, `CHECKLIST.md`, `CHANGELOG.md` en `0-draft/` |
+| desarrollador | subagente, uno por tarea | opus | código, `TODO.md`, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW, CHECKLIST |
 | qa | subagente | sonnet | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
 | researcher | subagente | opus | nada |
 | code-reviewer | subagente | opus | `REVIEW-code.md` |
 | security-auditor | subagente | opus | `REVIEW-security.md` |
-| corrector | subagente | opus | código, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW |
+| verifier | subagente | opus | `CHECKLIST.md` |
+| corrector | subagente | opus | código, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW, CHECKLIST |
 | conflict-resolver | subagente | opus | lo que esté en conflicto, `CHANGELOG.md` |

@@ -33,4 +33,4 @@ Una feature que necesita migrar una tabla: `tipo: migration` (el más riesgoso m
 
 ## Lo que no cambia
 
-Siempre: SPEC con casos borde y diagrama, PLAN congelado al quedar pendiente, TODO como avance, CHANGELOG como memoria, código sin commitear hasta que tres revisores dijeron que está, PR abierto por el flujo, merge tuyo.
+Siempre: SPEC con casos borde y diagrama, PLAN congelado al quedar pendiente, TODO como avance, CHANGELOG como memoria, CHECKLIST con cada CA-n verificada, código sin commitear hasta que la revisión pasa, `4-done` con PR en CI verde, merge tuyo.

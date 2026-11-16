@@ -1,6 +1,6 @@
 # Consenso: cuando el dev no puede decidir solo
 
-Un dev que adivina una ambigüedad produce código que nadie pidió. Un dev que pregunta cada ambigüedad a la persona la interrumpe veinte veces por tarea. Entre las dos cosas, esto: tres analistas independientes buscan la respuesta en lo que ya existe; si coinciden, se decide; si no, recién ahí la persona.
+Un dev que adivina una ambigüedad produce código que nadie pidió. Un dev que pregunta cada ambigüedad a la persona la interrumpe veinte veces por tarea. Entre las dos cosas, esto: tres analistas independientes buscan la respuesta en lo que ya existe; si coinciden, se decide; si no, recién ahí la persona. Se usa igual en implement (una `DECISION:` del dev) y en fix (un hallazgo que el validador refuta).
 
 ```mermaid
 flowchart TD
@@ -12,8 +12,7 @@ flowchart TD
     X --> P[analista · ángulo principios:\nPRINCIPLES.md]
     H & C & P --> V{¿las tres OPTION\nson la misma?}
     V -- sí --> OK[Decisiones: quién = consensus,\nevidencia de cada ángulo debajo] --> SIGUE[seguir la tarea]
-    V -- no --> U([AskUserQuestion a la persona:\nla pregunta, las opciones, qué dijo cada ángulo])
-    U --> OK2[Decisiones: quién = person] --> SIGUE
+    V -- no --> U([blocked/: BLOCKED.md con la pregunta,\nlas opciones y qué dijo cada ángulo])
 ```
 
 ## Formato de la pregunta
@@ -41,7 +40,7 @@ Cada analista termina con `OPTION: A` (o B, o C) y dos renglones de evidencia. N
 ## Resultado
 
 - **3/3 iguales**: el dev escribe en `CHANGELOG › Decisiones` una fila con quién `consensus`, la decisión, la alternativa descartada y el principio; debajo, una línea por ángulo con su evidencia. Sigue.
-- **No coinciden**: `AskUserQuestion` con la pregunta, las opciones y, por cada ángulo, qué eligió y por qué. La persona decide; fila con quién `person`. Si la sesión no es interactiva (`$CI`), el dev termina con `BLOCKED: consenso sin acuerdo sobre <pregunta>` y el loop para.
+- **No coinciden**: la tarea va a `blocked/` (`orchestrate.md › Bloquear`). El motivo en `BLOCKED.md` es la pregunta, con las opciones y, por cada ángulo, qué eligió y por qué. Cuando la persona responde al retomar, fila en Decisiones con quién `person`.
 
 ## Qué no
 

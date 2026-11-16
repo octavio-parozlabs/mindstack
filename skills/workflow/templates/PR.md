@@ -1,17 +1,17 @@
 <!-- body del PR. Lo arma el orquestador (fase pr) con los datos de la tarea; la persona lo lee en 30 segundos -->
 
-Tarea: `todolist/3-in-review/<slug>/` (`SPEC.md` dice qué se pidió, `PLAN.md` es el contrato, `CHANGELOG.md` lo que pasó)
+Tarea: `todolist/4-done/<slug>/` (`SPEC.md` dice qué se pidió, `PLAN.md` es el contrato, `CHANGELOG.md` lo que pasó)
 
 ## Qué cambia
 
 Un párrafo: el Objetivo del plan, en pasado.
 
-## Estado final
+## Checklist
 
-El checklist "Estado final" de `PLAN.md`, con cada casilla marcada y el comando o test que lo prueba.
+`CHECKLIST.md` tal como la dejó `verifier`: cada línea con su código, su test y su evidencia.
 
-- [x] `GET /orders/:id` responde igual que antes: `npm test -- orders.contract`
-- [x] cobertura del diff pasa
+- [x] CA-1 `POST /orders` con quantity ≤ 0 → 400 · código: `orders.schema.ts:12` · test: `orders.spec.ts "CA-1"` · evidencia: 1 passed
+- [x] CB-1 stock insuficiente no crea el pedido · código: `orders.service.ts:40` · test: `orders.spec.ts "CB-1"` · evidencia: 1 passed
 
 ## Cómo probarlo
 
@@ -25,5 +25,3 @@ Rondas hechas y resultado, de `CHANGELOG.md › Revisión`: cuántos hallazgos p
 
 Lo del `CHANGELOG.md` que necesita una decisión: Deuda técnica con issue y vencimiento, Decisiones discutibles, Observaciones fuera de la tarea. Una línea cada una.
 
-pr:
-url:

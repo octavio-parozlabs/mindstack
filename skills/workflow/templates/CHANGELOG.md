@@ -54,10 +54,10 @@ Si el resolutor actuó: qué archivos y qué decidió en cada uno.
 
 ## Cierre
 
-Lo escribe el orquestador (fase finalize) después del merge.
+Lo escribe el orquestador (fase pr) al pasar la tarea a `4-done`, antes del push. El número del PR y la fecha del merge los da GitHub.
 
 - Inicio real: AAAA-MM-DD · Fin real: AAAA-MM-DD (planificado: ver `PLAN.md`)
-- PR: #n · <url> · mergeado / cerrado sin merge: <motivo>
+- Rondas de revisión: n
 - Iteraciones: <slug>-2 (<qué agregó>), …
 - Qué quedó distinto de lo planeado:
 - Deuda que sigue abierta (issues):

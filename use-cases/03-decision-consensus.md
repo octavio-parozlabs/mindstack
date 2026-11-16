@@ -1,6 +1,6 @@
 # 03 · El dev no puede decidir
 
-Durante la implementación el `developer` encuentra algo que ni el SPEC, ni el PLAN, ni un principio resuelven. No adivina y no te interrumpe de entrada: tres analistas buscan la respuesta en lo que ya existe. Si coinciden, se decide; si no, recién ahí vos.
+Durante la implementación el `developer` encuentra algo que ni el SPEC, ni el PLAN, ni un principio resuelven. No adivina y no te interrumpe de entrada: tres analistas buscan la respuesta en lo que ya existe. Si coinciden, se decide; si no, la tarea va a `blocked/` con la pregunta y te enterás al abrir `claude`.
 
 ```mermaid
 sequenceDiagram
@@ -25,9 +25,15 @@ sequenceDiagram
     A3-->>C: "una sola forma obvia": ya hay una forma en el repo · OPTION: A
 
     Note over C: 2 de 3 no es consenso
-    C->>U: AskUserQuestion: ¿A o B? historial dice B (facturas-retry), código y principios dicen A (billing/retry)
+    C->>C: BLOCKED.md: ¿A o B? historial dice B (facturas-retry), código y principios dicen A (billing/retry) · git mv → blocked · commit
+    Note over C: hook de parada: blocked con BLOCKED.md, deja terminar
+    C-->>U: bloqueada: clave de idempotencia sin consenso. Detalle en BLOCKED.md
+    Note over U: más tarde, al abrir claude: "⚠ bloqueada: pagos-timeout"
+    U->>C: /mindstack:orchestrate
+    C->>U: AskUserQuestion: ¿A o B? (lo de BLOCKED.md)
     U-->>C: A, y anotá que facturas-retry queda como deuda para unificar
     C->>C: CHANGELOG › Decisiones: quién person, A, alternativa B, principio "una sola forma obvia" · Deuda: unificar facturas-retry
+    C->>C: borra BLOCKED.md · git mv → 2-in-progress · commit unblocked
     C->>DEV: seguí la tarea 2 con la decisión
 ```
 
@@ -39,6 +45,6 @@ Los tres devuelven la misma `OPTION`: el dev escribe la fila en Decisiones con q
 
 Uno confirma lo que el dev ya pensó. Tres con ángulos distintos (lo que se decidió antes, lo que el código ya hace, lo que los principios dicen) solo coinciden cuando la respuesta es obvia, y el desacuerdo es la señal exacta de que hace falta una persona.
 
-## Sin persona disponible
+## Por qué no pregunta en el momento
 
-En CI (`$CI` definido) no hay a quién preguntar: el dev termina con `BLOCKED: consenso sin acuerdo sobre …`, el loop para y la tarea queda en `2-in-progress/` con la pregunta en el CHANGELOG. Retomás con `/mindstack:orchestrate` después de responderla.
+Una pregunta con `AskUserQuestion` en el medio del turno espera en una sesión que quizás nadie mira: la tarea queda trabada y no se ve. `blocked/` es una carpeta que aparece en el aviso de cualquier sesión, con un archivo que dice qué falta. El mismo camino sigue un hallazgo de revisión que el validador refuta y los tres analistas no destraban.

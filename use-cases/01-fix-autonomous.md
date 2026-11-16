@@ -1,6 +1,6 @@
 # 01 · Un bug, de punta a punta, autónomo
 
-Abrís el worktree, pedís que se arregle algo con `/draft`, leés el SPEC, `/plan`, `/orchestrate`, y no intervenís hasta que hay un PR con CI verde. Todo en el mismo worktree.
+Abrís el worktree, pedís que se arregle algo con `/draft`, leés el SPEC, `/plan`, `/orchestrate`, y no intervenís hasta que la tarea está en `4-done`: todo commiteado, PR abierto y CI verde, lista para mergear. Todo en el mismo worktree.
 
 ```mermaid
 sequenceDiagram
@@ -11,6 +11,7 @@ sequenceDiagram
     participant AN as analyst ×3
     participant CR as code-reviewer
     participant SA as security-auditor
+    participant VF as verifier
     participant FX as fixer
     participant G as git / GitHub
 
@@ -27,7 +28,7 @@ sequenceDiagram
     C->>QA: Agent qa: reproducir pagos-timeout · síntoma + endpoint (sin la causa)
     QA->>QA: test unitario no reproduce, integración con DB sí
     QA-->>C: REPRO: integration · notes/repro.md
-    C->>C: SPEC.md: hoy/propuesto, Diagnóstico, CB-1..CB-4 con diagrama, criterios
+    C->>C: SPEC.md: hoy/propuesto, Diagnóstico, CB-1..CB-4 con diagrama, CA-1..CA-3 (una regla por campo de POST /checkout)
     C->>G: commit spec(pagos-timeout): ronda 1
     C-->>U: SPEC listo. Leelo y, cuando esté, /mindstack:plan
     U->>U: lee el SPEC
@@ -37,12 +38,12 @@ sequenceDiagram
     C->>G: commit plan(pagos-timeout): ronda 1
     end
 
-    C->>C: valida · TODO.md · chmod a-w SPEC PLAN
+    C->>C: valida · TODO.md · CHECKLIST.md (CA-1..3, CB-1..4) · chmod a-w SPEC PLAN
     C->>G: git mv → 1-pending · commit plan(pagos-timeout): pending
     C-->>U: resumen: fix, 2 tareas, 2026-11-03 → 11-04, Done = CI, sin fuera de alcance nuevo. Cuando quieras: /mindstack:orchestrate
 
     U->>C: /mindstack:orchestrate
-    Note over C: 1-pending → implement.md
+    Note over C: hook: marcador de la sesión · 1-pending → implement.md
 
     rect rgb(230, 240, 255)
     Note over C,G: 2-in-progress · implementación (en worktree)
@@ -67,33 +68,39 @@ sequenceDiagram
         C->>QA: verificar ronda 1 base main
         C->>CR: revisar ronda 1 base main
         C->>SA: auditar ronda 1 base main
+        C->>VF: verificar ronda 1
     end
     QA-->>C: REVIEW-qa.md: 0
     CR-->>C: REVIEW-code.md: 1 media
     SA-->>C: REVIEW-security.md: 1 alta (SEC-1 idempotencia)
-    C->>G: commit review(pagos-timeout): round 1 (solo REVIEW-*.md)
-    Note over C: hay alta → fix.md
-    C->>FX: corregir ronda 1
-    FX->>FX: SEC-1 corregido, CODE-1 a deuda #45 vence 2026-12-01
+    VF-->>C: CHECKLIST 6/7 · CA-3 falta: sin validación de amount ≤ 0
+    C->>G: commit review(pagos-timeout): round 1 (REVIEW-*.md y CHECKLIST.md)
+    Note over C: alta y checklist abierta → fix.md
+    C->>AN: validar pagos-timeout SEC-1
+    AN-->>C: VERDICT: real · alcance: sí
+    C->>FX: corregir ronda 1: SEC-1, CA-3, CODE-1
+    FX->>FX: SEC-1 y CA-3 corregidos, CODE-1 a deuda #45 vence 2026-12-01
     FX-->>C: Revisión en CHANGELOG
     C->>QA: testear cambios del fixer
     par ronda 2
         C->>QA: verificar ronda 2
         C->>CR: revisar ronda 2
         C->>SA: auditar ronda 2
+        C->>VF: verificar ronda 2
     end
     QA-->>C: 0
     CR-->>C: 0
     SA-->>C: 0
+    VF-->>C: CHECKLIST 7/7
     C->>G: commit review(pagos-timeout): round 2
     end
 
-    Note over C,G: pr.md
+    Note over C,G: pr.md: llegar a done
+    C->>G: git mv → 4-done · Cierre · PR.md · commit plan(pagos-timeout): done
     C->>G: git add -A · commit fix(pagos-timeout): reintento idempotente
-    C->>G: PR.md · commit · push -u origin HEAD
+    C->>G: un solo push -u origin HEAD
     C->>G: gh pr create --body-file PR.md
     G-->>C: PR #87
-    C->>G: pr: 87 · url en PR.md · commit · push
     C->>G: gh pr checks 87 --watch
     G-->>C: lint ✗ (import sin usar)
     C->>FX: ci pagos-timeout <run>
@@ -101,13 +108,11 @@ sequenceDiagram
     C->>G: commit fix(pagos-timeout): CI-1 import sin usar · push
     C->>G: gh pr checks 87 --watch
     G-->>C: todo verde
-    C-->>U: PR #87 abierto y verde: https://github.com/…/pull/87. Mergeá y corré /mindstack:orchestrate en main
+    Note over C: hook de parada: 4-done y CI verde, deja terminar
+    C-->>U: 4-done: PR #87 listo para mergear: https://github.com/…/pull/87
 
-    U->>G: merge en GitHub
-    U->>C: /mindstack:orchestrate (en main, PR mergeado → fase finalize)
-    C->>C: Cierre: fechas reales, PR #87, deuda #45
-    C->>C: env-down.sh pagos-timeout
-    C->>G: git mv → 4-done · commit plan(pagos-timeout): finalize
+    U->>G: merge en GitHub: la carpeta llega a main ya en 4-done
+    Note over U: al abrir claude en main: "mergeada sin limpiar: pagos-timeout → env-down y git worktree remove"
 ```
 
 ## Dónde para y por qué
@@ -115,10 +120,8 @@ sequenceDiagram
 | Parada | Por qué no se puede saltear |
 |---|---|
 | pedir el plan (`/plan` o "generá el plan", tuyo) | es el contrato. Lo que no está en el SPEC no se hace; con el plan hecho, los dos se congelan. El orquestador no arranca sin eso |
-| consenso sin acuerdo (caso 03) | tres analistas no coincidieron: la decisión es tuya |
-| ronda 2 con crítica o alta | dos rondas que no cierran son un desacuerdo, no un bug |
-| `BLOCKED:` o tres fallos en la misma tarea | algo externo o una ambigüedad que el consenso no resolvió |
-| CI rojo tres veces, o rojo por algo ajeno al cambio | el orquestador itera con el log hasta tres rondas; más es el entorno, no el código |
+| `blocked/` (consenso sin acuerdo, ronda 5 abierta, `BLOCKED:`, tres fallos, CI ajeno o tres rondas de CI) | necesita una decisión tuya. Lo dice `BLOCKED.md`, lo muestra el aviso al abrir `claude`, y el PR vuelve a draft |
+| `4-done` | lista para mergear: probás y mergeás, o `/draft` lo que falta |
 | merge | ningún agente mergea |
 
 "Probar" no es parada: la URL queda impresa y en `CHANGELOG › Cambios`; probás cuando querés.
@@ -130,10 +133,11 @@ todolist/4-done/pagos-timeout/
 ├── SPEC.md          Diagnóstico con REPRO: integration, CB-1..CB-4
 ├── PLAN.md          tipo: fix · causa raíz confirmada · tareas 1 (qa) y 2 (dev)
 ├── TODO.md          [x] [x]
-├── CHANGELOG.md     Cambios, Decisiones, Deuda (#45), Revisión (2 rondas), Cierre
+├── CHECKLIST.md     CA-1..3, CB-1..4, todas tachadas con evidencia
+├── CHANGELOG.md     Cambios, Decisiones, Deuda (#45), Revisión (2 rondas, con validación), Cierre
 ├── REVIEW-qa.md     ronda 2, vacío
 ├── REVIEW-code.md   ronda 2, vacío
 ├── REVIEW-security.md ronda 2, vacío
-├── PR.md            pr: 87
+├── PR.md            body del PR #87
 └── notes/repro.md
 ```

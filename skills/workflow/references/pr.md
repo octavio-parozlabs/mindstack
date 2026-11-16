@@ -1,71 +1,69 @@
-# PR: abrir el pull request
+# PR: llegar a done
 
-Lo corre el orquestador (fase pr). Requiere la carpeta en `3-in-review/` y que la última ronda de revisión no tenga crítica ni alta abierta. Es el único punto donde el código se commitea: hasta acá vivió en el working tree. Termina con el PR abierto y su número en `PR.md` y en `CHANGELOG.md`. **No mergea.**
+Lo corre el orquestador (fase pr). Requiere la carpeta en `3-in-review/`, la última ronda sin crítica ni alta abierta y `CHECKLIST.md` completa. Es el único punto donde el código se commitea: hasta acá vivió en el working tree. Termina con la tarea en `4-done/`: **todo commiteado, PR abierto y CI verde. Lista para mergear.** No mergea.
 
 ```mermaid
-flowchart LR
-    V{última ronda\nsin crítica/alta} -- no --> STOP([volver a fase fix])
-    V -- sí --> CC["commit único del código: feat|fix(slug): título"]
-    CC --> B[PR.md desde plantilla]
-    B --> C[commit]
-    C --> P[git push -u origin HEAD]
-    P --> G[gh pr create --body-file PR.md]
-    G --> N["pr: n en PR.md + fila en CHANGELOG › Cambios"]
-    N --> K[commit + push]
-    K --> M([persona mergea en GitHub])
+flowchart TD
+    V{"última ronda limpia y\nCHECKLIST completa"} -- no --> STOP([volver a fase fix])
+    V -- sí --> D[Done local verde]
+    D --> MV["git mv a 4-done · Cierre · PR.md"]
+    MV --> CC["commits locales: plan(slug): done · feat|fix(slug): título"]
+    CC --> P["UN push: git push -u origin HEAD"]
+    P --> G{¿la rama ya tiene PR?}
+    G -- no --> NEW[gh pr create --body-file PR.md]
+    G -- "sí: iteración" --> IT[gh pr comment + gh pr ready]
+    NEW & IT --> X{¿mergeable?}
+    X -- CONFLICTING --> CF[conflicts.md] --> W
+    X -- sí --> W["gh pr checks --watch"]
+    W -- verde --> OK([4-done: listo para mergear. Fin del turno])
+    W -- "rojo, del cambio, ronda < 3" --> F["fixer ci → qa → Done local\ncommit fix(slug): CI-n · push"] --> W
+    W -- "rojo ajeno, o ronda 3" --> BL([blocked/: orchestrate.md › Bloquear])
 ```
 
 ## Pasos
 
-1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; `CHANGELOG › Revisión` tiene al menos una ronda y ningún hallazgo crítica/alta sin `corregido`. Si la persona quiere abrir igual con algo abierto, que lo diga explícitamente y queda en Decisiones.
-2. Done de `PLAN.md` pasa ahora. Si no, pará.
-2b. **El commit del código.** `git add -A` y un commit `feat(<slug>): <title del PLAN>` (o `fix(` si es un fix) con el código, los tests, `TODO.md` y `CHANGELOG.md`. Es el primer commit de código de la rama: todo lo anterior fueron docs. Si preferís commits por tarea para leer el historial, no: la unidad revisada es el conjunto, y ese es el commit.
-3. `PR.md` desde `../templates/PR.md`: Objetivo en pasado, Estado final con cada casilla y su evidencia del CHANGELOG, cómo probar cada CB, resumen de rondas, lo que la persona tiene que mirar. Commit `plan(<slug>): PR`.
-4. `git push -u origin HEAD`.
-4b. **Si la rama ya tiene un PR abierto** (`gh pr list --head $(git branch --show-current)`): es una iteración (`skills/workflow/references/iterate.md`). No abras otro: push, `gh pr comment <n>` con el resumen de la iteración, `pr:` y `url:` del padre en el `PR.md` de la hija, fila en Cambios, commit, push. Terminá ahí.
-5. `gh pr create --title "<title del PLAN>" --body-file todolist/3-in-review/<slug>/PR.md --base main`. Guardá la URL que imprime.
-6. Al final de `PR.md`: `pr: <n>` y `url: https://github.com/<org>/<repo>/pull/<n>`. Fila en `CHANGELOG › Cambios` (quién `person`, qué "PR #n abierto", evidencia = la URL). Commit, push. El link directo queda en los dos archivos, y los dos viajan con el repo.
-7. Si `gh pr view <n> --json mergeable` dice `CONFLICTING`: `skills/workflow/references/conflicts.md` (en modo orquestado se corre solo; a mano, sugerí `/mindstack:rebase`).
-8. **CI verde es parte del trabajo.** El PR no está "abierto" hasta que sus checks pasan:
+Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, o CI quedó pendiente en otra sesión), el código ya está commiteado y pusheado: seguí desde el paso 6.
 
-```mermaid
-flowchart TD
-    W["gh pr checks n --watch"] --> R{¿verde?}
-    R -- sí --> OK([PR listo: link, fin])
-    R -- no --> L["gh run view --log-failed: el error exacto"]
-    L --> T{¿es del cambio?}
-    T -- "infra, flaky, secreto que falta" --> B([BLOCKED: decirlo a la persona])
-    T -- sí --> F["Agent fixer: ci slug · hallazgo CI-n con el log"]
-    F --> Q["Agent qa: testear cambios del fixer"]
-    Q --> D["Done local verde"]
-    D --> C["commit fix(slug): CI-n qué · push"]
-    C --> N{¿ronda CI < 3?}
-    N -- sí --> W
-    N -- no --> B
-```
+1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; `CHANGELOG › Revisión` con al menos una ronda y ninguna crítica ni alta sin `corregido`; todas las líneas de `CHECKLIST.md` con `[x]`. Si no, volvé a `fix.md`.
+2. Done de `PLAN.md` pasa ahora. Si no, volvé a `fix.md` con el log como hallazgo.
+3. **La carpeta llega a done antes del push**, en el working tree:
+   - `git mv todolist/3-in-review/<slug> todolist/4-done/<slug>`.
+   - `CHANGELOG › Cierre`: inicio real (fecha del commit `plan(<slug>): implement`), fin real (hoy), al lado las planificadas; rondas de revisión; qué quedó distinto de lo planeado (dos o tres líneas de Decisiones); deuda abierta con issue y vencimiento.
+   - `PR.md` desde `../templates/PR.md`: Objetivo en pasado, la `CHECKLIST` con su evidencia, cómo probar cada CB, resumen de rondas, lo que la persona tiene que mirar.
+4. Commits, todos locales: `plan(<slug>): done` con `git add todolist/` (la carpeta movida con `TODO.md`, `CHANGELOG.md` y `PR.md`), y `feat(<slug>): <title del PLAN>` (o `fix(`) con `git add -A`: el código y los tests. El de código es el primero de la rama: todo lo anterior fueron docs. Si preferís commits por tarea para leer el historial, no: la unidad revisada es el conjunto.
+5. **Un solo push**: `git push -u origin HEAD`. CI corre una vez por push, no por commit; por eso nada se commitea entre abrir el PR y que CI termine.
+6. ¿La rama ya tiene un PR (`gh pr view`)?
+   - No: `gh pr create --title "<title del PLAN>" --body-file todolist/4-done/<slug>/PR.md --base main`.
+   - Sí, es una iteración (`iterate.md`): `gh pr comment` con el resumen de la iteración y `gh pr ready` (la iteración lo había pasado a draft).
+   El número y el link del PR no se escriben en ningún archivo: salen de `gh pr view` sobre la rama. Escribirlos sería un commit más, y otra corrida de CI.
+7. `gh pr view --json mergeable`: si dice `CONFLICTING`, `conflicts.md` (se corre solo en modo orquestado; a mano, `/mindstack:rebase`). Conflicto con intenciones incompatibles → `blocked`.
+8. **CI verde es parte de done**: `gh pr checks --watch`.
+   - Verde: fin. La tarea está en `4-done/` y el turno termina con el link.
+   - Rojo, y el log muestra que es del cambio: `Agent fixer` con `ci <slug> <run>` → `Agent qa` sobre lo que cambió → Done local → commit `fix(<slug>): CI-n <qué>` → push → volver a mirar. La carpeta no se mueve: ya está en `4-done` y el commit del arreglo dispara CI igual.
+   - Rojo por algo ajeno al cambio (infra, secreto que falta, test inestable de otro módulo), o tercera ronda de CI roja: `blocked` (`orchestrate.md › Bloquear`). Es el único caso en que la carpeta sale de `4-done`.
 
-   - Cada fallo es un hallazgo `CI-n` en `CHANGELOG › Revisión` (rol `ci`), con resultado `corregido` o `bloqueado: motivo`.
-   - Si CI falló por algo que el Done de `PLAN.md` no corre, además una fila en Observaciones: "Done incompleto: CI corre X y el plan no". El próximo plan lo incluye.
-   - El `fixer` corrige lo que el log dice, nada más. No se relanzan los tres revisores por un fix de CI: ya vieron el código; CI es una compuerta mecánica. Si el fix toca más que el check que falló, sí: `review.md`, ronda nueva.
-   - Tope: tres rondas de CI. A la cuarta, para y lo dice: tres fallos seguidos es un problema del entorno o del plan, no del código.
+Reglas del paso 8:
+- Cada fallo es un hallazgo `CI-n` en `CHANGELOG › Revisión` (rol `ci`), con resultado `corregido` o `bloqueado: motivo`.
+- Si CI falló por algo que el Done de `PLAN.md` no corre, fila en Observaciones: "Done incompleto: CI corre X y el plan no".
+- El `fixer` corrige lo que el log dice, nada más. No se relanzan los revisores por un fix de CI: ya vieron el código. Si el fix toca más que el check que falló, sí: la carpeta vuelve a `3-in-review` y `review.md`, ronda nueva.
+- Tope: tres rondas de CI. Si el Done local es igual a CI, un tercer rojo seguido es el entorno, no el código.
 
-Terminá diciendo el número del PR, el link, y que CI está verde. El merge lo hace la persona; después del merge, `/mindstack:orchestrate` en `main` (fase finalize) en main.
+Terminá con el link del PR y "CI verde: listo para mergear". El merge lo hace la persona; no hay nada que correr después. La limpieza del entorno y del worktree la sugiere el aviso de sesión cuando la tarea ya está mergeada.
 
 ## Qué queda si el PR desaparece
 
-Un PR en GitHub no se borra: se cierra. Lo que puede desaparecer es la rama. Qué sobrevive, en cada caso:
+Un PR en GitHub no se borra: se cierra. Lo que puede desaparecer es la rama. La carpeta de la tarea vive en la rama hasta el merge:
 
-| Caso | Código | SPEC, PLAN, CHANGELOG, REVIEWs | Link |
-|---|---|---|---|
-| mergeado | en `main` | en `main`, en `todolist/4-done/<slug>/` después de `fase finalize` | `PR.md › url` y `CHANGELOG › Cierre`, siguen abriendo el PR cerrado |
-| cerrado sin merge, rama viva | en la rama | en la rama | ídem |
-| cerrado sin merge, rama borrada | perdido | **perdido**: todo vivía en la rama, borrador incluido | el PR cerrado sigue en GitHub con su diff, y el diff incluye la carpeta de la tarea |
-
-Por eso `fase finalize` también cubre el PR cerrado sin merge: trae la carpeta de la tarea desde la rama a `main` antes de que alguien borre la rama. La memoria de la tarea (qué se decidió, qué se dejó, qué dijeron los revisores) vale aunque el código no haya entrado.
+| Caso | Código | SPEC, PLAN, CHANGELOG, REVIEWs |
+|---|---|---|
+| mergeado | en `main` | en `main`, en `todolist/4-done/<slug>/` |
+| cerrado sin merge, rama viva | en la rama | en la rama |
+| cerrado sin merge, rama borrada | perdido | perdido; el PR cerrado sigue en GitHub con su diff, que incluye la carpeta |
 
 ## Qué no
 
 - Mergear, ni con `--auto`. El merge es el único punto donde una persona ve el cambio entero.
-- Editar el body después de abierto. Lo que cambia va al CHANGELOG y, en una iteración, al comentario del PR.
+- Commitear algo después de abrir el PR que no sea un arreglo de CI. Cada push es una corrida más.
+- `[skip ci]` en un commit: si el repo tiene checks obligatorios, quedan pendientes para siempre y el PR no se puede mergear.
 - Abrir un segundo PR sobre la misma rama.
-- Dar por terminado con CI rojo. Un PR rojo es trabajo a medias con un link.
+- Terminar con CI rojo o pendiente. El hook de parada no lo deja.
