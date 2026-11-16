@@ -6,6 +6,7 @@ Tu participación antes de delegar es una sola conversación en el worktree de l
 sequenceDiagram
     actor U as Vos
     participant C as Claude (worktree facturas-pdf)
+    participant D as designer
     participant G as git
 
     rect rgb(255, 245, 230)
@@ -13,20 +14,27 @@ sequenceDiagram
     U->>C: claude -w facturas-pdf · /mindstack:draft "exportar facturas a PDF"
     Note over C: worktree = tarea facturas-pdf
     C->>C: lee el módulo de facturas, lista supuestos con %
+    Note over C: hay un botón que vos ves → toca la interfaz → designer, siempre
+    C->>D: Agent designer: proponer facturas-pdf + pedido + /invoices/:id
+    D->>D: copia el patrón del detalle de pedido · wireframes/*.wireloom → render
+    D-->>C: notes/ux.md · SCR-1 detalle de factura · SCR-2 error de páginas · 2 preguntas
     C->>U: ¿el PDF se genera al pedirlo o se guarda al emitir? creo que al pedirlo (70%)
     U-->>C: al pedirlo, y se cachea
     C->>U: ¿quién puede pedirlo? asumo dueño de la factura y admin (85%), lo afirmo salvo que digas
     U-->>C: también contadores con permiso de lectura
     C->>C: CB-1 factura sin ítems · CB-2 contador sin permiso · CB-3 caché vencida · CB-4 PDF de 300 páginas
-    C->>G: commit spec(facturas-pdf): ronda 1
-    C-->>U: SPEC.md escrito. Leelo, comentá, y cuando esté pedime el plan
-    U->>U: lee el SPEC con calma
-    U->>C: el CB-4 no, tope de 50 páginas y error claro
-    C->>C: corrige CB-4
+    C->>G: commit spec(facturas-pdf): ronda 1 (con wireframes/ y rendered/*.svg)
+    C-->>U: SPEC.md escrito. Mirá SCR-1 y SCR-2 (los SVG), comentá, y cuando esté pedime el plan
+    U->>U: mira los dos dibujos, lee los CB
+    U->>C: el botón "Descargar PDF" va arriba, al lado del estado, no en el menú ⋯
+    C->>C: corrige factura-detalle.wireloom · node scripts/wireframes.mjs → SVG nuevo
     C->>G: commit spec(facturas-pdf): ronda 2
+    U->>C: el CB-4 no, tope de 50 páginas y error claro
+    C->>C: corrige CB-4 y el texto de SCR-2
+    C->>G: commit spec(facturas-pdf): ronda 3
     U->>C: agregá un caso borde para facturas anuladas
     C->>C: CB-5 factura anulada, con diagrama
-    C->>G: commit spec(facturas-pdf): ronda 3
+    C->>G: commit spec(facturas-pdf): ronda 4
     end
 
     rect rgb(230, 240, 255)
@@ -37,7 +45,7 @@ sequenceDiagram
     C->>U: empate sin principio: ¿la caché en Redis, que ya está, o en disco? historial dice Redis
     U-->>C: Redis
     C->>G: commit plan(facturas-pdf): ronda 1
-    C->>C: valida tipo, estado final, roles, Done = CI, fechas · TODO.md · chmod a-w SPEC PLAN
+    C->>C: valida tipo, estado final, roles, Done = CI, fechas, cada SCR-n con su .wireloom y render verde · TODO.md · CHECKLIST.md · chmod a-w SPEC PLAN
     C->>G: git mv → 1-pending · commit plan(facturas-pdf): pending
     C-->>U: resumen: feature · 6 tareas · 2026-11-03 → 11-05 · Done = typecheck+lint+test+coverage:diff · fuera de alcance agregado: PDF firmado · riesgo: invoices.service sin test, se caracteriza primero
     end
@@ -50,13 +58,13 @@ sequenceDiagram
     C->>U: ¿qué corrijo?
     U-->>C: el PDF firmado sí entra, era parte del pedido
     C->>C: SPEC: lo saca de "qué no se hace", CB-6 firma inválida · PLAN: tarea 7
-    C->>G: commit spec(facturas-pdf): ronda 4 · commit plan(facturas-pdf): ronda 2
+    C->>G: commit spec(facturas-pdf): ronda 5 · commit plan(facturas-pdf): ronda 2
     C->>G: valida · git mv → 1-pending · commit plan(facturas-pdf): pending
     C-->>U: resumen actualizado. Cuando quieras: /mindstack:orchestrate
     end
 ```
 
-Si es un bug, antes de escribir el SPEC el analista lanza a `qa` para reproducirlo (caso 01): sin reproducción no hay plan. Si toca la interfaz, lanza a `designer`: propone flujo, componentes, estados y textos en `notes/ux.md`, y sus preguntas te llegan una por vez como las del analista.
+Si es un bug, antes de escribir el SPEC el analista lanza a `qa` para reproducirlo (caso 01): sin reproducción no hay plan. Si toca la interfaz (algo que vos ves, o un archivo de front), lanza a `designer`, siempre: propone flujo, estados y textos en `notes/ux.md` y dibuja cada pantalla en `wireframes/<nombre>.wireloom`. El SPEC linkea los SVG (`![SCR-1](wireframes/rendered/…svg)`), que es lo que mirás; los agentes leen la fuente. Sus preguntas te llegan una por vez como las del analista. Un plan que toca el front sin wireframes no pasa a pendiente.
 
 ## Las etapas, y qué las dispara
 

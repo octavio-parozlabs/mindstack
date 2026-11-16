@@ -159,7 +159,7 @@ La plantilla con frontmatter está en `skills/workflow/templates/REVIEW.md`.
 - La usa el agente `security-auditor` en `/mindstack:orchestrate (fase review) <slug>`, en el mismo turno y en paralelo con `qa` y `code-reviewer`. Cada uno escribe solo su archivo; el hook bloquea los demás.
 - Un hallazgo fuera del alcance del SPEC (ya estaba roto antes del cambio) va igual, marcado "preexistente" en *Qué falla*. Seguridad vieja no se ignora por vieja.
 - Crítica y alta no pueden quedar como deuda: se corrigen o se discuten con la persona. Media y baja pueden ser deuda con vencimiento.
-- El corrector cierra cada hallazgo en `/mindstack:orchestrate (fase fix)`: corregido, deuda o rechazado con motivo, en `CHANGELOG › Revisión`. El auditor no edita código.
+- El corrector cierra cada hallazgo en `/mindstack:orchestrate (fase fix)`: antes lo valida un analista (`fix.md`); después corregido, deuda o bloqueado, en `CHANGELOG › Revisión`. El corrector no rechaza: lo refutado lo decide la validación. El auditor no edita código.
 - La revisión general (lógica, legibilidad, arquitectura) la hace `mindstack:code-review`; acá solo seguridad.
 
 ## Racionalizaciones comunes

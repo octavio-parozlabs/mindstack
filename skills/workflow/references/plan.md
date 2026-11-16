@@ -58,6 +58,7 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
 12. **Commit.** `plan(<slug>): ronda n` con PLAN.md y CHANGELOG.md.
 13. **A pendiente, en el mismo turno.** Validá y mové:
     - `tipo:` es uno de la tabla; el SPEC tiene `CA-n` en Criterios de aceptación; cada línea de "Estado final" es verificable; cada tarea tiene `rol:` y verificación; Done es un bloque bash no vacío que cubre lo que corre CI; `fecha_inicio` y `fecha_fin` están.
+    - Si alguna tarea del PLAN toca un archivo de una app de front y el SPEC no tiene "Referencias de UI": no pasa. Vuelve a la fase draft para que el `designer` dibuje las pantallas; un cambio de front sin wireframe es el developer decidiendo el diseño.
     - Si el SPEC tiene "Referencias de UI": cada `SCR-n` tiene su `wireframes/<nombre>.wireloom` y `node ${CLAUDE_PLUGIN_ROOT}/scripts/wireframes.mjs todolist/0-draft/<slug>/wireframes` sale en verde (regenera los SVG; si cambió alguno, entra en el commit).
     - Si el SPEC tiene "Diagnóstico": Reproducción no está vacía ni es `NO`, "Causa raíz: confirmada", tarea 1 con rol `qa`. Sin eso, un fix no pasa a pendiente.
     - Preguntas abiertas del SPEC que quedaron: a "Riesgos y vuelta atrás" del PLAN.
