@@ -13,7 +13,7 @@ flowchart LR
     class A,OK,PR,M,PB persona
 ```
 
-Naranja: la persona. Todo lo demás lo hacen los roles: `/mindstack:draft` y `/mindstack:plan` para lo que necesita diálogo, `/mindstack:orchestrate` para el resto, sin parar. La tarea es el worktree: `claude -w <slug>` y todo pasa adentro, del borrador al PR; si hay Compose, con su propio entorno en `localhost` y copia de tu DB. Nada se publica.
+Naranja: la persona. Todo lo demás lo hacen los roles: `/mindstack:draft` y `/mindstack:plan` para lo que necesita diálogo, `/mindstack:orchestrate` para el resto, sin parar. El worktree es el PR: `claude -w <slug>` y todo pasa adentro, del borrador al PR, para una tarea o para varias en cola; si hay Compose, con su propio entorno en `localhost` y copia de tu DB. Nada se publica.
 
 ## Instalar
 
@@ -85,14 +85,14 @@ todolist/
 
 ## Comandos
 
-Cinco. Tres en el día a día. Ninguno lleva el nombre de la tarea: la tarea es el worktree.
+Cinco. Tres en el día a día. Ninguno necesita el nombre de la tarea: la lee del worktree.
 
 | Comando | Vos | Hace | git |
 |---|---|---|---|
 | `/mindstack:install` | una vez por proyecto | tablero `todolist/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
-| `/mindstack:draft "<qué querés>"` | en el worktree: respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En el worktree de una tarea con PR: abre la tarea hija con lo que falta | commit por vuelta |
+| `/mindstack:draft "<qué querés>"` | en el worktree: respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En un worktree que ya tiene tarea: sin PR, suma una tarea a la cola; con PR, abre la tarea hija con lo que falta | commit por vuelta |
 | `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md` y `CHECKLIST.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | commit |
-| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (`developer` y `qa` por tarea, consenso), review ×4, validar y fix, pr, conflicts, CI verde. Termina en `4-done` con el link del PR, o en `blocked/` con `BLOCKED.md`. Sobre una tarea bloqueada: te pregunta y sigue | todos los que las fases declaran |
+| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (`developer` y `qa` por tarea, consenso), review ×4, validar y fix, pr, conflicts, CI verde. Termina en `4-done` con el link del PR, o en `blocked/` con `BLOCKED.md`. Con varias pendientes en el worktree: te pregunta cuáles y las corre en cola, una sesión nueva por tarea, en un solo PR. Sobre una tarea bloqueada: te pregunta y sigue | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
 
 Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee las mismas referencias en orden. Cero lógica en los comandos.

@@ -30,4 +30,4 @@ sequenceDiagram
 
 Nada de esto es obligatorio: sin `node_modules` ni `graphify-out/` el hook sigue. El flujo es agnóstico al stack; lo que el stack necesita lo dice su skill.
 
-La tarea es el worktree: `/draft`, el plan, el orquestador y el PR pasan adentro. El `SessionStart` del plugin avisa si abriste `claude` a secas en el checkout principal: ahí solo se cierran tareas mergeadas; para todo lo demás, `claude -w <slug>`.
+El worktree es el PR: `/draft`, el plan, el orquestador y el PR pasan adentro, para una tarea o para una cola (`orchestrate.md › Cola`). En el checkout principal no se corre ningún comando del flujo; para todo, `claude -w <slug>`.

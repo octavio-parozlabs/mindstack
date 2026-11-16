@@ -74,7 +74,8 @@ chmod +x "$tmp/gh/gh"
 # PATH sin gh: solo lo que usa el hook
 for t in bash cat git grep sed rm find xargs basename jq; do p=$(command -v "$t") && ln -sf "$p" "$tmp/nogh/$t"; done
 stop() { (cd "$tmp/repo" && "$hooks/orchestrate-stop.sh"); }
-marca() { echo "${1:-s1}" >"$tmp/repo/.git/mindstack-orchestrating"; }
+M="$tmp/repo/.git/mindstack-orchestrating"
+marca() { rm -rf "$M" "$tmp/repo/.git/mindstack-cola"; mkdir -p "$M"; echo "${2:-/mindstack:orchestrate}" >"$M/${1:-s1}"; }
 mover() { rm -rf "$tmp/repo/todolist"; mkdir -p "$tmp/repo/todolist/$1/x" "$tmp/repo/todolist/4-done/vieja"; }
 S='{"session_id":"s1"}'
 export PATH="$tmp/gh:$PATH"
@@ -84,22 +85,31 @@ marca s2; caso "marcador de otra sesión deja parar" 0 stop <<<"$S"
 marca; caso "3-in-review no deja parar"          2 stop <<<"$S"
 marca; mover blocked; caso "blocked sin BLOCKED.md no deja parar" 2 env GH_RC=1 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks" <<<"$S"
 marca; touch "$tmp/repo/todolist/blocked/x/BLOCKED.md"; caso "blocked con BLOCKED.md deja parar" 0 stop <<<"$S"
-caso "blocked borra el marcador"                 1 test -f "$tmp/repo/.git/mindstack-orchestrating" <<<""
+caso "blocked borra el marcador"                 1 test -f "$M/s1" <<<""
 marca; mover 4-done; caso "4-done con CI verde deja parar" 0 stop <<<"$S"
 marca; mkdir -p "$tmp/repo/todolist/2-in-progress/x-2"; caso "hija en curso con padre en 4-done no deja parar" 2 stop <<<"$S"
 marca; mover 4-done; export GH_RC=8; caso "4-done con CI pendiente no deja parar" 2 stop <<<"$S"
 marca; export GH_RC=1; caso "4-done con CI rojo no deja parar" 2 stop <<<"$S"
 marca; export GH_RC=0 GH_VIEW=1; caso "4-done sin PR no deja parar" 2 stop <<<"$S"
 marca; caso "4-done sin gh deja parar"           0 env PATH="$tmp/nogh" bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks" <<<"$S"
+export GH_VIEW=0 GH_RC=1
+mover 2-in-progress; marca s1 "/mindstack:orchestrate hija x"; caso "hija en curso no deja parar" 2 stop <<<"$S"
+mover 4-done; marca s1 "/mindstack:orchestrate hija x"; caso "hija en 4-done deja parar sin mirar CI" 0 stop <<<"$S"
+mover 2-in-progress; marca; echo "/mindstack:orchestrate hija x" >"$M/s2"; caso "padre con hija viva deja parar" 0 stop <<<"$S"
+export GH_RC=0
+mover 4-done; mkdir -p "$tmp/repo/todolist/1-pending/otra"; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente fuera de la cola deja parar" 0 stop <<<"$S"
+mover 1-pending; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente de la cola no deja parar" 2 stop <<<"$S"
+mover 1-pending; marca; caso "pendiente sin cola no deja parar"   2 stop <<<"$S"
 
 echo "orchestrate-start.sh"
 start() { (cd "$tmp/repo" && "$hooks/orchestrate-start.sh"); }
-rm -f "$tmp/repo/.git/mindstack-orchestrating"
+rm -rf "$M"
 git -C "$tmp/repo" checkout -q -b main 2>/dev/null || git -C "$tmp/repo" switch -q -c main
-caso "en main no marca"                          1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
+caso "en main no marca"                          1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
 git -C "$tmp/repo" switch -q -c worktree-x
-caso "otro prompt no marca"                      1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"hola"}'
-caso "/mindstack:orchestrate en worktree marca"  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -qx s1 .git/mindstack-orchestrating' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
+caso "otro prompt no marca"                      1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"hola"}'
+caso "/mindstack:orchestrate en worktree marca"  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -qx /mindstack:orchestrate .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
+caso "hija en worktree marca con su prompt"      0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -q "hija a" .git/mindstack-orchestrating/s2' _ "$tmp" "$hooks" <<<'{"session_id":"s2","prompt":"/mindstack:orchestrate hija a"}'
 
 echo "$n casos, $fallos fallos"
 [ "$fallos" -eq 0 ]

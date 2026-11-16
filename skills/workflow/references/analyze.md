@@ -105,7 +105,7 @@ La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su
 
 ## Slug
 
-Es el nombre del worktree: lo eligió la persona al abrirlo (`claude -w reintento-pagos`) y es también el nombre de la carpeta y de la rama (`worktree-<slug>`). No se inventa ni se renombra. Si la persona pregunta cómo nombrarlo: kebab-case, tres palabras máximo, del objetivo y no de la solución (`reintento-pagos`, no `backoff-exponencial`).
+La primera tarea de un worktree se llama como el worktree: lo eligió la persona al abrirlo (`claude -w reintento-pagos`) y es también el nombre de la rama (`worktree-<slug>`). No se inventa ni se renombra. Una tarea más en el mismo worktree (cola, `orchestrate.md › Cola`) necesita su propio slug: proponé uno con las mismas reglas y confirmalo con la persona antes del primer commit. Si la persona pregunta cómo nombrarlo: kebab-case, tres palabras máximo, del objetivo y no de la solución (`reintento-pagos`, no `backoff-exponencial`).
 
 ## Qué no
 

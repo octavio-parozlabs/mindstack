@@ -20,7 +20,7 @@ flowchart TD
     H -- sí --> Q([preguntar a la persona]) --> W
     H -- no --> V[validar: tipo, estado final, roles, Done, fechas, REPRO si es fix]
     V --> T[TODO.md · CHECKLIST.md · chmod a-w · git mv → 1-pending · commit]
-    T --> OK(["resumen de 5 líneas. Siguiente: claude -w slug y /orchestrate"])
+    T --> OK(["resumen de 5 líneas. Siguiente: /orchestrate, o /draft otra tarea para la cola"])
 ```
 
 ## Pasos
@@ -66,7 +66,7 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
     - `CHECKLIST.md` desde `../templates/CHECKLIST.md`: una línea por cada `CA-n` y `CB-n` del SPEC y por cada línea de "Estado final" que no sea uno de ellos, sin tachar. Cada `CA-n` tiene que estar cubierto por al menos una tarea del PLAN (que lo nombre en su texto o su verificación); si alguno no, falta una tarea.
     - `chmod a-w SPEC.md PLAN.md` (cosmético; la red real es el hook y CI).
     - `git mv todolist/0-draft/<slug> todolist/1-pending/<slug>`; commit propio `plan(<slug>): pending`.
-14. **Resumen de cinco líneas**, lo único que la persona lee: tipo y skills; N tareas y fechas; Done; qué agregaste a "Fuera de alcance" que no estaba en el SPEC; riesgos. Y el siguiente paso: `claude -w <slug>` y `/mindstack:orchestrate` ahí. Si quiere cambiar algo: `/mindstack:draft` sin texto la vuelve a borrador.
+14. **Resumen de cinco líneas**, lo único que la persona lee: tipo y skills; N tareas y fechas; Done; qué agregaste a "Fuera de alcance" que no estaba en el SPEC; riesgos. Y el siguiente paso: `/mindstack:orchestrate` en este worktree, o `/mindstack:draft "otra cosa"` para sumar otra tarea a la cola del mismo PR (`orchestrate.md › Cola`). Si quiere cambiar algo: `/mindstack:draft` sin texto la vuelve a borrador.
 
 ## Qué no
 

@@ -24,6 +24,8 @@ flowchart TD
 
 Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, o CI quedó pendiente en otra sesión), el código ya está commiteado y pusheado: seguí desde el paso 6.
 
+**En una cola** (`orchestrate.md › Cola`) se parte en dos: cada hija hace los pasos 1 a 4 para su tarea y termina con commit local; el padre hace del 5 en adelante una sola vez para toda la cola, con el body armado de los `PR.md` de cada tarea.
+
 1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; `CHANGELOG › Revisión` con al menos una ronda y ninguna crítica ni alta sin `corregido`; todas las líneas de `CHECKLIST.md` con `[x]`. Si no, volvé a `fix.md`.
 2. Done de `PLAN.md` pasa ahora. Si no, volvé a `fix.md` con el log como hallazgo.
 3. **La carpeta llega a done antes del push**, en el working tree:

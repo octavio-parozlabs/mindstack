@@ -51,7 +51,7 @@ Una tarea hija (`/mindstack:draft "<qué falta>" (en el worktree)`) pasa por las
 
 ## Qué tarea es
 
-**La tarea es el worktree.** Todo pasa adentro de `claude -w <slug>`, del borrador al PR: el slug lo elegís vos al abrirlo, y es el nombre de la carpeta, de la rama (`worktree-<slug>`) y del worktree. Ningún comando lleva el nombre de la tarea: la lee de `git branch --show-current`. Un worktree, una tarea, una rama, un PR.
+**El worktree es el PR.** Todo pasa adentro de `claude -w <slug>`, del borrador al PR: el slug lo elegís vos al abrirlo, y es el nombre de la primera tarea, de la rama (`worktree-<slug>`) y del worktree. Un worktree, una rama, un PR. Lo normal es una tarea por worktree, y ningún comando lleva su nombre: la lee de `git branch --show-current`. Si escribís varias en el mismo worktree (`/draft`, plan, `/draft` otra, plan), son una cola: `/orchestrate` las corre en orden, cada una en una sesión nueva, y viajan juntas en el mismo PR (`references/orchestrate.md › Cola`). Para rapidez, sin dependencias: un worktree por tarea, en paralelo.
 
 En el checkout principal (`main`) no se corre ningún comando del flujo. Al abrir `claude`, el aviso de sesión lista las tareas bloqueadas en cualquier worktree y las mergeadas cuyo worktree y entorno siguen vivos, con el comando para limpiarlos.
 
