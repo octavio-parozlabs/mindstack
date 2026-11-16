@@ -25,7 +25,7 @@ flowchart TD
 
 ## Pasos
 
-1. **Leer el SPEC entero.** Objetivo, alcance, cada CB. El plan no agrega alcance: si al leer el código ves que falta algo, va a "Fuera de alcance" o a Preguntas abiertas, y la persona decide si vuelve al SPEC.
+1. **Leer el SPEC entero.** Objetivo, alcance, cada CB. El plan no agrega alcance: si al leer el código ves que falta algo, va a "Fuera de alcance" o a una `D-n` abierta, y la persona decide si vuelve al SPEC.
 2. **Acoplamiento.** Para cada módulo que el cambio toca: quién lo importa, quién lo llama, si tiene test y de qué capa. Primero el grafo (`graphify query`, `graphify path`) si existe `graphify-out/graph.json`; confirmá con `grep` lo que el grafo marque como inferido. Sin grafo, `grep -rn` por el nombre exportado. Riesgo alto = muchos callers o lógica de negocio, y sin test. Si investigaste algo para decidir (un spike, una comparación), el detalle va a `notes/<tema>.md` en la carpeta de la tarea y el plan lo linkea.
 2a. **Tipo de tarea y skills.** En el frontmatter, `tipo:` dice qué clase de tarea es y `skills:` qué prácticas del plugin carga el `developer` (además de las del stack). Es la forma de que la práctica correcta llegue al rol correcto sin que nadie la adivine:
 
@@ -54,14 +54,14 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
 8b. **Pre-planes.** Si una skill del plugin trae un `PLAN.md` de referencia para el tema (ej. `mindstack:auth-jwt-sessions`), partí de él: copiá sus tareas y decisiones al plan, completá los `TODO` con el repo, y lo que el proyecto decida distinto va a Decisiones con la alternativa. Es orientativo: si no aplica, decilo y armá el plan desde la plantilla.
 9. **Empates.** Dos formas de partir las tareas, dos lugares para un módulo: decide `${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md`, y la elección va a Decisiones del `CHANGELOG.md` con el principio. Sin principio que la respalde, es gusto: preguntá.
 10. **CHANGELOG.md**: título y secciones vacías desde `../templates/CHANGELOG.md`. Lo que viste al leer el repo y no es de esta tarea va a Observaciones, quién `planner`.
-11. **Preguntas, solo las necesarias.** Un empate sin principio o una pregunta abierta del SPEC que cambie el plan se pregunta ahora; todo lo demás se decide y queda en Decisiones. No se pide "¿está bien el plan?": el plan es técnico.
+11. **Preguntas, solo las necesarias.** Un empate sin principio o una `D-n` abierta del SPEC que cambie el plan se pregunta ahora, con el formato de `SPEC › Dudas` (estado, pregunta, opciones, ⭐) y numeradas para contestar por número; la respuesta va en el mismo momento a Decisiones o al PLAN; todo lo demás se decide y queda en Decisiones. No se pide "¿está bien el plan?": el plan es técnico.
 12. **Commit.** `plan(<slug>): ronda n` con PLAN.md y CHANGELOG.md.
 13. **A pendiente, en el mismo turno.** Validá y mové:
     - `tipo:` es uno de la tabla; el SPEC tiene `CA-n` en Criterios de aceptación; cada línea de "Estado final" es verificable; cada tarea tiene `rol:` y verificación; Done es un bloque bash no vacío que cubre lo que corre CI; `fecha_inicio` y `fecha_fin` están.
     - Si alguna tarea del PLAN toca un archivo de una app de front y el SPEC no tiene "Referencias de UI": no pasa. Vuelve a la fase draft para que el `designer` dibuje las pantallas; un cambio de front sin wireframe es el developer decidiendo el diseño.
     - Si el SPEC tiene "Referencias de UI": cada `SCR-n` tiene su `wireframes/<nombre>.wireloom` y `node ${CLAUDE_PLUGIN_ROOT}/scripts/wireframes.mjs todolist/0-draft/<slug>/wireframes` sale en verde (regenera los SVG; si cambió alguno, entra en el commit).
     - Si el SPEC tiene "Diagnóstico": Reproducción no está vacía ni es `NO`, "Causa raíz: confirmada", tarea 1 con rol `qa`. Sin eso, un fix no pasa a pendiente.
-    - Preguntas abiertas del SPEC que quedaron: a "Riesgos y vuelta atrás" del PLAN.
+    - `D-n` abiertas del SPEC que quedaron: a "Riesgos y vuelta atrás" del PLAN.
     - `TODO.md` desde `../templates/TODO.md`: una línea por tarea, mismo número, rol y verificación, sin tachar.
     - `CHECKLIST.md` desde `../templates/CHECKLIST.md`: una línea por cada `CA-n` y `CB-n` del SPEC y por cada línea de "Estado final" que no sea uno de ellos, sin tachar. Cada `CA-n` tiene que estar cubierto por al menos una tarea del PLAN (que lo nombre en su texto o su verificación); si alguno no, falta una tarea.
     - `chmod a-w SPEC.md PLAN.md` (cosmético; la red real es el hook y CI).

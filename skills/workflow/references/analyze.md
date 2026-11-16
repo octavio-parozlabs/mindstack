@@ -13,17 +13,17 @@ sequenceDiagram
     A->>A: lista de supuestos, con % de confianza
     opt toca la interfaz
         A->>D: Agent designer: proponer <slug> + pedido + pantallas
-        D-->>A: notes/ux.md: propuesta UX/UI + preguntas con hipótesis
+        D-->>A: notes/ux.md: propuesta UX/UI + wireframes + dudas con ⭐
     end
-    loop una pregunta por vez, hasta que no quede ambigüedad
-        A->>P: pregunta + hipótesis + confianza
-        P-->>A: respuesta
-        A->>A: actualiza supuestos y casos borde
+    A->>A: escribe SPEC.md borrador: supuestos, CB, SCR-n, dudas D-n abiertas
+    A->>R: commit spec(slug): ronda 1
+    loop hasta que no quede ninguna D-n abierta
+        A->>P: dudas abiertas, enumeradas: estado · pregunta · opciones con ⭐
+        P-->>A: "D-1 ok · D-2 b · D-4 no sé, mostrame el código"
+        A->>A: cada cerrada se aplica YA a su sección (CA, CB, UX, Qué no) y queda tachada en Dudas
+        A->>R: commit spec(slug): ronda n
     end
-    A->>P: slug propuesto + SPEC.md con un diagrama por CB
-    P-->>A: correcciones
-    A->>A: escribe todolist/0-draft/<slug>/SPEC.md
-    A-->>P: SPEC listo y commiteado. Leelo, comentá lo que quieras, y cuando esté pedime el plan (o /mindstack:plan)
+    A-->>P: SPEC sin dudas abiertas. Leelo, comentá, y cuando esté pedime el plan (o /mindstack:plan)
 ```
 
 ## Antes de preguntar
@@ -43,12 +43,14 @@ Lo que está arriba de 80% se afirma y se deja corregir; lo que está abajo se p
 
 ## Cómo se entrevista
 
-- **Una pregunta por vez.** Con la hipótesis que tenés y por qué importa la respuesta. "¿El reintento es automático? Creo que sí (60%) porque el pedido dice 'que reintenten'; cambia si hace falta un botón en la web."
-- **Opciones cerradas cuando se puede.** Tres opciones con consecuencia cada una valen más que una pregunta abierta.
-- **Parar cuando no queda ambigüedad que cambie el SPEC.** No cuando se acaban las preguntas posibles. Si una respuesta no cambiaría ni el alcance ni un caso borde, no se pregunta.
+- **El SPEC existe desde la primera ronda.** Apenas tenés los supuestos (y la propuesta del `designer`, si toca la interfaz), escribí el borrador con lo que sabés y las dudas en `SPEC › Dudas`, y commiteá. La persona siempre tiene algo que mirar, y si la sesión se corta no se pierde nada.
+- **Toda duda es una decisión `D-n`, con el mismo formato** (`../templates/SPEC.md › Dudas`): un **estado** concreto del sistema (qué hay, quién hace qué, con datos), la **pregunta** de qué debería pasar ahí, y las **opciones** sobre la mesa (dos a cuatro, cada una con su consecuencia), una marcada ⭐ como tu preferida y por qué. Sin estado no se entiende la pregunta; sin opciones, la persona diseña por vos; sin preferida, no puede contestar "ok". Las tuyas, las del `designer` y los supuestos debajo de 80% entran igual.
+- **Se muestran todas las abiertas, enumeradas.** La persona contesta por número, las que quiera y en el orden que quiera: "D-1 ok" (la ⭐), "D-2 b", "D-3 ninguna: …". El número no se reusa ni se renumera.
+- **Una duda cerrada se aplica en el momento.** La respuesta cambia la sección que corresponde (un `CA-n`, un `CB-n`, la tabla de UX, un wireframe, "Qué no se hace") en la misma ronda, y la `D-n` queda tachada con su destino (`→ a · CA-7, CB-4`). Una ronda con respuestas termina en commit. Nada queda "anotado para después": lo que no está en el SPEC se olvida.
+- **No hay más dudas cuando no queda ambigüedad que cambie el SPEC.** No cuando se acaban las preguntas posibles. Si una respuesta no cambiaría ni el alcance ni un caso borde, no se pregunta.
 - **Cada respuesta genera o descarta casos borde.** Anotalos al momento, numerados. Un caso borde es una entrada o situación donde el camino feliz no alcanza: vacío, duplicado, timeout, concurrencia, permiso, cantidad cero o enorme, estado intermedio.
 - **Si toca endpoints, las reglas se escriben una por una.** Por cada endpoint, comando o evento que se crea o cambia: cada campo (tipo, rango, obligatorio, si tiene que existir), quién puede llamarlo, y qué responde cuando falla. Contestalas leyendo el schema o contrato que ya existe (`contracts`, DTO, Zod) y los endpoints vecinos; preguntá solo lo que no esté, con tu hipótesis. Cada regla es un `CA-n` en Criterios de aceptación: una validación que no está escrita no la implementa nadie y no la verifica nadie.
-- **Si toca la interfaz, el diseño lo propone `designer`, siempre.** Toca la interfaz si el pedido nombra algo que la persona ve (pantalla, modal, botón, mensaje, ruta) o si lo que leíste del repo cambia un archivo de una app de front (`CLAUDE.md › Apps y paquetes`). En la duda, toca. No es opcional ni se reemplaza por una descripción tuya: sin `designer` no hay wireframes, y sin wireframes `/plan` no pasa. Antes de la primera pregunta de UX, lanzá `Agent` (`subagent_type: designer`, prompt `proponer <slug>` más el pedido, las pantallas o rutas que toca y lo que la persona ya respondió). Devuelve `notes/ux.md` con la propuesta completa y sus preguntas. Sus preguntas entran a la entrevista como las tuyas: una por vez, con su hipótesis; lo que está arriba de 80% se afirma y se deja corregir. Si la persona trae un mockup o nombra una pantalla parecida, pasáselo en el prompt. Si las respuestas cambian mucho la propuesta (otra pantalla, otro flujo), relanzalo con las respuestas; si no, ajustá vos la sección.
+- **Si toca la interfaz, el diseño lo propone `designer`, siempre.** Toca la interfaz si el pedido nombra algo que la persona ve (pantalla, modal, botón, mensaje, ruta) o si lo que leíste del repo cambia un archivo de una app de front (`CLAUDE.md › Apps y paquetes`). En la duda, toca. No es opcional ni se reemplaza por una descripción tuya: sin `designer` no hay wireframes, y sin wireframes `/plan` no pasa. Antes de la primera pregunta de UX, lanzá `Agent` (`subagent_type: designer`, prompt `proponer <slug>` más el pedido, las pantallas o rutas que toca y lo que la persona ya respondió). Devuelve `notes/ux.md` con la propuesta completa y sus preguntas. Sus dudas entran a `SPEC › Dudas` como las tuyas, con número `D-n`; lo que está arriba de 80% se afirma y se deja corregir. Si la persona trae un mockup o nombra una pantalla parecida, pasáselo en el prompt. Si las respuestas cambian mucho la propuesta (otra pantalla, otro flujo), relanzalo con las respuestas; si no, ajustá vos la sección.
 - **Pedido grande.** Si el pedido junta varias capacidades que se prueban por separado (identidad + facturación + notificaciones), antes del SPEC proponé un mapa: una tabla `módulo | responsabilidad | depende de` y un orden. La persona lo aprueba y se hace un SPEC por módulo, en orden de dependencia, cada uno con su slug y `padre:` en el PLAN apuntando al primero. Un pedido normal no pasa por acá.
 
 ## Si es un fix
@@ -87,7 +89,7 @@ Plantilla: `../templates/SPEC.md`. Lo que no se negocia:
 | Diagnóstico | solo en un fix: síntoma, reproducción (de `qa`, con nivel), causa probable con confianza, descartado |
 | Casos borde | **uno por sección, `CB-n`, cada uno con diagrama.** Es la red para QA: el tester no habló con la persona y tiene que reproducir el caso solo con esto |
 | Criterios de aceptación | **uno por regla, `CA-n`**, verificable por un test con entrada concreta, citando los CB que cubre. Por cada endpoint que se toca: cada campo, quién puede llamarlo, qué responde al fallar. Es lo que el `verifier` exige antes del PR |
-| Preguntas abiertas | lo que no cerró. Si al pedir el plan queda alguna, es riesgo del plan |
+| Dudas | **toda decisión que falta, `D-n`**: estado, pregunta, opciones con ⭐. Las cerradas quedan tachadas con su destino. Si al pedir el plan queda alguna abierta, es riesgo del plan |
 
 Diagramas: si dudás entre texto y diagrama, diagrama. Si el diagrama no se entiende sin el texto, rehacelo.
 

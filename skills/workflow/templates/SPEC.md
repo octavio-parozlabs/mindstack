@@ -154,6 +154,18 @@ Por cada endpoint (o comando, o evento) que se toca, una línea por regla: cada 
 - CA-4 `POST /orders` sin sesión → 401
 - CA-5 stock insuficiente → 409 `OUT_OF_STOCK` y no se crea nada (CB-1)
 
-## Preguntas abiertas
+## Dudas
 
-Lo que no se pudo cerrar en la entrevista. Si queda alguna al pedir el plan, el plan la hereda como riesgo.
+Toda decisión que falta cerrar, numerada `D-n`. El número no se reusa ni se renumera. La persona contesta por número: `D-1 ok` (la ⭐), `D-2 b`, `D-3 ninguna: …`. Una duda cerrada se aplica en ese momento a la sección que cambia (CA, CB, UX, wireframe, Qué no se hace) y queda tachada acá con su destino; la ronda termina en commit. Si al pedir el plan queda alguna abierta, el plan la hereda como riesgo.
+
+### D-1 · Reintento con la pestaña cerrada
+
+- **Estado**: el pedido #1042 tiene el pago en "fallido". La persona aprieta "Reintentar pago", confirma y cierra la pestaña antes de que el proveedor responda (tarda hasta 30 s).
+- **Pregunta**: ¿qué pasa con ese reintento?
+- **Opciones**:
+  - a) ⭐ Sigue en el servidor; al volver, el pedido muestra el resultado y un toast si cambió. Es como ya funcionan los cobros (`pagos.service.ts:42`).
+  - b) Se cancela al cerrar la pestaña; el pago queda "fallido".
+  - c) Sigue en el servidor y además manda un mail con el resultado.
+- **Por qué ⭐**: no deja cobros a medias y no agrega mails que nadie pidió.
+
+### ~~D-2 · Quién puede reintentar~~ → cerrada: a · CA-4, CB-2

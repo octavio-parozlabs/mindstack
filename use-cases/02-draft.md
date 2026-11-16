@@ -17,20 +17,17 @@ sequenceDiagram
     Note over C: hay un botón que vos ves → toca la interfaz → designer, siempre
     C->>D: Agent designer: proponer facturas-pdf + pedido + /invoices/:id
     D->>D: copia el patrón del detalle de pedido · wireframes/*.wireloom → render
-    D-->>C: notes/ux.md · SCR-1 detalle de factura · SCR-2 error de páginas · 2 preguntas
-    C->>U: ¿el PDF se genera al pedirlo o se guarda al emitir? creo que al pedirlo (70%)
-    U-->>C: al pedirlo, y se cachea
-    C->>U: ¿quién puede pedirlo? asumo dueño de la factura y admin (85%), lo afirmo salvo que digas
-    U-->>C: también contadores con permiso de lectura
-    C->>C: CB-1 factura sin ítems · CB-2 contador sin permiso · CB-3 caché vencida · CB-4 PDF de 300 páginas
+    D-->>C: notes/ux.md · SCR-1 detalle de factura · SCR-2 error de páginas · 1 duda
+    C->>C: SPEC borrador: supuestos, CB-1 a CB-4, SCR-1 y SCR-2, Dudas D-1 a D-3
     C->>G: commit spec(facturas-pdf): ronda 1 (con wireframes/ y rendered/*.svg)
-    C-->>U: SPEC.md escrito. Mirá SCR-1 y SCR-2 (los SVG), comentá, y cuando esté pedime el plan
+    C->>U: SPEC escrito, mirá los SVG. Faltan 3 decisiones
+    Note over C,U: D-1 · Estado: factura #88 emitida, el cliente pide el PDF dos veces en un minuto. ¿Se genera cada vez? a) ⭐ al pedirlo y se cachea b) al emitir y se guarda c) cada vez<br/>D-2 · Estado: un contador con permiso de lectura abre #88. ¿Puede bajarlo? a) ⭐ sí b) solo dueño y admin<br/>D-3 · Estado: factura de 300 páginas. ¿Qué pasa? a) ⭐ se genera igual b) tope de 50 y error claro
+    U-->>C: D-1 ok · D-2 ok · D-3 b
+    C->>C: D-1 → CA-2, CB-3 · D-2 → CA-5, CB-2 · D-3 → CB-4, CA-6, texto de SCR-2 · las tres tachadas en Dudas
+    C->>G: commit spec(facturas-pdf): ronda 2
     U->>U: mira los dos dibujos, lee los CB
     U->>C: el botón "Descargar PDF" va arriba, al lado del estado, no en el menú ⋯
     C->>C: corrige factura-detalle.wireloom · node scripts/wireframes.mjs → SVG nuevo
-    C->>G: commit spec(facturas-pdf): ronda 2
-    U->>C: el CB-4 no, tope de 50 páginas y error claro
-    C->>C: corrige CB-4 y el texto de SCR-2
     C->>G: commit spec(facturas-pdf): ronda 3
     U->>C: agregá un caso borde para facturas anuladas
     C->>C: CB-5 factura anulada, con diagrama
@@ -64,7 +61,7 @@ sequenceDiagram
     end
 ```
 
-Si es un bug, antes de escribir el SPEC el analista lanza a `qa` para reproducirlo (caso 01): sin reproducción no hay plan. Si toca la interfaz (algo que vos ves, o un archivo de front), lanza a `designer`, siempre: propone flujo, estados y textos en `notes/ux.md` y dibuja cada pantalla en `wireframes/<nombre>.wireloom`. El SPEC linkea los SVG (`![SCR-1](wireframes/rendered/…svg)`), que es lo que mirás; los agentes leen la fuente. Sus preguntas te llegan una por vez como las del analista. Un plan que toca el front sin wireframes no pasa a pendiente.
+Si es un bug, antes de escribir el SPEC el analista lanza a `qa` para reproducirlo (caso 01): sin reproducción no hay plan. Si toca la interfaz (algo que vos ves, o un archivo de front), lanza a `designer`, siempre: propone flujo, estados y textos en `notes/ux.md` y dibuja cada pantalla en `wireframes/<nombre>.wireloom`. El SPEC linkea los SVG (`![SCR-1](wireframes/rendered/…svg)`), que es lo que mirás; los agentes leen la fuente. Sus dudas entran a `SPEC › Dudas` con las del analista, numeradas `D-n`, y las contestás por número. Un plan que toca el front sin wireframes no pasa a pendiente.
 
 ## Las etapas, y qué las dispara
 

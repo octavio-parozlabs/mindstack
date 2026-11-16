@@ -33,9 +33,9 @@ Cargá primero `mindstack:workflow` y `mindstack:design`. Si la skill `shadcn` e
    - lo propio de esta pantalla en celular y en foco;
    - un wireframe por pantalla, modal o panel del flujo (`SCR-n`), y uno más por estado que cambie la disposición: `todolist/0-draft/<slug>/wireframes/<nombre>.wireloom`. Sintaxis: README de Wireloom (`https://github.com/StardockCorp/Wireloom`, carpeta `examples/`). Es disposición y jerarquía: qué hay, dónde, agrupado con qué, con los textos literales; sin nombres de componentes ni medidas en píxeles. Cada elemento que un criterio toca lleva `id=` y una `annotation` con el `CA-n` o `CB-n`. Renderizá con `node ${CLAUDE_PLUGIN_ROOT}/scripts/wireframes.mjs todolist/0-draft/<slug>/wireframes`: si una fuente no parsea, corregila hasta que salga en verde. No abras los SVG: son para la persona.
    Cada decisión lleva su origen: `existente: archivo:línea`, `DESIGN.md`, `design: <referencia>`, o `supuesto (n%)`.
-4. **Preguntas**: solo las decisiones que quedaron como supuesto debajo de 80% y que cambian lo que la persona ve. Una por línea, con la hipótesis, la confianza y qué cambia según la respuesta. Opciones cerradas cuando se pueda. Ordenadas por impacto.
-5. Escribí todo en `todolist/0-draft/<slug>/notes/ux.md`: Propuesta (con la lista `SCR-n → wireframes/<nombre>.wireloom`), Preguntas, Observaciones (pares del tema que no llegan, pantallas existentes que no cumplen la skill).
-6. Terminá con: la lista de preguntas tal cual y una última línea `UX: propuesta en notes/ux.md, <n> wireframes, <n> preguntas`.
+4. **Dudas**: solo las decisiones que quedaron como supuesto debajo de 80% y que cambian lo que la persona ve, con el formato de `SPEC.md › Dudas`: estado concreto de la pantalla (qué hay, qué hizo la persona), pregunta de qué debería pasar, opciones con su consecuencia y una ⭐ con el porqué. Ordenadas por impacto; el analista les pone el número `D-n`.
+5. Escribí todo en `todolist/0-draft/<slug>/notes/ux.md`: Propuesta (con la lista `SCR-n → wireframes/<nombre>.wireloom`), Dudas, Observaciones (pares del tema que no llegan, pantallas existentes que no cumplen la skill).
+6. Terminá con: las dudas tal cual y una última línea `UX: propuesta en notes/ux.md, <n> wireframes, <n> dudas`.
 
 ## Qué no
 

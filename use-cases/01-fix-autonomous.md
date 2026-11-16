@@ -21,10 +21,9 @@ sequenceDiagram
     rect rgb(255, 245, 230)
     Note over U,C: 0-draft · análisis
     C->>C: lee el flujo de pagos (grep / graphify), lista supuestos con %
-    loop una pregunta por vez
-        C->>U: ¿el reintento es automático? creo que sí (60%)
-        U-->>C: sí, sin botón
-    end
+    C->>U: SPEC borrador (ronda 1) · D-1 · Estado: un pago da timeout y el proveedor sí cobró. ¿Se reintenta? a) ⭐ automático, consultando el estado antes b) con un botón
+    U-->>C: D-1 ok
+    C->>C: D-1 → CA-1, CB-1, tachada · commit ronda 2
     C->>QA: Agent qa: reproducir pagos-timeout · síntoma + endpoint (sin la causa)
     QA->>QA: test unitario no reproduce, integración con DB sí
     QA-->>C: REPRO: integration · notes/repro.md
