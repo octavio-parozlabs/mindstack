@@ -34,7 +34,7 @@ sequenceDiagram
 
     rect rgb(240, 255, 240)
     Note over U,G: 2026-11-16 · en main, sin tarea
-    U->>B: IDEAS.md, una fila: exportar pedidos a CSV para que contabilidad cierre el mes · media · 2026-11-16
+    U->>B: IDEAS.md, un ítem: exportar pedidos a CSV para que contabilidad cierre el mes (media, 2026-11-16)
     U->>C: ¿qué del backlog conviene hacer?
     C->>B: lee IDEAS.md, PROPUESTAS.md y la tarea de origen de cada una
     C-->>U: 1. Reintento manual: peso 2, S, toca lo que se viene haciendo<br/>2. Exportar a CSV: idea tuya, M<br/>3. ... · empezá con claude -w reintento-manual y /draft backlog: Reintento manual

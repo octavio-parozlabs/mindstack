@@ -14,8 +14,8 @@ if [ -d todolist ]; then
   done
   # El backlog no es un estado: solo cuántas hay. Se lee cuando la persona quiere.
   if [ -d todolist/backlog ]; then
-    # IDEAS.md es una tabla (una fila por idea, después del separador); PROPUESTAS.md, un ## por propuesta.
-    ideas=$(awk '/^\|[-| ]+\|$/{t=1;next} t&&/^\|/{n++} END{print n+0}' todolist/backlog/IDEAS.md 2>/dev/null)
+    # IDEAS.md: un "- " sin sangría por idea (los subítems van sangrados); PROPUESTAS.md, un ## por propuesta.
+    ideas=$(grep -cs '^- ' todolist/backlog/IDEAS.md)
     props=$(grep -cs '^## ' todolist/backlog/PROPUESTAS.md)
     echo "- backlog: ${ideas:-0} ideas tuyas · ${props:-0} propuestas de agentes (todolist/backlog/)"
   fi

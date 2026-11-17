@@ -71,7 +71,7 @@ Quién escribe cada uno: `references/roles-and-artifacts.md`.
 | `TECHNICAL_DEBT.md` | se agrega | ¿qué se dejó a propósito, hasta cuándo? |
 | `CHANGELOG.md` | en cada paso. Solo se agrega, nunca se reescribe | ¿qué pasó, qué se vio, qué se decidió y por qué, qué se dejó? |
 | `REVIEW-*.md` | se reescribe entero por ronda | ¿qué está mal? (solo eso) |
-| `backlog/IDEAS.md` | cuando se le ocurre algo; `/draft backlog:` saca la fila | ¿qué quiero hacer algún día? |
+| `backlog/IDEAS.md` | cuando se le ocurre algo; `/draft backlog:` saca el ítem | ¿qué quiero hacer algún día? |
 | `backlog/PROPUESTAS.md` | al llegar a done; la persona borra lo que no le sirve | ¿qué vieron los agentes que sumaría? |
 
 El backlog son dos archivos porque una idea tuya es una intención y una propuesta de agente es una hipótesis con evidencia. Cómo se filtran las propuestas: `references/pr.md` paso 3; su formato: `templates/PROPUESTAS.md`.

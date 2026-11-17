@@ -140,7 +140,7 @@ La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su
 
 ## Si sale del backlog
 
-`/mindstack:draft backlog: <texto>` toma la fila de `todolist/backlog/IDEAS.md` cuya descripción contiene ese texto (de la persona: Descripción, Prioridad, Fecha, Notas) o la entrada de `PROPUESTAS.md` con ese título (de los agentes); si coincide más de una, preguntá cuál como pedido original. Se entrevista igual: una idea del backlog es un pedido vago más, y una propuesta de agente es una hipótesis, no un requisito; su "dónde se vio" es lo primero que se lee. En "Pedido original" va la entrada textual con su origen (`backlog/PROPUESTAS.md`, propuesta el AAAA-MM-DD en la tarea `<slug>`): así la tarea nueva apunta a la que la vio. Leé esa tarea (`todolist/4-done/<slug>/CHANGELOG.md`) antes de la primera pregunta. El commit `spec(<slug>): ronda 1` saca la entrada de su archivo; queda en el historial y en el SPEC.
+`/mindstack:draft backlog: <texto>` toma el ítem de `todolist/backlog/IDEAS.md` que contiene ese texto (de la persona, con sus subítems) o la entrada de `PROPUESTAS.md` con ese título (de los agentes); si coincide más de una, preguntá cuál como pedido original. Se entrevista igual: una idea del backlog es un pedido vago más, y una propuesta de agente es una hipótesis, no un requisito; su "dónde se vio" es lo primero que se lee. En "Pedido original" va la entrada textual con su origen (`backlog/PROPUESTAS.md`, propuesta el AAAA-MM-DD en la tarea `<slug>`): así la tarea nueva apunta a la que la vio. Leé esa tarea (`todolist/4-done/<slug>/CHANGELOG.md`) antes de la primera pregunta. El commit `spec(<slug>): ronda 1` saca la entrada de su archivo; queda en el historial y en el SPEC.
 
 ## Slug
 
