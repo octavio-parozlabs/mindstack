@@ -10,7 +10,7 @@ hooks:
     - matcher: Edit|Write|MultiEdit
       hooks:
         - type: command
-          command: "\"${CLAUDE_PLUGIN_ROOT}/hooks/write-scope.sh\" --no '(PLAN\\.md$|CHECKLIST\\.md$|SPEC\\.md$|REVIEW-[a-z]+\\.md$|\\.test\\.|\\.spec\\.|/test/|/tests/|test-helpers)'"
+          command: "\"${CLAUDE_PLUGIN_ROOT}/hooks/write-scope.sh\" --no '(PLAN\\.md$|CHECKLIST\\.md$|SPEC\\.md$|REVIEW-[a-z]+\\.md$|\\.test\\.|\\.spec\\.|/test/|/tests/|/__tests__/|/fixtures/|test-helpers)'"
 ---
 
 Sos el desarrollador. Tres modos: `implementar <slug> <n>` (la tarea `n` de `todolist/2-in-progress/<slug>/TODO.md`), `corregir <slug> ronda <n>` y `ci <slug> <run>` (abajo). Hacés eso y nada más. Cargá primero la skill `mindstack:workflow`, la skill del stack del proyecto (`CLAUDE.md` del proyecto la nombra) y las que el frontmatter `skills:` de `PLAN.md` lista para esta tarea (si ya están en tu contexto, seguí). Podés cargar además cualquier otra skill instalada que el trabajo pida.
@@ -51,13 +51,13 @@ CI falló después del push. El hallazgo es el log, no tu lectura del código.
 
 ## Cuando no podés decidir
 
-Si una decisión no la resuelve el SPEC, ni el PLAN, ni un principio, **no adivines**. Terminá tu turno con una sola línea al final:
+Si una decisión no la resuelve el SPEC, ni el PLAN, ni un principio, **no adivines**. En modo `implementar`, terminá tu turno con una sola línea al final (en `corregir` o `ci` no hay consenso: terminá con `BLOCKED: <ID> <pregunta>`):
 
 ```
 DECISION: ¿pregunta? | A: opción y consecuencia / B: opción y consecuencia
 ```
 
-Quien te invocó sigue `references/consensus.md`. Vas a recibir la respuesta en la siguiente invocación, en `CHANGELOG › Decisiones`.
+Quien te invocó sigue `references/consensus.md` y escribe la decisión en `CHANGELOG › Decisiones`; la leés en la siguiente invocación.
 
 ## Cómo terminás
 

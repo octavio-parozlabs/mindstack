@@ -51,7 +51,7 @@ Lo que está arriba de 80% se afirma y se deja corregir; lo que está abajo se p
 - **Cada respuesta genera o descarta casos borde.** Anotalos al momento, numerados. Un caso borde es una entrada o situación donde el camino feliz no alcanza: vacío, duplicado, timeout, concurrencia, permiso, cantidad cero o enorme, estado intermedio.
 - **Si toca endpoints, las reglas se escriben una por una.** Por cada endpoint, comando o evento que se crea o cambia: cada campo (tipo, rango, obligatorio, si tiene que existir), quién puede llamarlo, y qué responde cuando falla. Contestalas leyendo el schema o contrato que ya existe (`contracts`, DTO, Zod) y los endpoints vecinos; preguntá solo lo que no esté, con tu hipótesis. Cada regla es un `CA-n` en Criterios de aceptación: una validación que no está escrita no la implementa nadie y no la verifica nadie.
 - **Si toca la interfaz, el diseño lo propone `designer`, siempre.** Toca la interfaz si el pedido nombra algo que la persona ve (pantalla, modal, botón, mensaje, ruta) o si lo que leíste del repo cambia un archivo de una app de front (`CLAUDE.md › Apps y paquetes`). En la duda, toca. No es opcional ni se reemplaza por una descripción tuya: sin `designer` no hay wireframes, y sin wireframes `/plan` no pasa. Antes de la primera pregunta de UX, lanzá `Agent` (`subagent_type: designer`, `model`/`effort` de `config.sh`, prompt `proponer <slug>` más el pedido, las pantallas o rutas que toca y lo que la persona ya respondió). Devuelve `notes/ux.md` con la propuesta completa y sus preguntas. Sus dudas entran a `SPEC › Dudas` como las tuyas, con número `D-n`; lo que está arriba de 80% se afirma y se deja corregir. Si la persona trae un mockup o nombra una pantalla parecida, pasáselo en el prompt. Si las respuestas cambian mucho la propuesta (otra pantalla, otro flujo), relanzalo con las respuestas; si no, ajustá vos la sección.
-- **Pedido grande.** Si el pedido junta varias capacidades que se prueban por separado (identidad + facturación + notificaciones), antes del SPEC proponé un mapa: una tabla `módulo | responsabilidad | depende de` y un orden. La persona lo aprueba y se hace un SPEC por módulo, en orden de dependencia, cada uno con su slug y `padre:` en el PLAN apuntando al primero. Un pedido normal no pasa por acá.
+- **Pedido grande.** Si el pedido junta varias capacidades que se prueban por separado (identidad + facturación + notificaciones), antes del SPEC proponé un mapa: una tabla `módulo | responsabilidad | depende de` y un orden. La persona lo aprueba y se hace un SPEC por módulo, en orden de dependencia, cada uno con su slug, en la misma rama: son una cola (`orchestrate.md › Cola`). `padre:` no se usa acá: es de las iteraciones. Un pedido normal no pasa por acá.
 
 ## Si es un fix
 
@@ -99,7 +99,7 @@ Cada vuelta de la entrevista que cambia el SPEC termina en un commit: `spec(<slu
 
 ## Si es una iteración sobre un PR
 
-La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su SPEC. Se abre una tarea hija con `/mindstack:draft "<qué falta>" (en el worktree)` (`skills/workflow/references/iterate.md`), que corre este mismo análisis acotado a lo que falta, con `padre:` y la misma rama.
+La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su SPEC. Se abre una iteración con `/mindstack:draft "<qué falta>" (en el worktree)` (`skills/workflow/references/iterate.md`), que corre este mismo análisis acotado a lo que falta, con `padre:` y la misma rama.
 
 ## Si sale del backlog
 

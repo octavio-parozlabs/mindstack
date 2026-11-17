@@ -21,14 +21,15 @@ sequenceDiagram
     rect rgb(255, 245, 230)
     Note over U,C: 0-draft · análisis
     C->>C: lee el flujo de pagos (grep / graphify), lista supuestos con %
-    C->>U: SPEC borrador (ronda 1) · D-1 · Estado: un pago da timeout y el proveedor sí cobró. ¿Se reintenta? a) ⭐ automático, consultando el estado antes b) con un botón
-    U-->>C: D-1 ok
-    C->>C: D-1 → CA-1, CB-1, tachada · commit ronda 2
     C->>QA: Agent qa: reproducir pagos-timeout · síntoma + endpoint (sin la causa)
     QA->>QA: test unitario no reproduce, integración con DB sí
     QA-->>C: REPRO: integration · notes/repro.md
-    C->>C: SPEC.md: hoy/propuesto, Diagnóstico, CB-1..CB-4 con diagrama, CA-1..CA-3 (una regla por campo de POST /checkout)
+    C->>C: SPEC.md: hoy/propuesto, Diagnóstico, CB-1..CB-4 con diagrama, CA-1..CA-3 (una regla por campo de POST /checkout), D-1 abierta
     C->>G: commit spec(pagos-timeout): ronda 1
+    C->>U: SPEC borrador · D-1 · Estado: un pago da timeout y el proveedor sí cobró. ¿Se reintenta? a) ⭐ automático, consultando el estado antes b) con un botón
+    U-->>C: D-1 ok
+    C->>C: D-1 → CA-1, CB-1, tachada
+    C->>G: commit spec(pagos-timeout): ronda 2
     C-->>U: SPEC listo. Leelo y, cuando esté, /mindstack:plan
     U->>U: lee el SPEC
     U->>C: /mindstack:plan

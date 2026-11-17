@@ -34,20 +34,21 @@ while read -r wt; do
     avisos+="⚠ bloqueada: $slug — ${motivo:-ver BLOCKED.md} (retomar: /mindstack:orchestrate en $wt)"$'\n'
   done
 done < <(git worktree list 2>/dev/null | awk '{print $1}')
-if [ -n "$main" ] && [ "$main" = "$(pwd)" ]; then
-  # En main, 4-done llegó por merge: si su worktree sigue vivo, falta limpiar.
+rama=$(git branch --show-current 2>/dev/null)
+default=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
+if [ -n "$main" ] && [ "$main" = "$(pwd)" ] && [ "$rama" = "${default:-main}" ]; then
+  # En la rama default, 4-done llegó por merge: si su worktree sigue vivo, falta limpiar.
   for d in todolist/4-done/*/; do
     [ -d "$d" ] || continue
     slug=$(basename "$d")
     # La rama se llama como su primera tarea (último tramo, sin worktree-): claude -w, orca o a mano.
     # ponytail: una cola se detecta por su primera tarea; las siguientes viajan en la misma rama.
-    wt=$(git worktree list 2>/dev/null | awk -v s="$slug" '{b=$NF; gsub(/[][]/,"",b); sub(/.*\//,"",b); sub(/^worktree-/,"",b)} b == s {print $1}')
+    # --porcelain: la columna de la rama no se corre con "locked" o "prunable". El principal nunca se propone.
+    wt=$(git worktree list --porcelain 2>/dev/null | awk -v s="$slug" -v m="$main" '/^worktree /{p=substr($0,10)} /^branch /{b=$2; sub(/^refs\/heads\//,"",b); sub(/.*\//,"",b); sub(/^worktree-/,"",b); if (b == s && p != m) print p}')
     [ -n "$wt" ] && avisos+="mergeada sin limpiar: $slug → (cd $wt && ${CLAUDE_PLUGIN_ROOT}/scripts/env-down.sh $(basename "$wt")); git worktree remove $wt"$'\n'
   done
 fi
 [ -n "$avisos" ] && printf '\n## Avisos\n%s' "$avisos"
-rama=$(git branch --show-current 2>/dev/null)
-default=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
 if [ "$rama" = "${default:-main}" ]; then
   echo "Rama $rama: acá no corre ningún comando del flujo. Una rama por PR (claude -w <slug>, orca o a mano)."
 else

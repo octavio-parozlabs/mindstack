@@ -1,6 +1,6 @@
-# Iterar sobre un PR: la tarea hija
+# Iterar sobre un PR: la iteración
 
-Probaste el PR en `localhost` y querés cambios. No se edita el SPEC ni el PLAN de la tarea (están congelados) ni se "arregla de paso": se abre una **tarea hija** que hereda la rama y el PR, pasa por el mismo flujo, y pushea al mismo PR. Cada iteración queda con su propio SPEC, PLAN, TODO y CHANGELOG; el PR acumula.
+Probaste el PR en `localhost` y querés cambios. No se edita el SPEC ni el PLAN de la tarea (están congelados) ni se "arregla de paso": se abre una **iteración** que hereda la rama y el PR, pasa por el mismo flujo, y pushea al mismo PR. Cada iteración queda con su propio SPEC, PLAN, TODO y CHANGELOG; el PR acumula.
 
 ```mermaid
 flowchart LR
@@ -18,17 +18,17 @@ flowchart LR
 
 La tarea es la de esta rama (ya existe y tiene el PR).
 
-1. Verificá: la carpeta `<slug>` está en `4-done/` y la rama tiene PR (`gh pr view`). Si no hay PR, no es una iteración: es otra tarea de la cola de esta rama (`commands/draft.md`, `orchestrate.md › Cola`). `gh pr ready --undo` con un comentario "iteración en curso: <qué falta>": mientras la hija no llegue a `4-done`, el PR no está listo para mergear.
+1. Verificá: la carpeta `<slug>` está en `4-done/` y la rama tiene PR (`gh pr view`). Si no hay PR, no es una iteración: es otra tarea de la cola de esta rama (`commands/draft.md`, `orchestrate.md › Cola`). `gh pr ready --undo` con un comentario "iteración en curso: <qué falta>": mientras la iteración no llegue a `4-done`, el PR no está listo para mergear.
 2. Slug hijo: `<slug>-2`, `<slug>-3`, … (el siguiente libre).
 3. `analyze.md` con el pedido, acotado, y **pará con el SPEC escrito** como siempre: la persona lo lee, comenta, y pide el plan (`/mindstack:plan` o en palabras). Detalle del alcance: el "Cómo funciona hoy" es el estado del PR, no de `main`; el alcance es lo que falta, no la tarea entera; los casos borde son los nuevos. `padre: <slug>` en el frontmatter del SPEC y del PLAN; `rama:` la misma que el padre.
 4. `plan.md` igual que siempre. El Done es el mismo del padre más lo nuevo.
-5. `plan.md` termina con `git mv` a `1-pending/<slug>-2`, commit. Se hace en la rama de la tarea, no en `main`: la hija vive y muere con el PR.
-6. La persona corre `/mindstack:orchestrate` en el mismo worktree; el orquestador toma la hija (la de `1-pending/` con `padre:` igual al slug del worktree).
-7. `pr.md` detecta que la rama ya tiene un PR abierto: la hija pasa a `4-done`, commit del código de la iteración (`feat|fix(<slug>-2): <título>`), un push, `gh pr comment` con el resumen de la iteración (qué cambió, rondas de revisión, deuda) y `gh pr ready`. No abre otro PR.
-8. Probás de nuevo. Si falta algo, otra iteración. Si está, mergeás: padre e hijas llegan a `main` ya en `4-done/`.
+5. `plan.md` termina con `git mv` a `1-pending/<slug>-2`, commit. Se hace en la rama de la tarea, no en `main`: la iteración vive y muere con el PR.
+6. La persona corre `/mindstack:orchestrate` en el mismo worktree; el orquestador toma la iteración (la de `1-pending/` con `padre:` igual al slug del worktree).
+7. `pr.md` detecta que la rama ya tiene un PR abierto: la iteración pasa a `4-done`, commit del código de la iteración (`feat|fix(<slug>-2): <título>`), un push, `gh pr comment` con el resumen de la iteración (qué cambió, rondas de revisión, deuda) y `gh pr ready`. No abre otro PR.
+8. Probás de nuevo. Si falta algo, otra iteración. Si está, mergeás: la tarea y sus iteraciones llegan a `main` ya en `4-done/`.
 
 ## Qué no
 
-- Editar el SPEC o el PLAN del padre "porque es chico". Están congelados; el hook lo bloquea; y la hija existe justamente para que el cambio tenga su propia memoria.
-- Hacer el cambio en la sesión sin tarea hija. Lo que pidas después del PR es una iteración, con revisión; antes del PR, es parte de la tarea.
+- Editar el SPEC o el PLAN del padre "porque es chico". Están congelados; el hook lo bloquea; y la iteración existe justamente para que el cambio tenga su propia memoria.
+- Hacer el cambio en la sesión sin iteración. Lo que pidas después del PR es una iteración, con revisión; antes del PR, es parte de la tarea.
 - Abrir un segundo PR. Un PR por rama; la iteración lo actualiza.

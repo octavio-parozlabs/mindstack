@@ -81,7 +81,7 @@ todolist/
 | `CHANGELOG.md` | todos, cada uno su sección | siempre se agrega, nunca se reescribe |
 | `REVIEW-*.md` | un rol cada uno | se reescribe por ronda. Solo hallazgos, con severidad |
 | `backlog/IDEAS.md` | vos; ningún agente. Una fila por idea: Descripción, Prioridad, Fecha, Notas | cuando se te ocurre algo. `/mindstack:draft backlog: <unas palabras>` la convierte en tarea |
-| `backlog/PROPUESTAS.md` | el orquestador, con lo que los agentes propusieron en su tarea (con dónde se vio, máx. 3 por tarea) | al llegar a done. Borrás lo que no te sirve |
+| `backlog/PROPUESTAS.md` | el orquestador, con lo que los agentes propusieron en su tarea (con dónde se vio, máx. `propuestas_por_tarea` por tarea) | al llegar a done. Borrás lo que no te sirve |
 
 ## Comandos
 
@@ -91,7 +91,7 @@ Seis. Tres en el día a día. Ninguno necesita el nombre de la tarea: la lee de 
 |---|---|---|---|
 | `/mindstack:install` | una vez por proyecto | tablero `todolist/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
 | `/mindstack:doctor` | cuando quieras, antes de dejarlo solo | revisa lo que el flujo da por hecho: `gh` con sesión, docker levantado si hay compose, node, jq, permisos para no frenar, tablero. No cambia nada | — |
-| `/mindstack:draft "<qué querés>"` | en tu rama (worktree o no): respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En un worktree que ya tiene tarea: sin PR, suma una tarea a la cola; con PR, abre la tarea hija con lo que falta | commit por vuelta |
+| `/mindstack:draft "<qué querés>"` | en tu rama (worktree o no): respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En un worktree que ya tiene tarea: sin PR, suma una tarea a la cola; con PR, abre la iteración con lo que falta | commit por vuelta |
 | `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md` y `CHECKLIST.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | `plan(<slug>): ronda n` · `pending` |
 | `/mindstack:orchestrate` | te sentás a esperar | en la misma rama: implement (`developer` y `qa` por tarea, consenso), review ×4, approver y fix, pr, conflicts, CI verde. Termina en `4-done` con el link del PR, o en `blocked/` con `BLOCKED.md`. Con varias pendientes en el worktree: te pregunta cuáles y las corre en cola, una sesión nueva por tarea, en un solo PR. Sobre una tarea bloqueada: te pregunta y sigue | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
@@ -128,7 +128,7 @@ modelo_code-reviewer=opus
 esfuerzo_approver=max
 ```
 
-Los modelos por defecto, con su porqué en el mismo archivo: opus para `designer`, `developer`, `security-auditor`, `approver` y `conflict-resolver`; sonnet para `analyst`, `researcher`, `qa`, `code-reviewer` y `verifier`. El SPEC lo escribe tu sesión: usá opus en `/draft`. `scripts/config.sh` muestra los valores efectivos. Los turnos por agente (`turnos_*`) también están ahí, pero solo se cambian en el plugin: Claude Code los lee del frontmatter de `agents/*.md`, y `scripts/sync-agents.sh` los copia desde el config.
+Los modelos y esfuerzos por defecto, con su porqué, están en `config/defaults.conf`. El SPEC lo escribe tu sesión: usá opus en `/draft`. `scripts/config.sh` muestra los valores efectivos. Los turnos por agente (`turnos_*`) también están ahí, pero solo se cambian en el plugin: Claude Code los lee del frontmatter de `agents/*.md`, y `scripts/sync-agents.sh` los copia desde el config.
 
 ## Skills
 

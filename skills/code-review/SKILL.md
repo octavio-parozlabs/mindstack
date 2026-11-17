@@ -154,25 +154,7 @@ Qué tests se corrieron, si pasó el build, si se probó a mano, si hay capturas
 
 Un solo archivo, se reescribe entero en cada ronda (la anterior queda en git y en `CHANGELOG.md › Revisión`). Frontmatter con rol, ronda, fecha, base y `working_tree` (el código no está commiteado). Sin veredicto, sin sección de aciertos, sin elogios, sin nits de estilo, sin "considerá". Solo hallazgos.
 
-```markdown
----
-rol: code-reviewer
-ronda: 1
-fecha: AAAA-MM-DD
-commit: <sha revisado>
----
-
-# Revisión de código: <título>
-
-| ID | Severidad | Archivo:línea | Qué falla, con qué entrada | CB | Fix en una línea |
-|---|---|---|---|---|---|
-| CODE-1 | alta | `pagos.service.ts:42` | timeout con cobro hecho reintenta y cobra dos veces | CB-1 | consultar estado antes de reintentar |
-| CODE-2 | media | `informes.ts:118` | lista sin paginar; con >5000 filas el request supera los 30 s | — | paginar con cursor como `clientes.ts` |
-
-## A verificar
-
-- `cache.ts:30`: parece que la clave no incluye el tenant; no encontré una entrada que lo dispare.
-```
+El formato exacto, con frontmatter (`base`, `working_tree`), tabla, "A verificar", "Fuera del diff" y "Propuestas", es `skills/workflow/templates/REVIEW.md` de `mindstack:workflow`.
 
 Reglas de la tabla:
 

@@ -183,6 +183,7 @@ function lintPersonaContent(stem, content) {
   if (!fm.name) errors.push("Falta 'name'");
   else if (fm.name !== stem) errors.push(`'name' es '${fm.name}' y el archivo es '${stem}' (el name es el subagent_type)`);
   if (!fm.description) errors.push("Falta 'description'");
+  if (fm.model) errors.push("'model' no va en el agente: es modelo_<agente> de config/defaults.conf");
   return { errors };
 }
 

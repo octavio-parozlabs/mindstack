@@ -37,7 +37,8 @@ ls todolist/1-pending/ 2>/dev/null || true
 
 Tu directorio y las tareas pendientes.
 
-- Carpeta no está en `1-pending/`: pará. El estado es la carpeta y solo el plan terminado la pone ahí.
+- Carpeta en `2-in-progress/` (se retomó de `blocked/`, o la sesión se cortó): seguí el loop desde la primera tarea sin tachar del `TODO.md`, sin los pasos 2 y 3 del Arranque.
+- Carpeta en otro lado que no sea `1-pending/`: pará. El estado es la carpeta y solo el plan terminado la pone en pendiente.
 
 ## Arranque
 

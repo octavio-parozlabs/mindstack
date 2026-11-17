@@ -39,7 +39,7 @@ Cada analista termina con `OPTION: A` (o B, o C) y dos renglones de evidencia. N
 
 ## Resultado
 
-- **3/3 iguales**: el dev escribe en `CHANGELOG › Decisiones` una fila con quién `consensus`, la decisión, la alternativa descartada y el principio; debajo, una línea por ángulo con su evidencia. Sigue.
+- **3/3 iguales**: el orquestador escribe en `CHANGELOG › Decisiones` una fila con quién `consensus`, la decisión, la alternativa descartada y el principio; debajo, una línea por ángulo con su evidencia. Sigue.
 - **No coinciden**: la tarea va a `blocked/` (`orchestrate.md › Bloquear`). El motivo en `BLOCKED.md` es la pregunta, con las opciones y, por cada ángulo, qué eligió y por qué. Cuando la persona responde al retomar, fila en Decisiones con quién `person`.
 
 ## Qué no

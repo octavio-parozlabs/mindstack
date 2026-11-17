@@ -19,6 +19,8 @@ id=$(tr -cd 'A-Za-z0-9_-' <<<"$session")
 dir="$(git rev-parse --git-dir 2>/dev/null)/mindstack-orchestrating" || exit 0
 [ -f "$dir" ] && rm -f "$dir" # marcador viejo (un archivo por worktree)
 mkdir -p "$dir"
+# Un padre nuevo limpia marcadores de hijas muertas: si no, el stop creería que hay una corriendo.
+grep -Eq 'orchestrate[[:space:]]+hija' <<<"$prompt" || grep -lEs 'orchestrate[[:space:]]+hija' "$dir"/* | xargs -r rm -f
 printf '%s\n' "$prompt" >"$dir/$id"
 rm -f "$dir/$id.rebotes"
 exit 0

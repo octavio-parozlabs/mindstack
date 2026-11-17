@@ -19,6 +19,7 @@ else
   cmd=$(grep -o '"command"[[:space:]]*:[[:space:]]*"\([^"\\]\|\\.\)*"' <<<"$input" | head -1 | sed 's/^"command"[[:space:]]*:[[:space:]]*"//; s/"$//')
   agent=$(grep -o '"agent_type"[[:space:]]*:[[:space:]]*"[^"]*"' <<<"$input" | head -1 | sed 's/.*:[[:space:]]*"//; s/"$//')
 fi
+agent=${agent##*:} # un agente de plugin puede venir como mindstack:verifier
 
 CONGELADO='todolist/([1-4]-[^/ ]+|blocked)/[^/ ]+/((PLAN|SPEC)\.md|wireframes/)'
 REVIEW='todolist/([0-4]-[^/ ]+|blocked)/[^/ ]+/REVIEW-(qa|code|security)\.md'

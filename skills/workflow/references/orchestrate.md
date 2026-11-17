@@ -39,8 +39,9 @@ flowchart TD
     ST -- blocked --> UB["Retomar: pregunta, Decisiones,\nvuelve a desde:"] --> ST
     IM -- Done verde --> RV[review.md]
     ST -- 3-in-review --> RV
-    RV -- "algún hallazgo o checklist abierta" --> CO[fix.md] --> RV
-    RV -- limpia --> PRC[pr.md]
+    RV --> CO[fix.md: approver]
+    CO -- "APPROVAL: fix" --> RV
+    CO -- "APPROVAL: pr" --> PRC[pr.md]
     ST -- "4-done con CI rojo o pendiente" --> PRC
     PRC -- CI verde --> DONE(["4-done: listo para mergear. Link del PR"])
     IM & RV & CO & PRC -- "necesita a la persona" --> BL(["Bloquear: blocked/ + BLOCKED.md"])
@@ -70,7 +71,7 @@ Lo que no es suyo: escribir SPEC y PLAN (eso es `/draft`), decidir un consenso s
 | Regla | Por qué |
 |---|---|
 | El estado es la carpeta. El orquestador detecta dónde está y sigue desde ahí; no asume | se puede cortar y retomar en otra sesión |
-| Una tarea hija (`padre:` en el PLAN) corre igual; en `fase pr` detecta el PR del padre y lo actualiza en vez de abrir otro | iterar sobre un PR es el mismo flujo, no uno aparte |
+| Una iteración (`padre:` en el PLAN) corre igual; en `fase pr` detecta el PR del padre y lo actualiza en vez de abrir otro | iterar sobre un PR es el mismo flujo, no uno aparte |
 | Lee `references/<fase>.md` y hace exactamente eso. No tiene lógica propia | una sola fuente para el modo manual y el orquestado |
 | Lanza cada `Agent` con `model` = `modelo_<agente>` y `effort` = `esfuerzo_<agente>` de `config.sh` (sin `effort` si está vacío) | elegir más barato o más fuerte por rol es del proyecto, no del plugin |
 | No planifica: arranca desde `1-pending/`. En `0-draft/` para y dice que falta el plan | el plan es el contrato; se escribe en la conversación de `/draft`, con la persona |
@@ -120,6 +121,7 @@ sequenceDiagram
 
 1. **Qué tareas.** Las que nombró la persona, en ese orden. Si no nombró y hay una sola pendiente, esa, sin hijas: el flujo de siempre en esta sesión (la cola se escribe igual, con una línea). Si hay varias, `AskUserQuestion` (multiSelect) con las pendientes del worktree en el orden en que llegaron a `1-pending` (`git log --diff-filter=A -- todolist/1-pending`); el orden es el de la lista, y es la precedencia: una tarea ve el código de las anteriores. Es la única pregunta del padre.
 2. **La cola, escrita, siempre**: también con una sola tarea (la pendiente, la que está en curso o la que se retoma). Un slug por línea en `$(git rev-parse --git-dir)/mindstack-cola`. El hook de parada la usa para saber qué tareas son de este turno: una bloqueada de otro turno no cuenta.
+   Se escribe apenas se sabe qué corre en el turno. Las paradas de antes (en `main`, sin tarea, falta el plan) no la escriben, y el hook de parada las deja pasar. Si ya existe con tareas sin terminar (una cola cortada por un crash), se retoma esa cola, como cola.
 3. **Una hija por tarea.** `claude -p --permission-mode acceptEdits "/mindstack:orchestrate hija <slug>"` con `run_in_background`, en el directorio del worktree. Al terminar el proceso, el padre se despierta: borra los marcadores de hija que hayan quedado (`grep -l 'orchestrate hija' $(git rev-parse --git-dir)/mindstack-orchestrating/*`) y mira la carpeta de la tarea.
    - `4-done/<slug>`: siguiente de la cola.
    - `blocked/<slug>`: la cola frena (las siguientes se apoyan en su código). Las ya terminadas se suben: push y `gh pr create --draft` con sus `PR.md` y una línea "bloqueada: <slug>, ver BLOCKED.md". Fin del turno.
@@ -151,7 +153,9 @@ Pasa a `blocked/` todo lo que necesita una persona:
 1. Mostrar `BLOCKED.md` y preguntar con `AskUserQuestion`, un motivo por pregunta, con sus opciones.
 2. Cada respuesta: fila en `CHANGELOG › Decisiones`, quién `person`, citando el motivo.
 3. Borrar `BLOCKED.md`, `git mv` de vuelta a la carpeta de `desde:`, commit `plan(<slug>): unblocked`.
-   Si una respuesta cambia lo que la feature hace (un `CA-n`, un `CB-n`, una pantalla), no se vuelve a `desde:`: el SPEC congelado ya no es el contrato. `git mv` a `0-draft/`, commit `plan(<slug>): reopen`, y terminá diciendo que sigue `/mindstack:draft` (corregir el SPEC) y el plan; el código hecho queda en el working tree como punto de partida del PLAN nuevo.
+   Si una respuesta cambia lo que la feature hace (un `CA-n`, un `CB-n`, una pantalla), no se vuelve a `desde:`: el SPEC congelado ya no es el contrato.
+   - `desde:` 2-in-progress o 3-in-review (el código no está commiteado): `git mv` a `0-draft/`, `chmod u+w` a SPEC y PLAN, commit `plan(<slug>): reopen`, y terminá diciendo que sigue `/mindstack:draft` (corregir el SPEC) y el plan. El código hecho queda en el working tree como punto de partida del PLAN nuevo; el hook de parada deja terminar con la tarea en `0-draft/`.
+   - `desde:` 4-done (el código ya está commiteado y en el PR): vuelve a `4-done/` y lo que cambia es una iteración (`iterate.md`), con su SPEC.
 4. Seguir desde esa fase, en el mismo turno. Los topes de rondas se cuentan de nuevo desde acá.
 
 ## Libertad para terminar
@@ -160,4 +164,4 @@ El orquestador no pide permiso entre fases ni dentro de ellas: solo termina en `
 
 ## Commits y push
 
-Invocar `/mindstack:orchestrate` es el pedido explícito de todos los commits y push que las fases por las que pasa declaran (implement, review, fix, pr, conflicts, bloquear, retomar). Lo dice la `description` del comando; si la persona no quiere eso, usa los comandos de a uno.
+Invocar `/mindstack:orchestrate` es el pedido explícito de todos los commits y push que las fases por las que pasa declaran (implement, review, fix, pr, conflicts, bloquear, retomar). Lo dice la `description` del comando; si la persona no quiere eso, no corre `/orchestrate`: paso a paso solo hay `/draft`, `/plan` y `/rebase`.

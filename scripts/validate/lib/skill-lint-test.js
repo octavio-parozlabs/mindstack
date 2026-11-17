@@ -60,7 +60,8 @@ test('layout: subdirectorio vacío falla, con archivo pasa', () => {
   assert.equal(lintSkillLayout(root).length, 0);
 });
 test('agente: name == archivo y description', () => {
-  assert.deepEqual(lintPersonaContent('qa', '---\nname: qa\ndescription: Testea.\ntools: Read\nmodel: sonnet\n---\ncuerpo\n').errors, []);
+  assert.deepEqual(lintPersonaContent('qa', '---\nname: qa\ndescription: Testea.\ntools: Read\n---\ncuerpo\n').errors, []);
+  assert.equal(lintPersonaContent('qa', '---\nname: qa\ndescription: Testea.\nmodel: sonnet\n---\nx\n').errors.length, 1);
   assert.equal(lintPersonaContent('qa', '---\nname: tester\ndescription: Testea.\n---\nx\n').errors.length, 1);
 });
 test('stripFencedCodeBlocks conserva líneas', () => {

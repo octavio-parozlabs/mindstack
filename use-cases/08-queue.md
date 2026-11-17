@@ -64,7 +64,9 @@ sequenceDiagram
     U->>O: /mindstack:orchestrate
     O->>U: los motivos de BLOCKED.md, uno por pregunta
     U-->>O: opción a
-    O->>O: Decisiones · vuelve a 3-in-review · termina cupones-carrito
+    O->>O: Decisiones · vuelve a 3-in-review · cola: cupones-carrito, resumen-compra
+    O->>H: hija cupones-carrito
+    H-->>O: 4-done
     O->>H: hija resumen-compra (lo que quedaba de la cola)
     H-->>O: 4-done
     O->>G: push · gh pr comment · gh pr ready · CI verde

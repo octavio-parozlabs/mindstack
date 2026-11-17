@@ -13,23 +13,21 @@ flowchart LR
     S --> FS[REVIEW-security.md]
     V --> FV[CHECKLIST.md tachada]
     FQ & FR & FS & FV --> K["commit review(slug): round n"]
-    K --> T{¿algún hallazgo o\nlínea sin tachar?}
-    T -- no --> PR["fase pr"]
-    T -- sí --> CO["fase fix: approver decide"]
+    K --> CO["fase fix: el approver decide siempre<br/>(sin hallazgos: APPROVAL: pr y pasa Fuera del diff)"]
 ```
 
 Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima. Tres miran **cómo** está hecho (tests, código, seguridad) y uno mira **si** está hecho: el `verifier` recorre la checklist línea por línea y no tacha sin código, test y evidencia. Por qué en un solo turno: corren en paralelo, no se leen entre sí, y lo que escriben no se pisa porque cada uno tiene su archivo y el hook se lo garantiza.
 
 ## Precondiciones
 
-- Carpeta en `2-in-progress/` (ronda 1) o `3-in-review/` (ronda ≥ 2). Si está en otra, pará.
+- Carpeta en `2-in-progress/` o `3-in-review/` (también la ronda 1 después de Retomar). Si está en otra, pará.
 - Todas las líneas de `TODO.md` con `[x]`. Si no, volvé a `implement.md`: la revisión es de la tarea entera.
 - Done de `PLAN.md` pasa ahora. Si no, volvé a `implement.md` con el log como una tarea más.
-- Ronda = filas de rondas en `CHANGELOG › Revisión` desde la última vez que la tarea salió de `blocked/`, + 1; sin filas, 1.
+- Ronda = commits `review(<slug>): round n` desde el último `plan(<slug>): unblocked` (o desde el principio), + 1; sin commits, 1. Se cuenta por commit porque una ronda limpia no deja filas en Revisión.
 
 ## Pasos
 
-1. Ronda 1: `git mv todolist/2-in-progress/<slug> todolist/3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
+1. Si la carpeta está en `2-in-progress/`: `git mv` a `3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
 2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`. Desde la ronda 2, `qa`, `code-reviewer` y `security-auditor` reciben además `solo: <archivos>` (los que tocaron developer y qa en la fase fix) y los IDs que se mandaron a arreglar: revisan eso y confirman que esos IDs se cerraron, no vuelven a revisar lo que ya pasó. El `verifier` recorre la checklist entera siempre: es barato y un arreglo puede romper una línea ya tachada.
 3. **Un solo turno con cuatro `Agent`**, cada uno con `subagent_type` del rol, `model` y `effort` de `config.sh` (`orchestrate.md › Reglas`) y este prompt mínimo:
    - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests. Máximo <hallazgos_por_revisor> hallazgos."
@@ -37,10 +35,7 @@ Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima.
    - `security-auditor`: "auditar <slug> ronda <n> base main. Zero trust. Escribí REVIEW-security.md. Máximo <hallazgos_por_revisor> hallazgos."
    - `verifier`: "verificar <slug> ronda <n>. Tachá CHECKLIST.md con evidencia."
 4. Cuando los cuatro terminan: un commit `review(<slug>): round <n>` **solo con los tres `REVIEW-*.md` y `CHECKLIST.md`** (`git add` de esos archivos, nada más). El código sigue sin commitear.
-5. Veredicto:
-   - ningún hallazgo nuevo y `CHECKLIST` completa: fase pr (`pr.md`).
-   - si no: fase fix (`fix.md`). Ahí el `approver` decide qué se arregla, qué queda como deuda o riesgo aceptado y qué se descarta.
-   - el tope de rondas lo resuelve `fix.md`: en la última, el approver no devuelve `fix`.
+5. Siempre fase fix (`fix.md`): el `approver` decide, también cuando no hay hallazgos (devuelve `APPROVAL: pr` y pasa "Fuera del diff" a Observaciones). El tope de rondas lo resuelve `fix.md`.
 
 ## Qué no
 

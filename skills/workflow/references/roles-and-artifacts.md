@@ -161,7 +161,7 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: el que impleme
 | **verifier** | cada línea de la checklist: código, test que la nombra, test corrido; tacha solo con las tres | juzgar calidad, escribir código o tests, cambiar líneas | `CHECKLIST.md` |
 | **approver** | lee todos los hallazgos juntos contra el SPEC y decide cada uno: arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo. Lo pedido y probado (checklist, `QA-n`), secretos y pérdidas irreversibles se arreglan siempre | editar código o tests, agregar hallazgos, mandar a `blocked/` lo que puede decidir | `CHANGELOG.md` (Revisión, Deuda técnica, Observaciones) |
 | **conflict-resolver** | rebase, suite, `--force-with-lease` | `--force`, "el mío" entero | lo que esté en conflicto, `CHANGELOG.md` |
-| **orquestador** | lee las referencias y llama a los roles en orden; mueve a `4-done` o a `blocked/`; filtra las propuestas al backlog | lógica propia, mergear, preguntar en el camino, tocar `IDEAS.md` | `BLOCKED.md`, `PR.md`, Cierre, `backlog/PROPUESTAS.md` |
+| **orquestador** | lee las referencias y llama a los roles en orden; mueve a `4-done` o a `blocked/`; filtra las propuestas al backlog | lógica propia, mergear, preguntar en el camino, tocar `IDEAS.md` | `BLOCKED.md`, `PR.md`, `backlog/PROPUESTAS.md`; en el CHANGELOG: Cierre, Decisiones (consenso, Retomar), la fila del entorno |
 
 ## Quién invoca a quién
 
@@ -180,7 +180,7 @@ Los roles no se llaman entre sí: los invoca la sesión principal (un comando o 
 | `orchestrate › pr` | `developer` (`ci`), después `qa` | CI rojo del cambio | slug, id del run |
 | `orchestrate › conflicts`, `/rebase` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
 | `/mindstack:orchestrate` | las cuatro fases de arriba, en orden | la persona delega el flujo, normalmente desde `1-pending` en un worktree | lee `references/<fase>.md` |
-| `/draft "qué falta" (en el worktree)` | `qa` (`reproducir`) si lo que falta es un bug | probaste el PR y falta algo | crea la tarea hija; después `/orchestrate` en el mismo worktree |
+| `/draft "qué falta" (en el worktree)` | `qa` (`reproducir`) si lo que falta es un bug | probaste el PR y falta algo | crea la iteración; después `/orchestrate` en el mismo worktree |
 
 ## Iteración por fase
 
@@ -192,7 +192,7 @@ El loop no es solo de implementación. Cada fase itera hasta su condición de sa
 | planificar | plan → corrección de la persona | la persona dice que está y cada tarea tiene rol y verificación |
 | implementar | una tarea del TODO por vuelta, `qa` después | TODO completo y Done verde; para en `BLOCKED:` o `fallos_por_tarea` fallos seguidos |
 | consenso | tres analistas en paralelo | 3/3 misma opción; si no, `blocked/` |
-| revisar ↔ corregir | cuatro revisores → approver → developer y qa → cuatro revisores sobre lo que cambió | nada que arreglar según el approver y checklist completa; máximo `rondas_revision`, después solo bloquea lo que no se negocia |
+| revisar ↔ corregir | cuatro revisores → approver → developer y qa → cuatro revisores sobre lo que cambió | nada que arreglar según el approver y checklist completa; máximo `rondas_revision`; en la última, el approver solo bloquea lo que no se negocia |
 | pr ↔ CI | push → checks → `developer ci` → push | CI verde (`4-done`); `rondas_ci` o fallo ajeno, `blocked/` |
 | pr ↔ conflictos | rebase → suite → push | el PR es mergeable |
 

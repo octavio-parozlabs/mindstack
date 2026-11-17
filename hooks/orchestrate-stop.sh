@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Hook Stop global. El orquestador termina el turno solo en dos salidas:
-#   - las tareas de la rama (o las de la cola) en todolist/4-done/ y el PR con CI verde (listo para mergear)
+#   - las tareas de la cola (mindstack-cola) en todolist/4-done/ y el PR, fuera de draft, con CI verde (listo para mergear)
 #   - una tarea en todolist/blocked/<slug>/ con BLOCKED.md (necesita a la persona)
 # Una hija de cola ("/mindstack:orchestrate hija <slug>") termina antes: su tarea en 4-done con commit local, sin push.
 # Solo actúa si orchestrate-start.sh dejó el marcador de ESTA sesión en el git dir del worktree.
@@ -54,29 +54,30 @@ fi
 
 salir() { rm -f "$marker" "$marker.rebotes" "$cola"; exit 0; }
 
+# Salidas antes de elegir tareas (orchestrate.md › diagrama): en la rama default, o sin cola escrita
+# (no hay tarea, falta el plan). El orquestador escribe la cola apenas sabe qué corre en este turno.
+default=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
+[ "$(git branch --show-current)" = "${default:-main}" ] && salir
+[ -f "$cola" ] || salir
+
 # Padre esperando a una hija: deja parar. El fin del proceso en segundo plano lo despierta.
 # ponytail: una hija muerta sin limpiar deja su marcador; el padre lo borra al despertar (orchestrate.md › Cola).
 for m in "$gitdir"/mindstack-orchestrating/*; do
   [ "$m" != "$marker" ] && [ "${m%.rebotes}" = "$m" ] && grep -Eqs 'orchestrate[[:space:]]+hija' "$m" && exit 0
 done
 
-# Las tareas de este turno son las de la cola (el orquestador la escribe siempre, aunque sea una).
-# Sin cola (sesión de antes de esa regla): todas las de la rama.
+# Las tareas de este turno son las de la cola. Una en 0-draft (Retomar la reabrió) también es salida: sigue /draft.
 bloqueadas= abiertas= hechas=
-if [ -s "$cola" ]; then
-  while read -r s; do
-    [ -n "$s" ] || continue
-    if [ -f "$root/todolist/blocked/$s/BLOCKED.md" ]; then bloqueadas+="$s "
-    elif [ -d "$root/todolist/4-done/$s" ]; then hechas+="$s "
-    else
-      e=0-draft; for d in 1-pending 2-in-progress 3-in-review; do [ -d "$root/todolist/$d/$s" ] && e=$d; done
-      abiertas+="$s($e) "
-    fi
-  done <"$cola"
-else
-  compgen -G "$root/todolist/blocked/*/BLOCKED.md" >/dev/null && bloqueadas=si
-  abiertas=$(find "$root"/todolist/{1-pending,2-in-progress,3-in-review} -mindepth 1 -maxdepth 1 -type d -printf '%P(%h) ' 2>/dev/null | sed "s#$root/todolist/##g")
-fi
+while read -r s; do
+  [ -n "$s" ] || continue
+  if [ -f "$root/todolist/blocked/$s/BLOCKED.md" ]; then bloqueadas+="$s "
+  elif [ -d "$root/todolist/4-done/$s" ]; then hechas+="$s "
+  elif [ -d "$root/todolist/0-draft/$s" ]; then salir
+  else
+    e=sin-carpeta; for d in 1-pending 2-in-progress 3-in-review; do [ -d "$root/todolist/$d/$s" ] && e=$d; done
+    abiertas+="$s($e) "
+  fi
+done <"$cola"
 
 # Una bloqueada frena la cola. Lo ya terminado se sube como PR draft antes de parar (orchestrate.md › Cola).
 # La cola queda escrita: Retomar la necesita.
@@ -95,6 +96,7 @@ command -v gh >/dev/null 2>&1 || salir
 if ! gh pr view >/dev/null 2>&1; then
   rebote "las tareas están en 4-done pero la rama no tiene PR. Seguí la fase pr (pr.md)."
 fi
+[ "$(gh pr view --json isDraft -q .isDraft 2>/dev/null)" = true ] && rebote "el PR sigue en draft: gh pr ready (pr.md)."
 out=$(gh pr checks 2>&1); rc=$?
 if [ "$rc" -eq 0 ] || grep -qi 'no checks reported' <<<"$out"; then salir; fi
 [ "$rc" -eq 8 ] && rebote "CI pendiente. Esperá con 'gh pr checks --watch' y seguí pr.md."

@@ -19,7 +19,7 @@ Sos el approver. Recibís un slug, la ronda y el tope (`ronda <n> de <rondas_rev
 
 1. Leé `SPEC.md` (qué se pide, qué no se hace, `CA-n`, `CB-n`), `CHANGELOG.md` (Decisiones, Deuda técnica y lo que decidiste en rondas anteriores), los tres `REVIEW-*.md` (con su sección "Fuera del diff": cada línea pasa a `CHANGELOG › Observaciones`) y `CHECKLIST.md`. Para cada hallazgo, el `archivo:línea` que cita y el archivo completo.
 2. Lo que **no** decidís, va directo a `arreglar`:
-   - una línea sin tachar de `CHECKLIST.md`: lo pedido no está hecho o no está probado. Con `falta:` de test, la arregla `qa`; de código o con test rojo, `developer`;
+   - una línea sin tachar de `CHECKLIST.md`: lo pedido no está hecho o no está probado. Con `falta:` de test, la arregla `qa`; de código o con test rojo, `developer`. Con `falta: no verificable`, nadie la puede arreglar: el SPEC es ambiguo, `bloqueado` ya;
    - un `QA-n`: un caso borde sin test, o un test que no prueba lo que dice. La arregla `qa`;
    - un secreto que el diff agrega (en el código o en un commit de la rama), y lo que el diff hace que pierda datos sin vuelta atrás. Se arreglan siempre: un secreto pusheado no se borra con un revert.
 3. Lo demás (`CODE-n`, `SEC-n`, de cualquier severidad), uno por uno, en este orden de preguntas:

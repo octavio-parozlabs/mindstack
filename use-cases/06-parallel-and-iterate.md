@@ -45,13 +45,13 @@ sequenceDiagram
 
     U->>U: prueba #88 → el PDF sale sin logo
     U->>Wa: /mindstack:draft "el PDF sale sin el logo de la empresa"
-    Note over Wa: la tarea tiene PR → iteración: hija facturas-pdf-2 · PR #88 a draft
+    Note over Wa: la tarea tiene PR → iteración facturas-pdf-2 · PR #88 a draft
     Wa->>Wa: analyze acotado → SPEC facturas-pdf-2 (padre: facturas-pdf)
     Wa-->>U: SPEC de la iteración. Leelo
     U->>Wa: generá el plan
     Wa-->>U: PLAN de la iteración, a 1-pending. Resumen
     U->>Wa: /mindstack:orchestrate
-    Wa->>Wa: toma la hija → implement → review ×4 → 4-done
+    Wa->>Wa: toma la iteración → implement → review ×4 → 4-done
     Wa->>G: un push · gh pr comment #88 "iteración 2: logo en el PDF" · gh pr ready · CI verde
     Wa-->>U: 4-done: PR #88 actualizado y listo para mergear
     U->>U: prueba → está
@@ -59,12 +59,12 @@ sequenceDiagram
     end
 ```
 
-## Por qué una tarea hija y no "arreglalo"
+## Por qué una iteración y no "arreglalo"
 
-| Si fuera "arreglalo en la sesión" | Con tarea hija |
+| Si fuera "arreglalo en la sesión" | Con iteración |
 |---|---|
 | el cambio no tiene SPEC: nadie sabe qué se pidió | `SPEC.md` propio, acotado a lo que falta, con `padre:` |
-| el PLAN del padre dice una cosa y el código otra | el PLAN del padre sigue intacto y verdadero; la hija tiene el suyo |
+| el PLAN del padre dice una cosa y el código otra | el PLAN del padre sigue intacto y verdadero; la iteración tiene el suyo |
 | sin revisión: lo que entra al PR después de la revisión nadie lo miró | pasa por los cuatro revisores igual |
 | el CHANGELOG mezcla dos pedidos | cada una con su memoria; el Cierre del padre lista las iteraciones |
 

@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# Levanta el entorno de un plan, aislado, con una copia de la DB de desarrollo.
-# Uso (desde el worktree del plan):
-#   scripts/env-up.sh <slug> db     solo la DB, al arrancar el loop: tests y dev server del host pegan acá
-#   scripts/env-up.sh <slug>        db + api + web buildeados desde la rama, para probar lo que va a producción
-# Idempotente: correrlo de nuevo rebuildea api/web y no toca la DB. Bajarlo: scripts/env-down.sh <slug>
+# Levanta el entorno de una rama, aislado, con una copia de la DB de desarrollo.
+# Uso (desde el worktree de la rama; <entorno> = basename del worktree):
+#   scripts/env-up.sh <entorno> db     solo la DB, al arrancar el loop: tests y dev server del host pegan acá
+#   scripts/env-up.sh <entorno>        db + api + web buildeados desde la rama, para probar lo que va a producción
+# Idempotente: correrlo de nuevo rebuildea api/web y no toca la DB. Bajarlo: scripts/env-down.sh <entorno>
+# Necesita un worktree: en el checkout principal pisaría tu .env y tu proyecto de compose de dev.
 set -euo pipefail
 
+if [ "$(git rev-parse --show-toplevel)" = "$(git worktree list | head -1 | awk '{print $1}')" ]; then
+  echo "env-up: esto es el checkout principal; el entorno aislado necesita un worktree (claude -w, orca). Sin worktree, levantá el proyecto como siempre" >&2; exit 1
+fi
 slug=$1
 what=${2:-all}
 n=$(( $(printf '%s' "$slug" | cksum | cut -d' ' -f1) % 100 ))   # puertos estables por slug; colisión improbable, no imposible

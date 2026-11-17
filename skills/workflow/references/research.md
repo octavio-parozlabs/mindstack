@@ -20,7 +20,7 @@ La tabla "Con qué" de cada skill de stack es el tope: lo que está ahí se usa 
 
 | Cuándo | Quién | Cómo |
 |---|---|---|
-| al planificar (lo normal) | la sesión principal lanza `researcher`, uno por necesidad, en paralelo | la elegida queda en la tarea del PLAN ("con `elkjs`") y la tabla en `CHANGELOG › Decisiones`. El developer no la vuelve a discutir |
+| al planificar (lo normal) | la sesión principal lanza `researcher` (`model`/`effort` de `config.sh`), uno por necesidad, en paralelo | la elegida queda en la tarea del PLAN ("con `elkjs`") y la tabla en `CHANGELOG › Decisiones`. El developer no la vuelve a discutir |
 | durante una tarea, una necesidad que el plan no vio | el `developer`, con `WebSearch` y `WebFetch` | mismos criterios, misma tabla en Decisiones. Si dos candidatas empatan sin principio: `DECISION:` |
 
 Un subagente no puede lanzar otro subagente: por eso el `developer` investiga él mismo y no llama a `researcher`. Quien lanza agentes es la sesión principal (`CLAUDE.md` del plugin, "Command, agent o skill").

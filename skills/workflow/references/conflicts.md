@@ -1,6 +1,6 @@
 # Conflictos: poner la rama al día
 
-Lo corre `/mindstack:rebase`. Lanza al agente `conflict-resolver`. Termina con la rama rebaseada sobre `main`, la suite verde, push con `--force-with-lease` y la sección Conflictos del CHANGELOG escrita. Después, el paso de CI de `pr.md`: si no queda verde, `blocked/`.
+Lo corre `/mindstack:rebase`. Lanza al agente `conflict-resolver` (con `model`/`effort` de `config.sh`). Termina con la rama rebaseada sobre `main`, la suite verde, push con `--force-with-lease` y la sección Conflictos del CHANGELOG escrita. Después, el paso 8 de `pr.md`: CI hasta `rondas_ci`; ajeno o última ronda, `blocked/`.
 
 ```mermaid
 flowchart TD

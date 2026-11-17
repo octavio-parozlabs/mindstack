@@ -47,7 +47,7 @@ La carpeta donde está es su estado, y moverla es `git mv`. Se ve en `ls`, en Gi
 | `4-done/` | el orquestador, en la fase pr, antes del único push; el turno termina con CI verde | el mismo `/mindstack:orchestrate` |
 | `blocked/` | el orquestador, cuando algo necesita a la persona (`references/orchestrate.md › Bloquear`) | `/mindstack:orchestrate` la retoma |
 
-Una tarea hija (`/mindstack:draft "<qué falta>" (en el worktree)`) pasa por las mismas carpetas, en la rama del padre, y actualiza su PR en vez de abrir otro. El PR se encuentra con `gh pr view` desde la rama; la carpeta entera viaja con el repo, así que al mergear llega a `main` ya en `4-done/` con toda su memoria.
+Una iteración (`/mindstack:draft "<qué falta>" (en el worktree)`) pasa por las mismas carpetas, en la rama del padre, y actualiza su PR en vez de abrir otro. El PR se encuentra con `gh pr view` desde la rama; la carpeta entera viaja con el repo, así que al mergear llega a `main` ya en `4-done/` con toda su memoria.
 
 ## Qué tarea es
 
@@ -76,7 +76,7 @@ Por qué el backlog son dos archivos: una idea tuya es una intención; una propu
 flowchart LR
     P([persona]) --> I[backlog/IDEAS.md]
     A[developer · qa · revisores · approver] --> C["CHANGELOG › Propuestas<br/>REVIEW-*.md › Propuestas"]
-    C -->|fase pr: filtra, deduplica, máx. 3| PR[backlog/PROPUESTAS.md]
+    C -->|fase pr: filtra, deduplica, máx. propuestas_por_tarea| PR[backlog/PROPUESTAS.md]
     I & PR -->|"/mindstack:draft backlog: título"| D[0-draft/slug]
 ```
 
@@ -108,18 +108,20 @@ flowchart TD
         R3[security-auditor → REVIEW-security]
         R4[verifier → CHECKLIST tachada]
     end
-    S3 --> REV --> H{¿hallazgos o\nchecklist abierta?}
-    H -->|sí| AP["fase fix: approver decide<br/>arreglar · deuda · riesgo · descartado · bloqueado"]
+    S3 --> REV --> AP["fase fix: approver decide siempre<br/>arreglar · deuda · riesgo · descartado · bloqueado"]
     AP -->|hay que arreglar| CO[developer corregir, qa] --> REV
     AP -->|nada que arreglar| PR
     AP -.->|"cambia la feature, o última ronda<br/>con algo que no se negocia"| BL["blocked<br/>BLOCKED.md"]
-    H -->|no| PR[fase pr: 4-done, commits, un push,\ngh pr create, CI verde\no developer ci hasta rondas_ci]
+    PR[fase pr: 4-done, commits, un push,\ngh pr create, CI verde\no developer ci hasta rondas_ci]
     PR -->|conflicto| CF[fase conflicts: rebase] --> PR
     PR -->|CI ajeno o última ronda de CI| BL
     PR -->|CI verde| S4["4-done<br/>lista para mergear"]
-    BL -->|"persona responde: /orchestrate,<br/>vuelve a desde: (o a 0-draft si cambia la feature)"| S3
+    BL -->|"persona responde: /orchestrate"| RT{"Retomar:<br/>¿cambia la feature?"}
+    RT -->|no| DS(["vuelve a desde: 2, 3 o 4"])
+    RT -->|"sí, sin PR"| S0
+    RT -->|"sí, con el código en el PR"| IT
     S4 -->|persona prueba, falta algo| IT["/draft qué falta, en el worktree:
-tarea hija, mismo PR"] --> S0
+iteración, mismo PR"] --> S0
     S4 -->|persona mergea| M([merge])
     classDef persona fill:#fc9,color:#000
     class U0,PRUEBA,M persona
@@ -143,7 +145,7 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfi
 | **verifier** | `CHECKLIST.md` (solo tacha) |
 | **approver** | `CHANGELOG.md`: decide cada hallazgo, no edita código |
 | **conflict-resolver** | lo que esté en conflicto, `CHANGELOG.md` |
-| **orquestador** | `BLOCKED.md`, `PR.md`, Cierre y la fila del entorno en el CHANGELOG, `backlog/PROPUESTAS.md` |
+| **orquestador** | `BLOCKED.md`, `PR.md`, `backlog/PROPUESTAS.md`; en el CHANGELOG: Cierre, Decisiones (consenso, Retomar) y la fila del entorno |
 
 Qué hace y qué no cada uno: `references/roles-and-artifacts.md` (sección "Qué hace y qué no cada rol"); herramientas y `maxTurns`, en `agents/*.md` del plugin; modelo y esfuerzo, en `config/defaults.conf`.
 
@@ -163,7 +165,7 @@ flowchart LR
 ```
 
 - **Modelos:** están solo ahí; los `agents/*.md` no tienen `model:`. Cualquier comando que lance un `Agent` (`/draft`, `/plan`, `/orchestrate`, `/rebase`) le pasa siempre `model` = `modelo_<agente>`, y `effort` = `esfuerzo_<agente>` si tiene valor. Sin eso, el agente correría con el modelo de la sesión.
-- **Turnos (`turnos_<agente>`):** también están ahí, pero Claude Code no deja pasar `maxTurns` al lanzar el `Agent`: vive en el frontmatter de `agents/*.md` y `scripts/sync-agents.sh` lo copia desde el config (`hooks/test.sh` falla si difieren). Por eso es del plugin y no se pisa por proyecto. Si un agente se queda sin turnos, devuelve lo que tiene y cuenta como un fallo (`fallos_por_tarea`).
+- **Turnos (`turnos_<agente>`):** también están ahí, pero Claude Code no deja pasar `maxTurns` al lanzar el `Agent`: vive en el frontmatter de `agents/*.md` y `scripts/sync-agents.sh` lo copia desde el config (`hooks/test.sh` falla si difieren). Por eso es del plugin y no se pisa por proyecto. Si un agente se queda sin turnos, devuelve lo que tiene; en implement cuenta como un fallo (`fallos_por_tarea`), en otra fase el orquestador lo relanza una vez y, si vuelve a pasar, `blocked/`.
 
 ## Redes de contención, de adentro hacia afuera
 
@@ -193,7 +195,7 @@ flowchart LR
 | `references/pr.md` | llegar a `4-done`: Cierre, commits, un solo push, `gh pr create`, CI verde | `fase pr` |
 | `references/conflicts.md` | rebase, dos intenciones, suite, `--force-with-lease` | `fase conflicts` |
 | `references/orchestrate.md` | el modelo de uso (N worktrees, un orquestador cada uno), detección de estado, las dos salidas, bloquear y retomar, el hook de parada | `/orchestrate` |
-| `references/iterate.md` | la tarea hija: iterar sobre un PR que probaste, mismo worktree, mismo PR | `/draft "qué falta" (en el worktree)`, probaste y falta algo |
+| `references/iterate.md` | la iteración: iterar sobre un PR que probaste, mismo worktree, mismo PR | `/draft "qué falta" (en el worktree)`, probaste y falta algo |
 | `references/roles-and-artifacts.md` | diagramas de clases: artefactos y roles; quién invoca a quién y cuándo; qué itera cada fase y hasta cuándo; skills externas | al escribir o cambiar un agente, al preguntarse quién llama a quién |
 | `references/worktree.md` | qué arma el hook `WorktreeCreate` y por qué | al abrir una sesión, al tocar el hook |
 | `references/environment.md` | el entorno local por tarea: `env-up.sh`, puertos por slug, copia de la DB, dónde queda la URL, por qué no se publica | al probar una tarea, al tocar `env-up.sh` o el compose |

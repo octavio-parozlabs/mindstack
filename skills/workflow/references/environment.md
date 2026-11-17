@@ -29,13 +29,13 @@ flowchart LR
 
 | Paso | Qué | Por qué |
 |---|---|---|
-| puertos | `n = cksum(slug) % 100`; api `3100+n`, web `5200+n`, db `5500+n`, grafana `3300+n`; los escribe en el `.env` del worktree | estables entre levantadas, distintos entre tareas; dos tareas a la vez no chocan |
+| puertos | `n = cksum(entorno) % 100`; api `3100+n`, web `5200+n`, db `5500+n`, grafana `3300+n`; los escribe en el `.env` del worktree | estables entre levantadas, distintos entre tareas; dos tareas a la vez no chocan |
 | `DATABASE_URL` | apunta a `localhost:5500+n` en el `.env` del worktree; Compose la pisa con host `db` adentro | tests y dev server del host pegan a la DB de la tarea, no a la tuya |
 | seed | `pg_dump` de la DB del checkout principal a `.seed/00-dev.sql`; Postgres lo carga solo la primera vez que inicializa el volumen | probás con tus datos, no con una DB vacía; si tu DB de dev no corre, avisa y arranca vacía |
 | `db` | `docker compose -p <entorno> up -d db` | al arrancar el loop: solo la DB, liviano |
 | todo | `docker compose -p <entorno> up -d --build db api web` | al terminar el loop: api y web buildeados desde la rama, lo mismo que iría a producción |
 
-Cada rama es un proyecto de Compose aparte (`-p <entorno>`): red, volúmenes y contenedores propios. Idempotente: correrlo de nuevo rebuildea api y web y no toca la DB. `env-down.sh <slug>` lo baja y borra volúmenes y seed; lo corrés vos en el worktree después del merge, cuando el aviso de sesión lo sugiere.
+Necesita un worktree: en el checkout principal `env-up.sh` y `env-down.sh` se niegan, porque ahí `<entorno>` sería tu proyecto de dev. Sin worktree, levantás el proyecto como siempre. Cada rama es un proyecto de Compose aparte (`-p <entorno>`): red, volúmenes y contenedores propios. Idempotente: correrlo de nuevo rebuildea api y web y no toca la DB. `env-down.sh <entorno>` lo baja y borra volúmenes y seed; lo corrés vos en el worktree después del merge, cuando el aviso de sesión lo sugiere.
 
 | | Checkout principal | Entorno de una tarea |
 |---|---|---|

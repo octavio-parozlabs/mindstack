@@ -73,8 +73,8 @@ sequenceDiagram
     RS->>RS: lee PLAN y Decisiones de la rama + git log main -5 -- invoices/service.ts
     RS->>RS: resuelve cumpliendo las dos intenciones
     RS->>RS: suite verde
-    RS->>G: push --force-with-lease
-    RS->>RS: CHANGELOG › Conflictos: archivo, decisión · gh pr comment
+    RS->>RS: CHANGELOG › Conflictos: archivo, decisión · commit plan(facturas-pdf): conflicts
+    RS->>G: push --force-with-lease · gh pr comment
     RS-->>C: rebase ok, 1 archivo
     C->>G: gh pr checks 88 --watch
     G-->>C: verde
