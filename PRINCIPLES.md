@@ -7,10 +7,10 @@ Fuente: el Zen de Python (https://peps.python.org/pep-0020/), que no es de Pytho
 | Principio | Acá significa | Quién lo aplica |
 |---|---|---|
 | Explícito antes que implícito | validar en la frontera, named exports, tipar lo exportado, config leída una vez y validada. Una tarea dice su alcance en `SPEC.md`; lo que no está escrito no se hace | analista, dev, revisor de código |
-| Los errores nunca pasan en silencio | sin `catch` vacío, promesas manejadas, cobertura roja bloquea el PR. Un hallazgo de revisión se corrige o queda como deuda con vencimiento; nunca se ignora | dev, qa, corrector |
+| Los errores nunca pasan en silencio | sin `catch` vacío, promesas manejadas, cobertura roja bloquea el PR. Un hallazgo de revisión se corrige o queda como deuda con vencimiento; nunca se ignora | dev, qa, approver |
 | Plano antes que anidado | early return, funciones que entran en pantalla, carpetas por feature y no por tipo | dev, revisor de código |
 | Una sola forma obvia de hacerlo | columna "Nunca" de la tabla "Con qué" de cada skill de stack. Dos librerías para lo mismo es una decisión que nadie tomó | planificador, dev |
-| Práctico antes que puro, pero los casos especiales no rompen las reglas | la perfección no es el objetivo de una tarea; un refactor grande es otra tarea. Un caso especial cambia una regla por PR al plugin, no se la saltea | dev, corrector |
+| Práctico antes que puro, pero los casos especiales no rompen las reglas | la perfección no es el objetivo de una tarea; un refactor grande es otra tarea. Un caso especial cambia una regla por PR al plugin, no se la saltea | dev, approver |
 | Si es difícil de explicar, es mala idea | comentario que explica código confuso = arreglar el código. SPEC que no entra en un párrafo = dos tareas. Diagrama que no se entiende solo = rehacerlo | analista, planificador, dev |
 | Ahora es mejor que nunca; nunca suele ser mejor que ya mismo | lo especulativo no entra (YAGNI). Lo que entra, entra completo, con test y en esta tarea | planificador, dev |
 | Ante la ambigüedad, no adivinar | el analista pregunta hasta que no queda ambigüedad. El dev que encuentra una devuelve `DECISION:` y se busca consenso; si no hay, decide la persona | analista, dev, orquestador |

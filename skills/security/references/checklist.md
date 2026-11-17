@@ -138,7 +138,7 @@ Cuando la skill audita, el único resultado es este archivo, con solo hallazgos:
 - [ ] IDs `SEC-n` correlativos; severidad `crítica` / `alta` / `media` / `baja`
 - [ ] Cada fila con la entrada hostil concreta (payload, id, header, nombre de archivo) y un fix
 - [ ] Máximo 15; lo no confirmado bajo "A verificar", una línea cada uno
-- [ ] Hallazgos preexistentes incluidos y marcados "preexistente"
+- [ ] Solo lo que el diff trae o hace alcanzable; lo preexistente, en "Fuera del diff"
 - [ ] Sin elogios, sin "considerá", sin nits de estilo
 - [ ] Conteo por severidad al final
 

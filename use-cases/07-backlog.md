@@ -51,7 +51,7 @@ sequenceDiagram
 
 | Archivo | Quién | Cuándo |
 |---|---|---|
-| `CHANGELOG › Propuestas` | developer, qa, fixer | mientras trabajan, con la fecha en que lo vieron y dónde (`CA-n`, `CB-n`, `archivo:línea`) |
+| `CHANGELOG › Propuestas` | developer, qa, approver | mientras trabajan, con la fecha en que lo vieron y dónde (`CA-n`, `CB-n`, `archivo:línea`) |
 | `REVIEW-*.md › Propuestas` | code-reviewer, security-auditor | al revisar; no cuenta como hallazgo |
 | `backlog/PROPUESTAS.md` | el orquestador | en la fase pr, con la tarea terminada y antes del push: filtra (sin "dónde se vio" no entra), deduplica (`Visto también`), máximo tres nuevas por tarea |
 | `backlog/IDEAS.md` | vos | cuando quieras. Un agente que lo intente lo frena el hook |

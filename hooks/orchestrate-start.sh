@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Hook UserPromptSubmit. Al tipear /mindstack:orchestrate en un worktree, deja el marcador que activa
+# Hook UserPromptSubmit. Al tipear /mindstack:orchestrate, en el directorio y la rama que sea, deja el marcador que activa
 # orchestrate-stop.sh para ESTA sesión: $(git rev-parse --git-dir)/mindstack-orchestrating/<session_id>,
 # con el prompt adentro (el stop distingue el padre de una hija de cola: "/mindstack:orchestrate hija <slug>").
 # Uno por sesión: el padre y sus hijas corren en el mismo worktree y no se pisan.
@@ -16,9 +16,9 @@ fi
 grep -Eq '^[[:space:]]*/(mindstack:)?orchestrate\b' <<<"$prompt" || exit 0
 id=$(tr -cd 'A-Za-z0-9_-' <<<"$session")
 [ -n "$id" ] || exit 0
-case "$(git branch --show-current 2>/dev/null)" in worktree-*) ;; *) exit 0 ;; esac
-dir="$(git rev-parse --git-dir)/mindstack-orchestrating"
+dir="$(git rev-parse --git-dir 2>/dev/null)/mindstack-orchestrating" || exit 0
 [ -f "$dir" ] && rm -f "$dir" # marcador viejo (un archivo por worktree)
 mkdir -p "$dir"
 printf '%s\n' "$prompt" >"$dir/$id"
+rm -f "$dir/$id.rebotes"
 exit 0

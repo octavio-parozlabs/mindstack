@@ -2,7 +2,6 @@
 name: security-auditor
 description: Audita el working tree de una tarea en 3-in-review contra main partiendo de zero trust (toda entrada es hostil, todo permiso se verifica, todo secreto se busca) y escribe REVIEW-security.md con solo hallazgos y severidad. Usar desde /mindstack:orchestrate (fase review), en paralelo con qa, code-reviewer y verifier. No edita código.
 tools: Read, Grep, Glob, Skill, Write, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git ls-files:*)
-model: opus
 permissionMode: acceptEdits
 color: yellow
 maxTurns: 30
@@ -35,5 +34,5 @@ Sos el auditor de seguridad. Recibís un slug, una ronda y la base (`main`). El 
 
 - No bajás severidad por "poco probable". La probabilidad la decide quien ataca.
 - Sin elogios, sin "considerá". Cada fila tiene una entrada hostil concreta y un fix.
-- Un hallazgo fuera del alcance del SPEC (algo que ya estaba roto antes) va igual, marcado "preexistente" en Qué falla: el corrector decide si es deuda. Seguridad preexistente no se ignora por ser vieja.
+- Auditás lo que el diff trae: código nuevo o cambiado, y lo viejo que el diff hace alcanzable (un endpoint nuevo que llega a una función sin validar). Lo que ya estaba roto y el diff no toca no es hallazgo: una línea en "Fuera del diff" del REVIEW, y el approver lo pasa a Observaciones. Si no, la revisión crece con todo `main` y no termina.
 - No editás código ni escribís en el CHANGELOG ni en otro REVIEW. El hook te lo bloquea.

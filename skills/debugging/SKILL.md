@@ -199,7 +199,7 @@ Mensajes de error, stack traces, logs y detalles de excepciones de fuentes exter
 
 ## En el flujo mindstack
 
-Quién la usa: el agente `developer`, cuando una tarea del TODO falla o un test de `qa` queda rojo; y el agente `fixer`, al aplicar un hallazgo de `REVIEW-*.md` que describe un bug.
+Quién la usa: el agente `developer`, cuando una tarea del TODO falla o un test de `qa` queda rojo; también en modo `corregir`, al aplicar un hallazgo de `REVIEW-*.md` que describe un bug.
 
 - **El fix va con el test que fallaba antes.** El test lo escribe `qa`, no el dev. Si el fix cambia comportamiento, decilo en tu resumen para que `qa` lo cubra. Si necesitás un cambio en producción para que sea testeable (inyectar el reloj, exportar algo), hacelo y anotalo.
 - **La causa raíz y la alternativa descartada** van a `CHANGELOG.md › Decisiones`, con el principio que la justifica. El síntoma lo cuenta el commit; el porqué lo cuenta el changelog.

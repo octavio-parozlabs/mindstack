@@ -32,18 +32,16 @@ sequenceDiagram
 
 ```!
 pwd
-git worktree list 2>/dev/null | head -1 | awk '{print $1}'
 ls todolist/1-pending/ 2>/dev/null || true
 ```
 
-Tres líneas: tu directorio, el checkout principal, las tareas pendientes. Si las dos primeras son iguales, no estás en un worktree.
+Tu directorio y las tareas pendientes.
 
 - Carpeta no está en `1-pending/`: pará. El estado es la carpeta y solo el plan terminado la pone ahí.
-- No estás en worktree y `$CI` está vacío: pará. Este comando corre en una sesión abierta con `claude -w <slug>`.
 
 ## Arranque
 
-1. Rama de la tarea (`rama:` del PLAN); si no existe, crearla desde HEAD. Es la única rama que el flujo crea, y la crea porque el PLAN la nombra.
+1. Estás en la rama del PLAN (`rama:`); si no, pará y decilo. El flujo no crea ramas: la rama la abrió la persona (`claude -w`, orca o a mano).
 2. `git mv todolist/1-pending/<slug> todolist/2-in-progress/<slug>`, commit propio `plan(<slug>): implement`.
 3. Si hay `graphify-out/`: `/graphify . --update --no-viz`.
 4. Si hay `docker-compose.yml` y `$CI` está vacío: `${CLAUDE_PLUGIN_ROOT}/scripts/env-up.sh <slug> db`. Levanta solo la DB de la tarea, aislada, con copia de la tuya (`skills/workflow/references/environment.md`). Sin compose, el stack dice cómo se corre; nada se levanta todavía.
@@ -76,7 +74,7 @@ Reglas dentro del loop:
 | No bajar umbral de cobertura ni desactivar lint | el Done cambia debajo del loop |
 | Sin refactors grandes. Lo que molesta y no es de la tarea va a Observaciones o Deuda | un refactor es otra tarea con su SPEC |
 | **Nada se commitea durante el loop.** Código, `TODO.md` y `CHANGELOG.md` quedan en el working tree del worktree hasta que la revisión pasa; el commit lo hace el orquestador (fase pr) | lo que está commiteado parece terminado. Un commit por tarea a medio revisar es un historial de estados que nadie validó; el worktree aislado es la red mientras tanto |
-| La misma tarea falla tres veces seguidas: `blocked/` con por qué, no insistir | tres fallos es una ambigüedad o un bloqueo, no mala suerte |
+| La misma tarea falla `fallos_por_tarea` veces seguidas (`config.sh`): `blocked/` con por qué, no insistir | fallar seguido es una ambigüedad o un bloqueo, no mala suerte |
 
 ## Al terminar
 

@@ -53,13 +53,13 @@ Desde que la persona dice "hacelo" hasta que entrega, el orquestador es responsa
 | Es suyo | Cómo lo asegura | Cuándo no puede |
 |---|---|---|
 | la tarea sale de `1-pending` y llega a `4-done` | las fases en orden, leyendo cada reference | nunca: si no puede, la deja en `blocked/` con el motivo |
-| todas las líneas de `TODO.md` con `[x]` y Done verde | el loop no termina sin eso | `BLOCKED:`, tres fallos en la misma tarea o consenso sin acuerdo: `blocked/` |
-| todo lo pedido, hecho: `CHECKLIST.md` tachada por `verifier` | una línea sin tachar es un hallazgo alto | ronda 5 con líneas abiertas: `blocked/` |
+| todas las líneas de `TODO.md` con `[x]` y Done verde | el loop no termina sin eso | `BLOCKED:`, `fallos_por_tarea` fallos en la misma tarea o consenso sin acuerdo: `blocked/` |
+| todo lo pedido, hecho: `CHECKLIST.md` tachada por `verifier` | una línea sin tachar se arregla siempre (developer o qa) | última ronda con líneas abiertas: `blocked/` |
 | cada tarea tiene sus tests, escritos por `qa` | lanza `qa` después de cada tarea | nunca |
-| los `REVIEW-*.md` sin crítica ni alta | revisar ↔ validar y corregir, hasta cinco rondas | ronda 5 con algo abierto: `blocked/` |
+| cada hallazgo de los `REVIEW-*.md` con decisión del `approver` y lo que mandó arreglar, arreglado | revisar ↔ aprobar y corregir, hasta `rondas_revision` | `APPROVAL: blocked`, o la última ronda con algo que no se negocia: `blocked/` |
 | el PR abierto, con todo commiteado en un solo push | `pr.md` | nunca |
 | el PR sin conflicto con `main` | `conflicts.md` | intenciones incompatibles: `blocked/` |
-| **CI verde** | espera los checks; rojo = `fixer` con el log, `qa`, push; hasta tres rondas | fallo ajeno al cambio o tercera ronda: `blocked/` |
+| **CI verde** | espera los checks; rojo = `developer ci` con el log, `qa`, push; hasta `rondas_ci` | fallo ajeno al cambio o última ronda: `blocked/` |
 | el entorno local levantado y la URL en el CHANGELOG | `env-up.sh` al terminar el loop | sin compose: el comando del stack |
 | todo lo que pasó, escrito | Cambios, Decisiones, Deuda, Revisión, Conflictos en el CHANGELOG | nunca |
 
@@ -72,11 +72,12 @@ Lo que no es suyo: escribir SPEC y PLAN (eso es `/draft`), decidir un consenso s
 | El estado es la carpeta. El orquestador detecta dónde está y sigue desde ahí; no asume | se puede cortar y retomar en otra sesión |
 | Una tarea hija (`padre:` en el PLAN) corre igual; en `fase pr` detecta el PR del padre y lo actualiza en vez de abrir otro | iterar sobre un PR es el mismo flujo, no uno aparte |
 | Lee `references/<fase>.md` y hace exactamente eso. No tiene lógica propia | una sola fuente para el modo manual y el orquestado |
+| Lanza cada `Agent` con `model` = `modelo_<agente>` y `effort` = `esfuerzo_<agente>` de `config.sh` (sin `effort` si está vacío) | elegir más barato o más fuerte por rol es del proyecto, no del plugin |
 | No planifica: arranca desde `1-pending/`. En `0-draft/` para y dice que falta el plan | el plan es el contrato; se escribe en la conversación de `/draft`, con la persona |
-| Solo en un worktree. Fuera de uno, para y dice `claude -w <slug>` | el checkout principal no se toca; el worktree es el PR |
+| Trabaja sobre el directorio y la rama en que está, sin mirar su nombre. En la rama default (`main`) para | el worktree y la rama los maneja la persona (`claude -w`, orca, a mano); el PR necesita una rama que no sea `main` |
 | Varias tareas pendientes en el worktree: Cola, aunque la persona nombre una sola (corre esa) | el contexto no crece con cada tarea |
 | No espera a que la persona pruebe: imprime la URL del entorno y sigue a revisión | la autonomía es el punto. La persona prueba cuando quiere en `localhost`; lo que quiera cambiar lo pide en la sesión antes de `fase pr` o después como tarea nueva |
-| Máximo 5 rondas revisar↔corregir, máximo 3 rondas de CI, contadas desde la última vez que salió de `blocked/` | lo que no cierra en cinco rondas con validación es una ambigüedad del SPEC; tres CI rojos seguidos no son el código |
+| Topes de `config/defaults.conf` del plugin, pisables por proyecto en `.claude/mindstack.conf`: `rondas_revision`, `rondas_ci`, `fallos_por_tarea`. Al arrancar corre `bash ${CLAUDE_PLUGIN_ROOT}/scripts/config.sh` y usa esos valores. Se cuentan desde la última vez que la tarea salió de `blocked/` | lo que no cierra con approver en esas rondas es una ambigüedad del SPEC; varios CI rojos seguidos no son el código. Cada proyecto sabe cuánto le cuesta una ronda |
 | Nunca mergea, nunca pushea a `main` | el merge es el único punto donde una persona ve el cambio entero |
 | Toda parada que no es done es `blocked/` con `BLOCKED.md` | la persona lee un solo archivo y no confunde "trabajando" con "me rendí" |
 
@@ -91,7 +92,7 @@ El orquestador corre de `1-pending` a `4-done` **en un turno**, y solo tiene dos
 
 Todo lo demás es seguir: terminar una tarea, terminar el loop, una fase completa, levantar el entorno, esperar a CI. Un "listo con implement, ¿sigo?" o un resumen de avance es un error del orquestador. No pregunta con `AskUserQuestion` en el camino (solo al retomar una tarea bloqueada): una pregunta en una sesión que nadie mira es una tarea trabada que no se ve.
 
-**Lo garantiza un hook, no el prompt.** Al tipear `/mindstack:orchestrate` en un worktree, el hook `UserPromptSubmit` (`hooks/orchestrate-start.sh`) deja un marcador de esta sesión, con el prompt, en `$(git rev-parse --git-dir)/mindstack-orchestrating/<session_id>`: el git dir del worktree, nunca se commitea. Mientras exista, el hook `Stop` (`hooks/orchestrate-stop.sh`) no deja terminar el turno si hay una tarea en `2-in-progress` o `3-in-review`, una de la cola (o de la rama, si no hay cola) en `1-pending`, o si todo está en `4-done` y el CI del PR no está verde: le devuelve qué falta y el modelo sigue. En una de las dos salidas, borra el marcador. Una hija de cola termina antes (§ Cola), y el padre puede terminar el turno mientras una hija corre: lo despierta el fin del proceso. Las sesiones de `/draft` o las manuales no tienen marcador y no se ven afectadas.
+**Lo garantiza un hook, no el prompt.** Al tipear `/mindstack:orchestrate`, el hook `UserPromptSubmit` (`hooks/orchestrate-start.sh`) deja un marcador de esta sesión, con el prompt, en `$(git rev-parse --git-dir)/mindstack-orchestrating/<session_id>`: el git dir del worktree, nunca se commitea. Mientras exista, el hook `Stop` (`hooks/orchestrate-stop.sh`) no deja terminar el turno si hay una tarea en `2-in-progress` o `3-in-review`, una de la cola (o de la rama, si no hay cola) en `1-pending`, o si todo está en `4-done` y el CI del PR no está verde: le devuelve qué falta y el modelo sigue. En una de las dos salidas, borra el marcador. Una hija de cola termina antes (§ Cola), y el padre puede terminar el turno mientras una hija corre: lo despierta el fin del proceso. Las sesiones de `/draft` o las manuales no tienen marcador y no se ven afectadas. Si rebota `rebotes_exige_blocked` veces seguidas sin avance (mismo `HEAD`, mismo `git status`, mismo motivo, como un check que queda pendiente para siempre), le exige pasar la tarea a `blocked/`; a las `rebotes_deja_parar` lo deja parar, para no quemar tokens en un loop.
 
 ## Cola
 
@@ -124,7 +125,7 @@ sequenceDiagram
    - `blocked/<slug>`: la cola frena (las siguientes se apoyan en su código). Las ya terminadas se suben: push y `gh pr create --draft` con sus `PR.md` y una línea "bloqueada: <slug>, ver BLOCKED.md". Fin del turno.
    - Otra (la hija murió a mitad): relanzarla una vez; si vuelve a pasar, Bloquear con `desde:` donde quedó.
 4. **La hija** corre este mismo flujo para su tarea con dos diferencias: no pregunta nada y su fase pr llega hasta el paso 4 (`pr.md`): Done, `git mv` a `4-done`, Cierre, `PR.md`, backlog, commits locales. **No pushea**: un push por tarea sería una corrida de CI por tarea. El entorno lleva el nombre del worktree (`basename $(git rev-parse --show-toplevel)`), no el de la tarea: una DB para toda la cola.
-5. **Al final, el padre** hace la fase pr desde el paso 5 para toda la cola: un push; el body del PR es la concatenación de los `PR.md` de la cola, en orden, en un archivo del git dir (no se commitea); `gh pr create` (o, si ya hay PR draft de una cola frenada, `gh pr comment` + `gh pr ready`); CI. Un CI rojo del cambio es `fixer ci` sobre la tarea que el log señala, con las mismas tres rondas.
+5. **Al final, el padre** hace la fase pr desde el paso 5 para toda la cola: un push; el body del PR es la concatenación de los `PR.md` de la cola, en orden, en un archivo del git dir (no se commitea); `gh pr create` (o, si ya hay PR draft de una cola frenada, `gh pr comment` + `gh pr ready`); CI. Un CI rojo del cambio es `developer ci` sobre la tarea que el log señala, con las mismas tres rondas.
 
 Retomar una cola frenada es Retomar la bloqueada; al volver a `desde:` y terminar, el padre sigue con las pendientes de la cola original, como cola.
 
@@ -135,9 +136,9 @@ Pasa a `blocked/` todo lo que necesita una persona:
 | Desde | Motivo |
 |---|---|
 | implement | `BLOCKED:` de un developer, la misma tarea falló tres veces, consenso sin acuerdo |
-| fix | consenso sin acuerdo sobre un hallazgo, hallazgo crítico o alto fuera del alcance, `BLOCKED:` del corrector |
-| review | ronda 5 con crítica, alta o líneas de la checklist abiertas |
-| pr | CI rojo ajeno al cambio, tercera ronda de CI, conflicto con intenciones incompatibles |
+| fix | `APPROVAL: blocked` (arreglarlo cambiaría lo que hace la feature), `BLOCKED:` del developer al corregir, la última ronda con una línea de checklist, un `QA-n`, un secreto o una pérdida irreversible sin arreglar |
+| review | la última ronda (`rondas_revision`) con algo que no se negocia abierto |
+| pr | CI rojo ajeno al cambio, última ronda de CI (`rondas_ci`), conflicto con intenciones incompatibles |
 
 1. `BLOCKED.md` en la carpeta, desde `../templates/BLOCKED.md`: `desde:`, ronda, PR si hay; cada motivo citando un `CA-n`, `CB-n`, un ID de hallazgo o una tarea del TODO, con opciones cerradas y una recomendada. Corto: es lo único que la persona lee.
 2. `git mv todolist/<estado>/<slug> todolist/blocked/<slug>`, commit `plan(<slug>): blocked`. En una hija de cola, hasta acá: el push y el PR draft son del padre.

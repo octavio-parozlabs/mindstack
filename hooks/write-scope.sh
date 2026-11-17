@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Hook PreToolUse (Edit|Write|MultiEdit) para el frontmatter `hooks:` de un agente.
 # Uso: write-scope.sh '<regex extendida>'   → el file_path tiene que matchear, si no exit 2.
-# Uso: write-scope.sh --no '<regex>'         → el file_path NO tiene que matchear (dev, corrector).
+# Uso: write-scope.sh --no '<regex>'         → el file_path NO tiene que matchear (developer).
 # Es la red de contención del rol: QA solo tests, revisores solo su REVIEW, dev nada de tests/SPEC/PLAN/REVIEW.
 set -u
 modo=si

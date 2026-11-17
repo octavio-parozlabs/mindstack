@@ -8,7 +8,7 @@
       "name": "mindstack",
       "version": "1.0.0",
       "source": "./",
-      "description": "Una tarea es una carpeta con estado; SPEC y PLAN congelados; CHANGELOG como memoria; analista, desarrollador, qa, revisor, auditor, corrector, resolutor; orquestador opcional; skills por stack.",
+      "description": "Una tarea es una carpeta con estado; SPEC y PLAN congelados; CHANGELOG como memoria; analista, desarrollador, qa, revisor, auditor, verificador, approver, resolutor; orquestador opcional; skills por stack.",
       "license": "MIT",
       "keywords": ["workflow", "tareas", "roles", "revision", "seguridad"]
     }

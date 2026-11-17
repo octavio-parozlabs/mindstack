@@ -12,7 +12,7 @@ working_tree: <salida de git status --short | wc -l> archivos
 
 Solo hallazgos. Sin elogios, sin "considerá", sin nits de estilo. Tabla vacía = nada que objetar.
 
-ID por rol: `QA-n` · `CODE-n` · `SEC-n`. Severidad: **crítica** (pérdida de datos, plata o acceso; bloquea el PR) · **alta** (bug en el camino principal; bloquea el PR) · **media** (bug en camino secundario; puede quedar como deuda con vencimiento) · **baja** (puede quedar como deuda).
+ID por rol: `QA-n` · `CODE-n` · `SEC-n`. Severidad: **crítica** (pérdida de datos, plata o acceso) · **alta** (bug en el camino principal) · **media** (bug en camino secundario) · **baja**. Orienta al `approver`, que decide qué se arregla. Solo lo que el diff trae o hace alcanzable.
 
 | ID | Severidad | Archivo:línea | Qué falla, con qué entrada | CB | Fix en una línea |
 |---|---|---|---|---|---|
@@ -21,6 +21,10 @@ ID por rol: `QA-n` · `CODE-n` · `SEC-n`. Severidad: **crítica** (pérdida de 
 ## A verificar
 
 Lo que parece un fallo y no pudiste confirmar con una entrada concreta. Una línea cada uno. No cuenta como hallazgo ni bloquea.
+
+## Fuera del diff
+
+Lo que ya estaba roto y este cambio no toca ni hace alcanzable. Una línea: qué, `archivo:línea`. No es hallazgo; el approver lo pasa a `CHANGELOG › Observaciones`.
 
 ## Propuestas
 

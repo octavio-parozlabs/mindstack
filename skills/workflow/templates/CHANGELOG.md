@@ -2,7 +2,7 @@
 
 Memoria de la tarea mientras se ejecuta. Lo escriben los roles al terminar cada paso; nadie reescribe, solo se agrega abajo. Es lo primero que lee quien entra a la tarea y lo primero que lee quien mergea.
 
-Quién: `analyst` · `planner` · `developer` · `qa` · `code-reviewer` · `security-auditor` · `fixer` · `conflict-resolver` · `consensus` · `person`.
+Quién: `analyst` · `planner` · `developer` · `qa` · `code-reviewer` · `security-auditor` · `verifier` · `approver` · `conflict-resolver` · `consensus` · `person`.
 
 ## Cambios
 
@@ -48,11 +48,13 @@ Lo que se dejó a propósito. Sin issue no es deuda, es olvido. Sin vencimiento 
 
 ## Revisión
 
-Una fila por hallazgo por ronda. La escribe el corrector al cerrar la ronda. Un CI rojo después del push es una ronda `ci-n` con rol `ci` e ID `CI-n`. Resultado: `validado` · `refutado: evidencia` · `corregido` · `deuda #issue` · `bloqueado: motivo` (`fix.md`).
+Una fila por hallazgo por ronda. La escribe el `approver` (`fix.md`). Decisión: `arreglar` · `deuda #issue` · `riesgo aceptado` · `descartado` · `bloqueado`. Lo que no es `arreglar` lleva un motivo que se pueda discutir al mergear: aparece en el PR. Un CI rojo después del push es una ronda `ci-n` con rol `ci` e ID `CI-n`, la escribe el `developer`.
 
-| Ronda | Rol | ID | Severidad | Resultado |
-|---|---|---|---|---|
-| 1 | code-reviewer | CODE-1 | alta | corregido |
+| Ronda | Rol | ID | Severidad | Decisión | Motivo |
+|---|---|---|---|---|---|
+| 1 | code-reviewer | CODE-1 | alta | arreglar | `orders.service.ts:48` crea el pedido con un producto borrado (rompe CA-2) |
+| 1 | security-auditor | SEC-2 | media | riesgo aceptado | rate limit en un endpoint solo de admins internos detrás de VPN; Práctico antes que puro |
+| 1 | code-reviewer | CODE-3 | alta | descartado | pide paginar el listado; SPEC › Qué no se hace: "paginación, otra tarea" |
 
 ## Conflictos
 

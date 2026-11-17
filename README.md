@@ -6,7 +6,7 @@ Forma de trabajo por tareas para Claude Code. Una tarea es una carpeta con estad
 flowchart LR
     A([persona pide]) --> S[analista: SPEC] --> OK([persona: generá el plan]) --> P[planificador: PLAN, a pendiente]
     P --> D[dev: una tarea por vuelta] --> Q[qa: tests] --> D
-    D --> R[qa + revisor + auditor + verificador] --> V[validar hallazgos] --> C[corrector] --> R
+    D --> R[qa + revisor + auditor + verificador] --> V[approver decide] --> C[developer y qa arreglan] --> R
     R --> G["4-done: PR con CI verde"] --> PR([persona prueba]) --> M([persona mergea])
     R -. no cierra .-> B["blocked: BLOCKED.md"] -.-> PB([persona responde])
     classDef persona fill:#fc9,color:#000
@@ -90,31 +90,45 @@ Cinco. Tres en el día a día. Ninguno necesita el nombre de la tarea: la lee de
 | Comando | Vos | Hace | git |
 |---|---|---|---|
 | `/mindstack:install` | una vez por proyecto | tablero `todolist/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
-| `/mindstack:draft "<qué querés>"` | en el worktree: respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En un worktree que ya tiene tarea: sin PR, suma una tarea a la cola; con PR, abre la tarea hija con lo que falta | commit por vuelta |
+| `/mindstack:doctor` | cuando quieras, antes de dejarlo solo | revisa lo que el flujo da por hecho: `gh` con sesión, docker levantado si hay compose, node, jq, permisos para no frenar, tablero. No cambia nada | — |
+| `/mindstack:draft "<qué querés>"` | en tu rama (worktree o no): respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En un worktree que ya tiene tarea: sin PR, suma una tarea a la cola; con PR, abre la tarea hija con lo que falta | commit por vuelta |
 | `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md` y `CHECKLIST.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | commit |
-| `/mindstack:orchestrate` | te sentás a esperar | en el mismo worktree: implement (`developer` y `qa` por tarea, consenso), review ×4, validar y fix, pr, conflicts, CI verde. Termina en `4-done` con el link del PR, o en `blocked/` con `BLOCKED.md`. Con varias pendientes en el worktree: te pregunta cuáles y las corre en cola, una sesión nueva por tarea, en un solo PR. Sobre una tarea bloqueada: te pregunta y sigue | todos los que las fases declaran |
+| `/mindstack:orchestrate` | te sentás a esperar | en la misma rama: implement (`developer` y `qa` por tarea, consenso), review ×4, approver y fix, pr, conflicts, CI verde. Termina en `4-done` con el link del PR, o en `blocked/` con `BLOCKED.md`. Con varias pendientes en el worktree: te pregunta cuáles y las corre en cola, una sesión nueva por tarea, en un solo PR. Sobre una tarea bloqueada: te pregunta y sigue | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
 
 Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee las mismas referencias en orden. Cero lógica en los comandos.
 
 ## Roles
 
-| Agente | Modelo | Hace | Escribe solo |
-|---|---|---|---|
-| `analyst` | opus | consenso: busca evidencia desde un ángulo (historial, código, principios); valida cada hallazgo crítico o alto antes de corregirlo | nada |
-| `designer` | opus | en el borrador, si toca la interfaz: propone la sección UX/UI del SPEC con la skill `design` y las pantallas que ya existen, y devuelve las preguntas | `notes/ux.md` |
-| `researcher` | opus | al planificar: compara librerías que ya resuelven una necesidad, con datos; lo propio es la última opción | nada |
-| `developer` | opus | una tarea del TODO, sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
-| `qa` | sonnet | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
-| `code-reviewer` | opus | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |
-| `security-auditor` | opus | zero trust | `REVIEW-security.md` |
-| `verifier` | opus | si está hecho: cada línea de la checklist con código, test que la nombra y test corrido | `CHECKLIST.md` |
-| `fixer` | opus | aplica los hallazgos validados; no rechaza | código, `CHANGELOG.md` |
-| `conflict-resolver` | opus | rebase, suite, push | lo que esté en conflicto, `CHANGELOG.md` |
+| Agente | Hace | Escribe solo |
+|---|---|---|
+| `analyst` | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
+| `designer` | en el borrador, si toca la interfaz: propone la sección UX/UI del SPEC con la skill `design` y las pantallas que ya existen, y devuelve las preguntas | `notes/ux.md` |
+| `researcher` | al planificar: compara librerías que ya resuelven una necesidad, con datos; lo propio es la última opción | nada |
+| `developer` | una tarea del TODO, lo que el approver manda arreglar o un CI rojo; sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
+| `qa` | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| `code-reviewer` | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |
+| `security-auditor` | zero trust | `REVIEW-security.md` |
+| `verifier` | si está hecho: cada línea de la checklist con código, test que la nombra y test corrido | `CHECKLIST.md` |
+| `approver` | lee todos los hallazgos juntos y decide: arreglar, deuda, riesgo aceptado o descartado, con motivo. Lo pedido y probado, secretos y pérdidas irreversibles se arreglan siempre | `CHANGELOG.md` |
+| `conflict-resolver` | rebase, suite, push | lo que esté en conflicto, `CHANGELOG.md` |
 
 El "escribe solo" lo garantiza un hook por agente (`hooks/write-scope.sh`), no el prompt. El dev no escribe tests ni reviews; QA no toca producción; los revisores no editan; nadie mergea.
 
 Cuando el dev encuentra una ambigüedad que ni el SPEC, ni el PLAN, ni un principio resuelven, no adivina: tres analistas buscan en paralelo (lo decidido en tareas terminadas, patrones del código, principios). Si coinciden, se decide y queda en el CHANGELOG; si no, la tarea va a `blocked/` y te enterás al abrir `claude`.
+
+## Configurar topes y modelos
+
+`config/defaults.conf` del plugin tiene, comentados, los topes de cada loop (rondas de revisión, rondas de CI, fallos por tarea, rebotes del hook de parada) y el modelo y el esfuerzo de cada agente. Para cambiarlos en un proyecto, `.claude/mindstack.conf` con solo lo que cambia:
+
+```bash
+rondas_revision=3
+modelo_qa=opus
+modelo_code-reviewer=sonnet
+esfuerzo_approver=max
+```
+
+Los modelos por defecto, con su porqué en el mismo archivo: opus para `designer`, `developer`, `security-auditor`, `approver` y `conflict-resolver`; sonnet para `analyst`, `researcher`, `qa`, `code-reviewer` y `verifier`. El SPEC lo escribe tu sesión: usá opus en `/draft`. `scripts/config.sh` muestra los valores efectivos. El `maxTurns` de cada agente no se configura: es del frontmatter de `agents/*.md`.
 
 ## Skills
 

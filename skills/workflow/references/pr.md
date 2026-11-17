@@ -16,8 +16,8 @@ flowchart TD
     X -- CONFLICTING --> CF[conflicts.md] --> W
     X -- sí --> W["gh pr checks --watch"]
     W -- verde --> OK([4-done: listo para mergear. Fin del turno])
-    W -- "rojo, del cambio, ronda < 3" --> F["fixer ci → qa → Done local\ncommit fix(slug): CI-n · push"] --> W
-    W -- "rojo ajeno, o ronda 3" --> BL([blocked/: orchestrate.md › Bloquear])
+    W -- "rojo, del cambio, ronda < 3" --> F["developer ci → qa → Done local\ncommit fix(slug): CI-n · push"] --> W
+    W -- "rojo ajeno, o última ronda (rondas_ci)" --> BL([blocked/: orchestrate.md › Bloquear])
 ```
 
 ## Pasos
@@ -42,14 +42,14 @@ Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, o CI quedó pendi
 7. `gh pr view --json mergeable`: si dice `CONFLICTING`, `conflicts.md` (se corre solo en modo orquestado; a mano, `/mindstack:rebase`). Conflicto con intenciones incompatibles → `blocked`.
 8. **CI verde es parte de done**: `gh pr checks --watch`.
    - Verde: fin. La tarea está en `4-done/` y el turno termina con el link.
-   - Rojo, y el log muestra que es del cambio: `Agent fixer` con `ci <slug> <run>` → `Agent qa` sobre lo que cambió → Done local → commit `fix(<slug>): CI-n <qué>` → push → volver a mirar. La carpeta no se mueve: ya está en `4-done` y el commit del arreglo dispara CI igual.
-   - Rojo por algo ajeno al cambio (infra, secreto que falta, test inestable de otro módulo), o tercera ronda de CI roja: `blocked` (`orchestrate.md › Bloquear`). Es el único caso en que la carpeta sale de `4-done`.
+   - Rojo, y el log muestra que es del cambio: `Agent developer` con `ci <slug> <run>` → `Agent qa` sobre lo que cambió → Done local → commit `fix(<slug>): CI-n <qué>` → push → volver a mirar. La carpeta no se mueve: ya está en `4-done` y el commit del arreglo dispara CI igual.
+   - Rojo por algo ajeno al cambio (infra, secreto que falta, test inestable de otro módulo), o la última ronda de CI roja (`rondas_ci`): `blocked` (`orchestrate.md › Bloquear`). Es el único caso en que la carpeta sale de `4-done`.
 
 Reglas del paso 8:
 - Cada fallo es un hallazgo `CI-n` en `CHANGELOG › Revisión` (rol `ci`), con resultado `corregido` o `bloqueado: motivo`.
 - Si CI falló por algo que el Done de `PLAN.md` no corre, fila en Observaciones: "Done incompleto: CI corre X y el plan no".
-- El `fixer` corrige lo que el log dice, nada más. No se relanzan los revisores por un fix de CI: ya vieron el código. Si el fix toca más que el check que falló, sí: la carpeta vuelve a `3-in-review` y `review.md`, ronda nueva.
-- Tope: tres rondas de CI. Si el Done local es igual a CI, un tercer rojo seguido es el entorno, no el código.
+- El `developer` en modo `ci` corrige lo que el log dice, nada más. No se relanzan los revisores por un fix de CI: ya vieron el código. Si el fix toca más que el check que falló, sí: la carpeta vuelve a `3-in-review` y `review.md`, ronda nueva.
+- Tope: `rondas_ci` (`config.sh`). Si el Done local es igual a CI, varios rojos seguidos son el entorno, no el código.
 
 Terminá con el link del PR y "CI verde: listo para mergear". El merge lo hace la persona; no hay nada que correr después. La limpieza del entorno y del worktree la sugiere el aviso de sesión cuando la tarea ya está mergeada.
 

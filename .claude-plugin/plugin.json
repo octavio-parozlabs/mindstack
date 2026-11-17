@@ -1,7 +1,7 @@
 {
   "name": "mindstack",
   "version": "1.0.0",
-  "description": "Forma de trabajo por tareas para Claude Code: una tarea es una carpeta con estado (0-draft a 4-done lista para mergear, o blocked), SPEC y PLAN congelados al aprobar, checklist verificada antes del PR, CHANGELOG como memoria, roles separados (analista, desarrollador, qa, revisor de código, auditor de seguridad, verificador, corrector, resolutor), consenso antes de interrumpir a la persona, orquestador opcional; más skills por stack.",
+  "description": "Forma de trabajo por tareas para Claude Code: una tarea es una carpeta con estado (0-draft a 4-done lista para mergear, o blocked), SPEC y PLAN congelados al aprobar, checklist verificada antes del PR, CHANGELOG como memoria, roles separados (analista, desarrollador, qa, revisor de código, auditor de seguridad, verificador, approver, resolutor), consenso antes de interrumpir a la persona, orquestador opcional; más skills por stack.",
   "author": { "name": "Octavio" },
   "license": "MIT",
   "keywords": ["workflow", "tareas", "roles", "revision", "seguridad", "typescript", "react", "nestjs"],

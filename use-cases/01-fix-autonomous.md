@@ -12,7 +12,7 @@ sequenceDiagram
     participant CR as code-reviewer
     participant SA as security-auditor
     participant VF as verifier
-    participant FX as fixer
+    participant AP as approver
     participant G as git / GitHub
 
     U->>C: claude -w pagos-timeout · /mindstack:draft "pagos con timeout se cobran dos veces"
@@ -74,13 +74,12 @@ sequenceDiagram
     SA-->>C: REVIEW-security.md: 1 alta (SEC-1 idempotencia)
     VF-->>C: CHECKLIST 6/7 · CA-3 falta: sin validación de amount ≤ 0
     C->>G: commit review(pagos-timeout): round 1 (REVIEW-*.md y CHECKLIST.md)
-    Note over C: alta y checklist abierta → fix.md
-    C->>AN: validar pagos-timeout SEC-1
-    AN-->>C: VERDICT: real · alcance: sí
-    C->>FX: corregir ronda 1: SEC-1, CA-3, CODE-1
-    FX->>FX: SEC-1 y CA-3 corregidos, CODE-1 a deuda #45 vence 2026-12-01
-    FX-->>C: Revisión en CHANGELOG
-    C->>QA: testear cambios del fixer
+    Note over C: hallazgos y checklist abierta → fix.md
+    C->>AP: aprobar pagos-timeout ronda 1
+    AP-->>C: SEC-1 arreglar (cobro doble) · CA-3 arreglar · CODE-1 deuda #45 vence 2026-12-01 · APPROVAL: fix 2
+    C->>DEV: corregir pagos-timeout ronda 1: SEC-1, CA-3
+    DEV-->>C: FIX OK
+    C->>QA: testear pagos-timeout correcciones ronda 1
     par ronda 2
         C->>QA: verificar ronda 2
         C->>CR: revisar ronda 2
@@ -102,8 +101,8 @@ sequenceDiagram
     G-->>C: PR #87
     C->>G: gh pr checks 87 --watch
     G-->>C: lint ✗ (import sin usar)
-    C->>FX: ci pagos-timeout <run>
-    FX-->>C: CI-1 corregido
+    C->>DEV: ci pagos-timeout <run>
+    DEV-->>C: CI-1 corregido
     C->>G: commit fix(pagos-timeout): CI-1 import sin usar · push
     C->>G: gh pr checks 87 --watch
     G-->>C: todo verde

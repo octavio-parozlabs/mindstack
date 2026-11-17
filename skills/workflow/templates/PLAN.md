@@ -1,7 +1,7 @@
 ---
 title: "<mismo título que SPEC.md>"
 slug: <slug>
-rama: worktree-<slug>
+rama: <git branch --show-current al planificar>
 spec: ./SPEC.md
 tipo: feature | fix | refactor | migration | performance | ci | docs
 skills: [mindstack:<práctica que aplica>, ...]

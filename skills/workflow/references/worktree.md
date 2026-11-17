@@ -30,4 +30,4 @@ sequenceDiagram
 
 Nada de esto es obligatorio: sin `node_modules` ni `graphify-out/` el hook sigue. El flujo es agnóstico al stack; lo que el stack necesita lo dice su skill.
 
-El worktree es el PR: `/draft`, el plan, el orquestador y el PR pasan adentro, para una tarea o para una cola (`orchestrate.md › Cola`). En el checkout principal no se corre ningún comando del flujo; para todo, `claude -w <slug>`.
+El worktree es el PR: `/draft`, el plan, el orquestador y el PR pasan adentro, para una tarea o para una cola (`orchestrate.md › Cola`). Es lo recomendado, no lo exige: los comandos trabajan sobre el directorio y la rama en que están, sin mirar su nombre (un workspace de orca sirve igual). Lo único que no se usa es la rama default (`main`): el PR necesita otra.

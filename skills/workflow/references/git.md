@@ -6,7 +6,7 @@ Con agentes trabajando en paralelo, la rama es la unidad de aislamiento y el com
 
 | Decisión | Valor | Por qué |
 |---|---|---|
-| Una rama por tarea | `worktree-<slug>`, la que dice `rama:` en `PLAN.md`. La crea el hook `WorktreeCreate` o el orquestador (fase implement) | dos tareas en una rama no se revisan ni se revierten por separado |
+| Una rama por PR | la que dice `rama:` en `PLAN.md`: la actual al planificar, se llame como se llame. La abre la persona (`claude -w`, orca o a mano); el flujo no crea ramas | dos tareas en una rama no se revisan ni se revierten por separado |
 | Nadie crea ramas por iniciativa propia | un agente trabaja en la rama que le dieron | una rama inesperada es trabajo que nadie va a encontrar |
 | Borradores: un commit por ronda | `spec(<slug>): ronda n`, `plan(<slug>): ronda n`, en `0-draft/` | el historial del borrador es el historial de cómo se entendió el pedido; se retoma en otra sesión |
 | Código: **un solo commit, después de la revisión** | durante `fase implement` y `fase fix` nada se commitea; el worktree aislado guarda el trabajo. `fase pr` hace `feat\|fix(<slug>): <título>` con código y tests | lo commiteado parece terminado; solo lo que los revisores miraron lo está |

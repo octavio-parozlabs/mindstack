@@ -157,9 +157,8 @@ La plantilla con frontmatter está en `skills/workflow/templates/REVIEW.md`.
 ## En el flujo mindstack
 
 - La usa el agente `security-auditor` en `/mindstack:orchestrate (fase review) <slug>`, en el mismo turno y en paralelo con `qa` y `code-reviewer`. Cada uno escribe solo su archivo; el hook bloquea los demás.
-- Un hallazgo fuera del alcance del SPEC (ya estaba roto antes del cambio) va igual, marcado "preexistente" en *Qué falla*. Seguridad vieja no se ignora por vieja.
-- Crítica y alta no pueden quedar como deuda: se corrigen o se discuten con la persona. Media y baja pueden ser deuda con vencimiento.
-- El corrector cierra cada hallazgo en `/mindstack:orchestrate (fase fix)`: antes lo valida un analista (`fix.md`); después corregido, deuda o bloqueado, en `CHANGELOG › Revisión`. El corrector no rechaza: lo refutado lo decide la validación. El auditor no edita código.
+- Se audita lo que el diff trae, y lo viejo que el diff hace alcanzable. Lo que ya estaba roto y el diff no toca va a "Fuera del diff" del REVIEW, no a la tabla: el approver lo pasa a Observaciones para que sea otra tarea.
+- El `approver` decide cada hallazgo en `/mindstack:orchestrate (fase fix)` (`fix.md`): arreglar, deuda, riesgo aceptado o descartado, con motivo en `CHANGELOG › Revisión`; un secreto o una pérdida irreversible se arreglan siempre. El developer aplica lo que manda arreglar. El auditor no edita código.
 - La revisión general (lógica, legibilidad, arquitectura) la hace `mindstack:code-review`; acá solo seguridad.
 
 ## Racionalizaciones comunes

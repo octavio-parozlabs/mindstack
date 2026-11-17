@@ -61,6 +61,9 @@ caso "designer no escribe código"                2 ./write-scope.sh '/notes/ux\
 caso "verifier escribe CHECKLIST"               0 ./write-scope.sh '/CHECKLIST\.md$' <<<"$(E Edit todolist/3-in-review/x/CHECKLIST.md)"
 caso "verifier no escribe código"                2 ./write-scope.sh '/CHECKLIST\.md$' <<<"$(E Edit src/a.ts)"
 caso "dev no escribe CHECKLIST"                  2 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|test-helpers)' <<<"$(E Edit todolist/2-in-progress/x/CHECKLIST.md)"
+caso "approver escribe CHANGELOG"               0 ./write-scope.sh '/CHANGELOG\.md$' <<<"$(E Edit todolist/3-in-review/x/CHANGELOG.md)"
+caso "approver no escribe código"                2 ./write-scope.sh '/CHANGELOG\.md$' <<<"$(E Edit src/a.ts)"
+caso "approver no escribe REVIEW"                2 ./write-scope.sh '/CHANGELOG\.md$' <<<"$(E Edit todolist/3-in-review/x/REVIEW-code.md)"
 caso "sin file_path pasa"                        0 ./write-scope.sh 'REVIEW-code\.md$' <<<'{"tool_name":"Edit","tool_input":{}}'
 
 echo "orchestrate-stop.sh"
@@ -100,16 +103,33 @@ export GH_RC=0
 mover 4-done; mkdir -p "$tmp/repo/todolist/1-pending/otra"; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente fuera de la cola deja parar" 0 stop <<<"$S"
 mover 1-pending; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente de la cola no deja parar" 2 stop <<<"$S"
 mover 1-pending; marca; caso "pendiente sin cola no deja parar"   2 stop <<<"$S"
+exige=$("$hooks/../scripts/config.sh" rebotes_exige_blocked); parar=$("$hooks/../scripts/config.sh" rebotes_deja_parar)
+marca; mover 3-in-review; for ((i = 1; i < exige; i++)); do stop <<<"$S" 2>/dev/null; done
+caso "rebotes_exige_blocked sin avance: blocked" 0 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh" 2>&1 >/dev/null | grep -q "Pasá la tarea a blocked"' _ "$tmp" "$hooks" <<<"$S"
+touch "$tmp/repo/cambio"; caso "un avance reinicia la cuenta" 0 bash -c 'cd "$1/repo"; out=$("$2/orchestrate-stop.sh" 2>&1); [ $? = 2 ] && ! grep -q "Pasá la tarea" <<<"$out"' _ "$tmp" "$hooks" <<<"$S"
+rm "$tmp/repo/cambio"; marca; for ((i = 1; i < parar; i++)); do stop <<<"$S" 2>/dev/null; done
+caso "rebotes_deja_parar sin avance: deja parar" 0 stop <<<"$S"
+caso "y borra el marcador"                       1 test -f "$M/s1" <<<""
+mkdir -p "$tmp/repo/.claude"; echo "rebotes_deja_parar=3" >"$tmp/repo/.claude/mindstack.conf"
+marca; for i in 1 2; do stop <<<"$S" 2>/dev/null; done
+caso "el proyecto pisa rebotes_deja_parar"       0 stop <<<"$S"
+rm -r "$tmp/repo/.claude"
+
+echo "config.sh"
+caso "default del plugin"                        0 bash -c 'cd "$1/repo" && [ "$("$2/../scripts/config.sh" rondas_revision)" -gt 0 ] && [ "$("$2/../scripts/config.sh" modelo_qa)" = sonnet ]' _ "$tmp" "$hooks" <<<""
+caso "clave inexistente sale 1"                 1 bash -c 'cd "$1/repo" && "$2/../scripts/config.sh" no_existe' _ "$tmp" "$hooks" <<<""
+caso "el proyecto pisa el modelo"                0 bash -c 'cd "$1/repo" && mkdir -p .claude && echo "modelo_qa=opus # más caro" >.claude/mindstack.conf && [ "$("$2/../scripts/config.sh" modelo_qa)" = opus ]; r=$?; rm -r .claude; exit $r' _ "$tmp" "$hooks" <<<""
 
 echo "orchestrate-start.sh"
 start() { (cd "$tmp/repo" && "$hooks/orchestrate-start.sh"); }
 rm -rf "$M"
 git -C "$tmp/repo" checkout -q -b main 2>/dev/null || git -C "$tmp/repo" switch -q -c main
-caso "en main no marca"                          1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
+caso "en cualquier rama marca"                  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
 git -C "$tmp/repo" switch -q -c worktree-x
+rm -rf "$M"
 caso "otro prompt no marca"                      1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"hola"}'
-caso "/mindstack:orchestrate en worktree marca"  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -qx /mindstack:orchestrate .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
-caso "hija en worktree marca con su prompt"      0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -q "hija a" .git/mindstack-orchestrating/s2' _ "$tmp" "$hooks" <<<'{"session_id":"s2","prompt":"/mindstack:orchestrate hija a"}'
+caso "/mindstack:orchestrate marca"             0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -qx /mindstack:orchestrate .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
+caso "hija marca con su prompt"                  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -q "hija a" .git/mindstack-orchestrating/s2' _ "$tmp" "$hooks" <<<'{"session_id":"s2","prompt":"/mindstack:orchestrate hija a"}'
 
 echo "$n casos, $fallos fallos"
 [ "$fallos" -eq 0 ]

@@ -2,7 +2,6 @@
 name: designer
 description: Propone la sección UX/UI del SPEC de una tarea que toca la interfaz (modo proponer, en /mindstack:draft) con flujo de pantallas, qué componente de shadcn se abre en cada interacción, estados de cada pantalla, medidas, qué no se mueve, textos y un wireframe Wireloom por pantalla (SCR-n), aplicando la skill design al proyecto y reusando los patrones de pantallas que ya existen. Deja la propuesta en notes/ux.md y devuelve las preguntas que solo la persona puede contestar, con hipótesis y confianza. No habla con la persona ni toca código.
 tools: Read, Grep, Glob, Skill, Write, Edit, WebFetch, Bash(node:*), Bash(npx shadcn@latest info:*), Bash(npx shadcn@latest docs:*), Bash(git ls-files:*)
-model: opus
 permissionMode: acceptEdits
 color: purple
 maxTurns: 40

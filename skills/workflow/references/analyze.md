@@ -107,7 +107,7 @@ La tarea ya tiene PR y lo que se pide es un cambio sobre lo hecho: no se toca su
 
 ## Slug
 
-La primera tarea de un worktree se llama como el worktree: lo eligió la persona al abrirlo (`claude -w reintento-pagos`) y es también el nombre de la rama (`worktree-<slug>`). No se inventa ni se renombra. Una tarea más en el mismo worktree (cola, `orchestrate.md › Cola`) necesita su propio slug: proponé uno con las mismas reglas y confirmalo con la persona antes del primer commit. Si la persona pregunta cómo nombrarlo: kebab-case, tres palabras máximo, del objetivo y no de la solución (`reintento-pagos`, no `backoff-exponencial`).
+La primera tarea de una rama se llama como su último tramo, sin `worktree-` (`worktree-reintento-pagos`, `octavio/reintento-pagos` → `reintento-pagos`): lo eligió la persona al abrirla. No se inventa ni se renombra; si la rama no da un nombre que sirva (`fix-1`), proponé uno y confirmalo. Una tarea más en el mismo worktree (cola, `orchestrate.md › Cola`) necesita su propio slug: proponé uno con las mismas reglas y confirmalo con la persona antes del primer commit. Si la persona pregunta cómo nombrarlo: kebab-case, tres palabras máximo, del objetivo y no de la solución (`reintento-pagos`, no `backoff-exponencial`).
 
 ## Qué no
 

@@ -189,7 +189,7 @@ Lo usa el agente `code-reviewer` dentro de `/mindstack:orchestrate (fase review)
 - Lee `SPEC.md`: lo que el SPEC dice que no se hace, o queda fuera de alcance, no es hallazgo.
 - Lee `CHANGELOG.md › Decisiones`: lo decidido con principio no se vuelve a discutir. Un principio **mal aplicado** sí es hallazgo, con la evidencia.
 - "Yo lo haría distinto" no es hallazgo. "Rompe explícito antes que implícito: el handler lee `process.env`" sí.
-- El revisor no edita código ni escribe en el CHANGELOG. El `fixer` cierra cada hallazgo con **fix**, **deuda** (con vencimiento) o **rechazo** (con justificación), y lo deja en `CHANGELOG.md › Revisión`.
+- El revisor no edita código ni escribe en el CHANGELOG. El `approver` decide cada hallazgo (**arreglar**, **deuda** con vencimiento, **riesgo aceptado** o **descartado**, con motivo) y lo deja en `CHANGELOG.md › Revisión`.
 - Crítica o alta abierta → `/mindstack:orchestrate (fase fix)`. Dos rondas que no cierran son un desacuerdo, no un bug: decide la persona.
 
 ## Código muerto
@@ -229,7 +229,7 @@ Subir una versión también es un cambio de comportamiento que nadie escribió:
 | "El refactor lo deja más limpio" | Mover complejidad no es reducirla. Si el lector sostiene la misma cantidad de conceptos, la estructura no mejoró. |
 | "Es un agregado chico a este archivo" | Un diff chico igual empuja archivos pasado un tamaño sano y pega ramas a flujos ajenos. Juzgá la estructura resultante, no el tamaño del diff. |
 | "Es solo un bump de versión" | Es un cambio de comportamiento que no escribiste. Leé el changelog. |
-| "No encontré nada, pongo algo para que no quede vacía" | Tabla vacía es un resultado válido. Un hallazgo inventado le cuesta una ronda al corrector. |
+| "No encontré nada, pongo algo para que no quede vacía" | Tabla vacía es un resultado válido. Un hallazgo inventado le cuesta una ronda al approver y al developer. |
 | "Yo lo haría distinto" | No es hallazgo. Hallazgo es "rompe <principio>: <evidencia>" o "falla con <entrada>". |
 
 ## Señales de alarma

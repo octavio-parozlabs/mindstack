@@ -1,6 +1,6 @@
 # 04 · Revisión con hallazgos, corrección y conflicto con main
 
-Lo que pasa cuando la revisión encuentra algo, cuando un hallazgo está mal, cuando falta algo de la checklist, cuando el PR choca con otro que entró antes, y cómo llega a `4-done`.
+Lo que pasa cuando la revisión encuentra algo, cuando un hallazgo está mal o pide lo que el SPEC no pide, cuando falta algo de la checklist, cuando el PR choca con otro que entró antes, y cómo llega a `4-done`.
 
 ```mermaid
 sequenceDiagram
@@ -10,8 +10,8 @@ sequenceDiagram
     participant CR as code-reviewer
     participant SA as security-auditor
     participant VF as verifier
-    participant AN as analyst
-    participant FX as fixer
+    participant AP as approver
+    participant DEV as developer
     participant RS as conflict-resolver
     participant H as hooks
     participant G as git / GitHub
@@ -33,32 +33,29 @@ sequenceDiagram
     C->>G: commit review(facturas-pdf): round 1
     C-->>C: 1 crítica, 2 altas, 1 media, 1 baja, 1 línea abierta → fase fix
 
-    Note over C,G: fix.md · validar
-    par un turno
-        C->>AN: validar facturas-pdf SEC-1
-        C->>AN: validar facturas-pdf QA-1
-        C->>AN: validar facturas-pdf CODE-3
-    end
-    AN-->>C: SEC-1 real · QA-1 real · CODE-3 refutado: el listado ya hace un solo JOIN (invoices.repo.ts:30)
-    C->>AN: consenso ×3: ¿CODE-3 es real?
-    AN-->>C: 3/3 refutado → Revisión: refutado, con la evidencia
-    C->>FX: corregir ronda 1: SEC-1, QA-1, CA-4, CODE-1, CODE-2
-    FX->>FX: SEC-1: verifica dueño en el handler (sin commit)
-    FX->>FX: QA-1: pide test a qa en su resumen
-    FX->>FX: CODE-1: deuda #52 vence 2026-12-15 · CODE-2: deuda #53
-    FX->>H: Edit todolist/3-in-review/facturas-pdf/PLAN.md
-    H-->>FX: exit 2: PLAN.md es inmutable fuera de 0-draft
-    FX->>FX: la nota va a CHANGELOG › Decisiones
-    FX-->>C: Revisión: 1 corregido, 2 deuda, QA-1 y CA-4 para qa
-    C->>QA: testear cambios del fixer + CB-3 + CA-4
+    Note over C,G: fix.md · el approver lee todo junto contra el SPEC
+    C->>AP: aprobar facturas-pdf ronda 1
+    AP->>AP: CA-4 y QA-1: lo pedido y probado → arreglar (qa)
+    AP->>AP: SEC-1: real, otro usuario baja tu factura → arreglar (developer)
+    AP->>AP: CODE-3: el listado ya hace un JOIN (invoices.repo.ts:30) → descartado
+    AP->>AP: CODE-1: real, no rompe nada → deuda #52 vence 2026-12-15
+    AP->>AP: CODE-2: nombre poco claro en un helper interno → riesgo aceptado
+    AP-->>C: CHANGELOG › Revisión · APPROVAL: fix 3
+    C->>DEV: corregir facturas-pdf ronda 1: SEC-1
+    DEV->>DEV: SEC-1: verifica dueño en el handler (sin commit)
+    DEV->>H: Edit todolist/3-in-review/facturas-pdf/PLAN.md
+    H-->>DEV: exit 2: PLAN.md es inmutable fuera de 0-draft
+    DEV->>DEV: la nota va a CHANGELOG › Decisiones
+    DEV-->>C: FIX OK · cambió invoices.controller.ts
+    C->>QA: testear facturas-pdf correcciones ronda 1: QA-1, CA-4, invoices.controller.ts
     QA-->>C: tests CB-3, CA-4 y SEC-1 verdes
 
     Note over C,G: ronda 2
     par un turno
-        C->>QA: verificar ronda 2
-        C->>CR: revisar ronda 2
-        C->>SA: auditar ronda 2
-        C->>VF: verificar ronda 2
+        C->>QA: verificar ronda 2 · solo: tests nuevos · IDs QA-1
+        C->>CR: revisar ronda 2 · solo: invoices.controller.ts
+        C->>SA: auditar ronda 2 · solo: invoices.controller.ts · IDs SEC-1
+        C->>VF: verificar ronda 2 (checklist entera)
     end
     QA-->>C: 0
     CR-->>C: 0
@@ -91,10 +88,10 @@ sequenceDiagram
 | Red | Qué paró en este caso |
 |---|---|
 | `write-scope.sh` del `code-reviewer` | que escribiera el archivo de QA |
-| `plan-immutable.sh` | que el `fixer` tocara el PLAN |
-| validar antes de corregir | CODE-3 estaba mal: el corrector no tocó un listado que andaba |
-| `verifier` y `CHECKLIST.md` | CA-4 (otro usuario no ve tu PDF) no tenía test aunque el código lo cubría; ahora lo tiene |
-| crítica y alta no pueden ser deuda | SEC-1 se corrigió; QA-1 se testeó |
-| tope de cinco rondas | si la ronda 5 hubiera seguido abierta, `blocked/` con los IDs como motivo |
+| `plan-immutable.sh` | que el `developer` tocara el PLAN |
+| `approver` mirando todo junto | CODE-3 estaba mal: nadie tocó un listado que andaba. CODE-1 y CODE-2 no frenaron la tarea: quedaron como deuda y riesgo aceptado, con motivo, y los ves en el PR |
+| `verifier` y `CHECKLIST.md` | CA-4 (otro usuario no ve tu PDF) no tenía test aunque el código lo cubría; ahora lo tiene. Eso no se negocia |
+| ronda 2 sobre lo que cambió | los revisores no encontraron cosas nuevas en código que ya había pasado |
+| tope de cinco rondas | en la 5, el approver cierra lo suyo como deuda o riesgo; solo una línea de checklist, un `QA-n`, un secreto o una pérdida irreversible abiertos van a `blocked/` |
 | rebase y `--force-with-lease`, nunca `--force` | el resolutor no pisó lo que otro pusheó |
 | nadie mergea | el merge fue tuyo |

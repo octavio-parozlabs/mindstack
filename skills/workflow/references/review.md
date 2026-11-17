@@ -13,10 +13,9 @@ flowchart LR
     S --> FS[REVIEW-security.md]
     V --> FV[CHECKLIST.md tachada]
     FQ & FR & FS & FV --> K["commit review(slug): round n"]
-    K --> T{¿crítica, alta o\nlínea sin tachar?}
+    K --> T{¿algún hallazgo o\nlínea sin tachar?}
     T -- no --> PR["fase pr"]
-    T -- "sí, ronda < 5" --> CO["fase fix"]
-    T -- "sí, ronda 5" --> BL([blocked/])
+    T -- sí --> CO["fase fix: approver decide"]
 ```
 
 Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima. Tres miran **cómo** está hecho (tests, código, seguridad) y uno mira **si** está hecho: el `verifier` recorre la checklist línea por línea y no tacha sin código, test y evidencia. Por qué en un solo turno: corren en paralelo, no se leen entre sí, y lo que escriben no se pisa porque cada uno tiene su archivo y el hook se lo garantiza.
@@ -31,7 +30,7 @@ Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima.
 ## Pasos
 
 1. Ronda 1: `git mv todolist/2-in-progress/<slug> todolist/3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
-2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`.
+2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`. Desde la ronda 2, `qa`, `code-reviewer` y `security-auditor` reciben además `solo: <archivos>` (los que tocaron developer y qa en la fase fix) y los IDs que se mandaron a arreglar: revisan eso y confirman que esos IDs se cerraron, no vuelven a revisar lo que ya pasó. El `verifier` recorre la checklist entera siempre: es barato y un arreglo puede romper una línea ya tachada.
 3. **Un solo turno con cuatro `Agent`**, cada uno con `subagent_type` del rol y este prompt mínimo:
    - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests."
    - `code-reviewer`: "revisar <slug> ronda <n> base main. Lógica, legibilidad, arquitectura, rendimiento. Escribí REVIEW-code.md."
@@ -39,12 +38,12 @@ Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima.
    - `verifier`: "verificar <slug> ronda <n>. Tachá CHECKLIST.md con evidencia."
 4. Cuando los cuatro terminan: un commit `review(<slug>): round <n>` **solo con los tres `REVIEW-*.md` y `CHECKLIST.md`** (`git add` de esos archivos, nada más). El código sigue sin commitear.
 5. Veredicto:
-   - ninguna crítica ni alta, y `CHECKLIST` completa: fase pr (`pr.md`). Media y baja pasan al corrector solo si hay otra cosa que corregir; si no, quedan como deuda en el CHANGELOG.
-   - alguna crítica o alta, o una línea sin tachar, en ronda 1 a 4: fase fix (`fix.md`). Una línea sin tachar cuenta como hallazgo alto.
-   - lo mismo en la ronda 5: `blocked` (`orchestrate.md › Bloquear`), con cada ID o línea abierta como motivo.
+   - ningún hallazgo nuevo y `CHECKLIST` completa: fase pr (`pr.md`).
+   - si no: fase fix (`fix.md`). Ahí el `approver` decide qué se arregla, qué queda como deuda o riesgo aceptado y qué se descarta.
+   - en la última ronda (`rondas_revision`), si después del approver queda algo que no se negocia (línea sin tachar, `QA-n`, secreto, pérdida irreversible): `blocked` (`orchestrate.md › Bloquear`), con cada ID o línea abierta como motivo.
 
 ## Qué no
 
 - Correr los agentes de a uno. Pierden independencia y tiempo.
 - Un revisor que escribe el archivo de otro, o alguien que no es `verifier` tachando la checklist. El hook lo bloquea; si pasa, es un bug del hook.
-- Corregir nada en esta fase. Lo que se encontró se valida y se corrige en la fase fix.
+- Corregir o decidir nada en esta fase. Lo que se encontró lo decide el approver en la fase fix.

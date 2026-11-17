@@ -1,56 +1,46 @@
-# Corregir: validar y cerrar una ronda
+# Corregir: el approver decide, developer y qa arreglan
 
-Lo corre el orquestador (fase fix). Requiere los `REVIEW-*.md` y `CHECKLIST.md` de la ronda actual. Primero valida cada hallazgo que bloquea, después lanza al `fixer` con lo validado y a `qa` sobre lo que cambió, y vuelve a la fase review. Un hallazgo no llega al corrector sin que alguien más que su revisor lo haya mirado.
+Lo corre el orquestador (fase fix). Requiere los `REVIEW-*.md` y `CHECKLIST.md` de la ronda actual. Un `approver` lee todo junto y decide qué se arregla; `developer` y `qa` arreglan solo eso; vuelta a review sobre lo que cambió. La tarea no se traba en hallazgos que no la cambian.
 
 ```mermaid
 flowchart TD
-    H["hallazgos de la ronda"] --> T{¿de dónde?}
-    T -- "línea de CHECKLIST sin tachar" --> L[directo a la lista: es un hecho]
-    T -- "media / baja" --> L
-    T -- "crítica / alta de qa, code o security" --> V["Agent analyst: validar slug ID<br/>(intenta refutarlo)"]
-    V -- "real · alcance sí" --> L
-    V -- "real · alcance no" --> BL
-    V -- refutado --> C["consenso: revisor vs validador<br/>(consensus.md, 3 analistas)"]
-    C -- "acuerdo: real" --> L
-    C -- "acuerdo: refutado" --> R["Revisión: refutado, con la evidencia"]
-    C -- sin acuerdo --> BL([blocked/: BLOCKED.md])
-    L --> F["Agent fixer: corregir slug ronda n"]
-    F -- BLOCKED --> BL
-    F --> Q["Agent qa: testear cambios del corrector"]
-    Q --> RV([vuelta a review.md, ronda n+1])
+    H["REVIEW-qa · REVIEW-code · REVIEW-security · CHECKLIST"] --> A["Agent approver: aprobar slug ronda n<br/>lee todo junto, contra el SPEC"]
+    A --> D{"por hallazgo"}
+    D -- "línea de CHECKLIST · QA-n · secreto · pérdida irreversible" --> FX[arreglar: no se negocia]
+    D -- "CODE-n · SEC-n" --> J["real · lo pide el SPEC · ¿rompe algo?"]
+    J -- "rompe CA/CB o daña datos, plata, acceso" --> FX
+    J -- "no es real o el SPEC no lo pide" --> DS[descartado, con evidencia]
+    J -- "real, no rompe" --> DR["deuda #issue o riesgo aceptado, con motivo"]
+    J -- "arreglarlo cambia la feature" --> BL([blocked/: decide la persona])
+    FX --> DEV["Agent developer: corregir slug ronda n"] --> Q["Agent qa: testear lo corregido<br/>y los tests que faltan"] --> R(["review.md ronda n+1:<br/>solo lo que cambió"])
+    DS & DR --> PR([si no queda nada que arreglar: pr.md])
 ```
 
-## Validar
+## Pasos
 
-1. Por cada hallazgo **crítica o alta** de `REVIEW-qa.md`, `REVIEW-code.md` y `REVIEW-security.md`: un `Agent analyst` con `validar <slug> <ID>`. Todos en un solo turno, en paralelo.
-2. Según el `VERDICT`:
-   - `real · alcance: sí`: a la lista del corrector, con el arreglo del analista.
-   - `real · alcance: no`: crítica y alta no pueden quedar como deuda, así que es de la persona → `blocked`, con el ID y la cita del SPEC (Qué no se hace).
-   - `refutado`: el revisor y el validador no coinciden. Consenso (`consensus.md`) con la pregunta "¿`<ID>` es un fallo real?" | A: real (lo que dice el revisor) / B: refutado (lo que dice el validador). 3/3 iguales decide; si no, `blocked`.
-3. Fila en `CHANGELOG › Revisión` por cada uno: ronda, rol, ID, severidad, resultado `validado` · `refutado: evidencia` · `bloqueado: motivo`.
-
-Las líneas sin tachar de `CHECKLIST.md` y los hallazgos media y baja no se validan: los primeros son hechos (no hay código, no hay test o está rojo), los segundos no bloquean el PR.
-
-## Corregir
-
-1. `Agent fixer`: "corregir <slug> ronda <n>", con la lista: IDs validados, líneas de la checklist con su `falta:`, media y baja.
-2. Si termina con `BLOCKED: …` → `blocked`.
-3. `Agent qa`: "testear <slug> cambios del corrector": los archivos que el corrector dijo que cambian comportamiento, y un test por cada línea de checklist que corrigió, que nombre su id.
-4. Vuelta a `review.md`, ronda siguiente.
+1. `Agent approver`: "aprobar <slug> ronda <n> de <rondas_revision>". Escribe su decisión por hallazgo en `CHANGELOG › Revisión` y las deudas en `CHANGELOG › Deuda técnica`, y termina con la lista para corregir y una de tres:
+   - `APPROVAL: pr` → `pr.md`.
+   - `APPROVAL: blocked <ID>` → `blocked` (`orchestrate.md › Bloquear`), con las opciones que dio el approver como motivo.
+   - `APPROVAL: fix <n>` → sigue.
+2. `Agent developer`: "corregir <slug> ronda <n>", con los ítems `· developer` de la lista. Si no hay, se saltea. Si termina con `BLOCKED: …` → `blocked`.
+3. `Agent qa`: "testear <slug> correcciones ronda <n>", con los ítems `· qa` de la lista y los archivos que el developer dijo que cambian comportamiento.
+4. Vuelta a `review.md`, ronda siguiente, sobre lo que cambió: los archivos que tocaron developer y qa, y los IDs que se mandaron a arreglar.
 
 ## Reglas
 
 | Regla | Por qué |
 |---|---|
-| Crítica y alta se validan antes de corregir | un revisor que se equivoca manda al corrector a romper algo que andaba; el corrector ya no rechaza por su cuenta |
-| Revisor y validador no coinciden → consenso, no voto del corrector | el que aplica el fix no es juez de si hace falta |
-| Cada hallazgo tiene un resultado en `CHANGELOG › Revisión`: `validado` · `refutado: evidencia` · `corregido` · `deuda #issue` · `bloqueado: motivo` | un hallazgo sin respuesta es una ronda que no cierra |
-| Crítica y alta no pueden ser deuda | bloquean el PR: se corrigen o los decide la persona |
+| Uno decide, mirando todo junto | un analista por hallazgo no ve que tres hallazgos son el mismo, ni que el SPEC ya contestó; un consenso por cada uno es caro y termina en `blocked/` cuando empata |
+| El SPEC es la autoridad: lo que no pide, se descarta | la feature es la que la persona aprobó, no la que imagina el revisor |
+| Se decide por consecuencia, no por severidad | una crítica en un panel interno puede ser un riesgo razonable; una media que rompe un `CA-n` no |
+| Lo pedido y probado no se negocia: línea de checklist y `QA-n` se arreglan; la cobertura la exige el CI del proyecto | que esté hecho y testeado es el contrato; el criterio es para lo demás |
+| Secreto en el repo o pérdida de datos irreversible: siempre se arregla | no se deshace con un revert ni se ve a tiempo en el PR |
+| Todo lo que no se arregla tiene motivo en `CHANGELOG › Revisión` y aparece en el PR | la persona lo ve al mergear, que es donde mira el cambio entero |
 | Deuda lleva Origen (el ID), Vence (fecha) e Issue | sin issue es olvido; sin vencimiento es para siempre |
-| Sin commit: los fixes quedan en el working tree con el resto del código | el commit se hace en la fase pr, cuando la revisión pasa |
-| El corrector no agrega hallazgos ni toca fuera de los que hay | lo que ve de paso va a Observaciones |
-| El corrector no escribe tests; `qa` los escribe después | la misma separación que en el loop |
+| Lo decidido en una ronda no se rediscute en la siguiente | si no, la revisión no converge |
+| Sin commit: los arreglos quedan en el working tree con el resto del código | el commit se hace en la fase pr, cuando la revisión pasa |
+| El developer no discute lo que el approver mandó arreglar; si no se puede, `BLOCKED` | el que aplica no es juez |
 
 ## Después
 
-La ronda cerró cuando todos los hallazgos tienen resultado y `qa` corrió. El orquestador sigue con `review.md` en el mismo turno. El tope es de 5 rondas: lo cuenta `review.md`.
+La ronda cerró cuando cada hallazgo tiene decisión y `qa` corrió. El orquestador sigue con `review.md` en el mismo turno. El tope es `rondas_revision` (`config.sh`): en la última, el approver cierra lo suyo como deuda o riesgo aceptado, y solo queda abierto lo que no se negocia.

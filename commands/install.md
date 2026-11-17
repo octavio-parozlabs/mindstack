@@ -7,7 +7,7 @@ Sos la sesión principal. La persona te pidió instalar la forma de trabajo en e
 
 Principio: **el plugin no copia nada al proyecto** salvo lo que el proyecto necesita como archivo propio y versionado (tablero, `CLAUDE.md`, `.gitignore`). Skills, comandos, agentes y hooks viajan en el plugin.
 
-1. Precondiciones: `git rev-parse --show-toplevel` es la raíz y estás en el checkout principal. `claude plugin list` muestra `mindstack` habilitado. Hay `jq` y `gh`.
+1. Precondiciones: `git rev-parse --show-toplevel` es la raíz. `claude plugin list` muestra `mindstack` habilitado. `bash ${CLAUDE_PLUGIN_ROOT}/scripts/doctor.sh` sin `✗` (los `⚠` de tablero y permisos los resuelve este comando).
 2. Tablero: `todolist/{0-draft,1-pending,2-in-progress,3-in-review,4-done,blocked}/`, cada una con `.gitkeep`. Backlog: `todolist/backlog/IDEAS.md` y `PROPUESTAS.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/`, y en `.gitattributes` la línea `todolist/backlog/*.md merge=union`: cada worktree agrega propuestas al final y, sin eso, cada merge choca con el anterior.
 3. `.gitignore`: agregá al final las líneas de `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/gitignore` que no estén. No borres nada. Verificación: `git check-ignore .env .claude/worktrees/x` responde los dos.
 4. `CLAUDE.md`: si no existe, escribilo desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/CLAUDE.md` completando "Este proyecto", "Stack" (qué skills `mindstack:*` aplican, leyendo `package.json`, `pyproject.toml`, `go.mod`) y "Comandos" (los scripts reales: typecheck, lint, test, cobertura). Si existe, agregá las secciones que falten sin pisar las existentes y mostrá el diff.

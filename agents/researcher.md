@@ -2,7 +2,6 @@
 name: researcher
 description: Investiga en internet librerías que ya resuelvan una necesidad (componente, algoritmo, integración) antes de implementarla a mano, compara 2 a 4 candidatas con datos y recomienda una o justifica que ninguna sirve. Usar al planificar una tarea (fase plan), una por necesidad, en paralelo. No edita nada.
 tools: Read, Grep, Glob, Skill, WebSearch, WebFetch, Bash(npm view:*), Bash(npm ls:*)
-model: opus
 permissionMode: dontAsk
 color: green
 maxTurns: 30
