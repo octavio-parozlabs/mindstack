@@ -2,11 +2,11 @@
 
 Memoria de la tarea mientras se ejecuta. Lo escriben los roles al terminar cada paso; nadie reescribe, solo se agrega abajo. Es lo primero que lee quien entra a la tarea y lo primero que lee quien mergea.
 
-Quién: `analyst` · `planner` · `developer` · `qa` · `approver` (solo Observaciones; sus decisiones van a `APPROVAL.md` y la deuda a `TECHNICAL_DEBT.md`) · `conflict-resolver` · `orchestrator` · `consensus` · `person`. Los revisores no escriben acá: aparecen como Rol en Revisión.
+Quién: `analyst` · `planner` · `developer` · `qa` · `approver` (solo Observaciones; sus decisiones van a `APPROVAL.md` y la deuda a `TECHNICAL_DEBT.md`) · `conflict-resolver` · `orchestrator` · `person`. Los revisores no escriben acá: aparecen como Rol en Revisión.
 
 ## Cambios
 
-Una fila por tarea del TODO. Lo que se hizo, no lo que se planeó. Evidencia = comando y salida, no un sha: el código no se commitea hasta que pasa la revisión.
+Una fila por tarea del TODO. Lo que se hizo, no lo que se planeó. Evidencia = comando y salida.
 
 | Fecha | Quién | Qué | Evidencia |
 |---|---|---|---|
@@ -22,9 +22,7 @@ Lo que se vio y no es de esta tarea: bugs ajenos, código raro, módulos sin tes
 
 ## Propuestas
 
-Lo que mientras trabajabas viste que sumaría a futuro y no es de esta tarea: una feature, una pantalla, una integración. No es un bug (Observaciones) ni algo que dejaste a medias (`TECHNICAL_DEBT.md`). Sin "dónde se vio" no se propone. El orquestador las pasa a `todolist/backlog/PROPUESTAS.md` al llegar a done.
-
-La fecha es la de cuando se vio, no la de done: es la que viaja al backlog. Contexto: lo curioso que acompaña (una observación relacionada, un dato del log, qué lo disparó), en una línea.
+Lo que sumaría a futuro y no es de esta tarea (no es un bug ni deuda). Sin "dónde se vio" no entra. La fecha es la de cuando se vio. Pasa al backlog en la fase pr (`references/pr.md` paso 3).
 
 | Fecha | Quién | Qué | Por qué suma | Dónde se vio | Contexto | Tamaño |
 |---|---|---|---|---|---|---|
@@ -32,7 +30,7 @@ La fecha es la de cuando se vio, no la de done: es la que viaja al backlog. Cont
 
 ## Decisiones
 
-Elecciones que alguien va a cuestionar después, y todo giro respecto del PLAN. Con la alternativa descartada, para que no se vuelva a discutir desde cero, y el principio que la respalda (`PRINCIPLES.md` del plugin). Si la decidió un consenso, quién es `consensus` y la evidencia de cada analista va en una línea debajo.
+Elecciones que alguien va a cuestionar después, y todo giro respecto del PLAN. Con la alternativa descartada, para que no se vuelva a discutir desde cero, y el principio que la respalda (`PRINCIPLES.md` del plugin). Si la decidió el analista, quién es `analyst` y su evidencia va en una línea debajo.
 
 | Fecha | Quién | Decisión | Alternativa descartada | Principio |
 |---|---|---|---|---|

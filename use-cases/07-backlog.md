@@ -47,18 +47,7 @@ sequenceDiagram
     end
 ```
 
-## Quién escribe qué
-
-| Archivo | Quién | Cuándo |
-|---|---|---|
-| `CHANGELOG › Propuestas` | developer, qa, approver | mientras trabajan, con la fecha en que lo vieron y dónde (`CA-n`, `CB-n`, `archivo:línea`) |
-| `REVIEW-*.md › Propuestas` | code-reviewer, security-auditor | al revisar; no cuenta como hallazgo |
-| `backlog/PROPUESTAS.md` | el orquestador | en la fase pr, con la tarea terminada y antes del push: filtra (sin "dónde se vio" no entra), deduplica (`Visto también`), máximo tres nuevas por tarea |
-| `backlog/IDEAS.md` | vos | cuando quieras. Un agente que lo intente lo frena el hook |
-
-## Cómo se ordena cuando preguntás
-
-Primero el peso: cuántas tareas distintas vieron la misma necesidad. Después qué tan cerca está de lo último que se hizo, el tamaño y la antigüedad. Tus ideas pesan más que una propuesta vista una sola vez, y menos que una que se repite en muchas tareas.
+Quién escribe cada archivo: `skills/workflow/references/roles-and-artifacts.md`. Cómo se filtran: `pr.md` paso 3. Cómo se ordenan cuando preguntás: `SKILL.md › Qué se congela y qué se escribe`.
 
 ## Lo que no pasa
 

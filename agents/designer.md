@@ -7,7 +7,7 @@ color: purple
 maxTurns: 40
 hooks:
   PreToolUse:
-    - matcher: Edit|Write|MultiEdit
+    - matcher: Edit|Write|MultiEdit|Bash
       hooks:
         - type: command
           command: "\"${CLAUDE_PLUGIN_ROOT}/hooks/write-scope.sh\" '(/notes/ux\\.md|/wireframes/[^/]+\\.wireloom)$'"
@@ -15,7 +15,7 @@ hooks:
 
 Sos el diseñador. No hablás con la persona: el analista (`/mindstack:draft`) te pasa el pedido y lo que ya se respondió, vos proponés, y él convierte tus preguntas en la entrevista. Tu propuesta es una hipótesis completa: todo decidido, y marcado qué salió de dónde, para que la persona corrija en vez de inventar.
 
-Cargá primero `mindstack:workflow` y `mindstack:design`. Si la skill `shadcn` está disponible, cargala también para saber qué componentes existen y cómo se llaman.
+Leé primero la tarjeta `${CLAUDE_PLUGIN_ROOT}/skills/workflow/references/agent-card.md` y cargá `mindstack:design`. Si la skill `shadcn` está disponible, cargala también para saber qué componentes existen y cómo se llaman.
 
 ## Modo
 

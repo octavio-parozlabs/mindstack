@@ -1,226 +1,71 @@
 # Roles y artefactos
 
+Fuente única de quién hace, quién no y qué escribe cada rol, y de quién invoca a quién. El resto del plugin enlaza acá; lo garantizan el `hooks:` de cada `agents/*.md` (`write-scope.sh`) y `hooks/plan-immutable.sh`. Qué es cada artefacto y cuándo cambia: `SKILL.md › Qué se congela y qué se escribe`.
+
 ```mermaid
 classDiagram
-    class Tarea {
-        +estado: la carpeta, 0-draft a 4-done, o blocked
-        +slug: nombre de carpeta, rama y worktree
-    }
-    class SPEC {
-        +pedido original
-        +hoy / propuesto: diagramas
-        +qué se hace / qué no
-        +supuestos
-        +casos borde CB-n, uno por diagrama
-        +criterios de aceptación CA-n
-        congelado desde 1-pending
-    }
-    class PLAN {
-        +fechas planificadas
-        +estado final
-        +acoplamiento
-        +tareas: rol + verificación
-        +done: comandos
-        congelado desde 1-pending
-    }
-    class TODO {
-        +checklist derivada del PLAN
-        se tacha
-    }
-    class CHANGELOG {
-        +cambios
-        +observaciones
-        +propuestas: van al backlog
-        +decisiones: con principio
-        +revisión: CI rojo
-        +conflictos
-        +cierre: fechas reales
-        solo se agrega
-    }
-    class APPROVAL {
-        una sección por ronda
-        +para corregir: developer, qa
-        +decisión por hallazgo, con motivo
-        solo approver
-    }
-    class TECHNICAL_DEBT {
-        +origen, vence, issue
-        approver y developer
-    }
-    class REVIEW {
-        +uno por rol: qa, codigo, seguridad
-        +solo hallazgos, con severidad y CB
-        se reescribe por ronda
-    }
-    class CHECKLIST {
-        +una línea por CA-n, CB-n, Estado final
-        +código, test, evidencia
-        solo la tacha verifier
-    }
-    class BLOCKED {
-        +desde, ronda, PR
-        +motivos con opciones
-        solo en blocked/
-    }
-    class PR {
-        +body desde PR.md
-        +número: gh pr view
-    }
-
+    class Tarea
     Tarea "1" *-- "1" SPEC
     Tarea "1" *-- "1" PLAN
     Tarea "1" *-- "1" TODO
+    Tarea "1" *-- "1" CHECKLIST
     Tarea "1" *-- "1" CHANGELOG
     Tarea "1" *-- "3" REVIEW
-    Tarea "1" *-- "1" CHECKLIST
+    Tarea "1" *-- "0..1" APPROVAL
+    Tarea "1" *-- "0..1" TECHNICAL_DEBT
     Tarea "1" *-- "0..1" BLOCKED
     Tarea "1" *-- "0..1" PR
-    CHECKLIST ..> SPEC : CA-n y CB-n
     PLAN ..> SPEC : implementa
     TODO ..> PLAN : derivado al pasar a pendiente
+    CHECKLIST ..> SPEC : una línea por CA-n y CB-n
+    APPROVAL ..> REVIEW : decide cada hallazgo
+    APPROVAL ..> CHECKLIST : líneas sin tachar
+    TECHNICAL_DEBT ..> APPROVAL : lo decidido como deuda
 ```
 
-```mermaid
-classDiagram
-    class Persona {
-        pide, responde la entrevista
-        pide el plan cuando el SPEC está
-        prueba la feature
-        responde BLOCKED.md
-        mergea
-    }
-    class Analista {
-        sesión principal: entrevista, SPEC
-        subagente: consenso, solo lee
-    }
-    class Planificador {
-        sesión principal: PLAN, CHANGELOG vacío
-    }
-    class Desarrollador {
-        subagente por tarea, en worktree
-        implementa, sin commit
-        no testea, no revisa
-        DECISION cuando no puede decidir
-    }
-    class QA {
-        testear: tests de una tarea
-        verificar: CB-n vs tests, REVIEW-qa
-        solo tests, REVIEW-qa, CHANGELOG
-    }
-    class Investigador {
-        sin Edit
-        librerías antes que código propio
-    }
-    class RevisorCodigo {
-        sin Edit
-        lógica, legibilidad, arquitectura, rendimiento
-        solo REVIEW-code
-    }
-    class AuditorSeguridad {
-        sin Edit
-        zero trust
-        solo REVIEW-security
-    }
-    class Verificador {
-        CHECKLIST: código, test, evidencia
-        solo tacha CHECKLIST
-    }
-    class Approver {
-        decide cada hallazgo: arreglar, deuda, riesgo, descartado
-        escribe APPROVAL y TECHNICAL_DEBT
-    }
-    class Resolutor {
-        rebase, suite, force-with-lease
-    }
-    class Orquestador {
-        sesión principal
-        lee las referencias, llama a los roles
-        termina en 4-done con CI verde o en blocked
-    }
+## Qué hace, qué no y qué escribe cada rol
 
-    Persona ..> Analista : responde
-    Persona ..> Planificador : corrige
-    Planificador ..> Investigador : buscar librería
-    Orquestador ..> Desarrollador : implementar
-    Orquestador ..> QA : testear, verificar
-    Orquestador ..> RevisorCodigo : revisar
-    Orquestador ..> AuditorSeguridad : auditar
-    Orquestador ..> Verificador : verificar
-    Orquestador ..> Approver : aprobar ronda
-    Orquestador ..> Desarrollador : corregir, ci
-    Orquestador ..> Resolutor : conflictos
-    Orquestador ..> QA : testear cada tarea
-    Orquestador ..> Analista : consenso ×3, si el dev devuelve DECISION
-    Orquestador ..> Persona : BLOCKED.md, AskUserQuestion al retomar
-```
-
-## Qué hace y qué no cada rol
-
-Cada rol tiene un permiso que le impide hacer el trabajo de otro: el que implementa testea lo que pensó, no lo que el código hace, y un fallo queda en un solo lugar.
-
-| Rol | Hace | No hace | Escribe |
-|---|---|---|---|
-| **analista** | entrevista, supuestos, casos borde con diagrama, SPEC. En consenso: busca evidencia en historial, código o principios | decidir cómo se implementa | `SPEC.md` |
-| **planificador** | acoplamiento, tajadas verticales, tareas con rol y verificación, fechas, Done; valida y deja la tarea pendiente | implementar, tachar, preguntar lo que un principio decide | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
-| **desarrollador** | una tarea por vuelta, lo que el approver manda arreglar, o un CI rojo; sin commit, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md` |
-| **qa** | caja negra: entradas y salidas por la interfaz, sin leer la implementación. En un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción, leer el cuerpo de las funciones | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
-| **researcher** | compara 2 a 4 librerías con datos (release, descargas, licencia, encaje) y recomienda una o "propio" | decidir por recuerdo, instalar | nada |
-| **code-reviewer** | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
-| **security-auditor** | zero trust: toda entrada es hostil hasta que se valida | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
-| **verifier** | cada línea de la checklist: código, test que la nombra, test corrido; tacha solo con las tres | juzgar calidad, escribir código o tests, cambiar líneas | `CHECKLIST.md` |
-| **approver** | lee todos los hallazgos juntos contra el SPEC y decide cada uno: arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo. Lo pedido y probado (checklist, `QA-n`), secretos y pérdidas irreversibles se arreglan siempre | editar código o tests, agregar hallazgos, mandar a `blocked/` lo que puede decidir | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del CHANGELOG |
-| **conflict-resolver** | rebase, suite, `--force-with-lease` | `--force`, "el mío" entero | lo que esté en conflicto, `CHANGELOG.md` |
-| **orquestador** | lee las referencias y llama a los roles en orden; mueve a `4-done` o a `blocked/`; filtra las propuestas al backlog | lógica propia, mergear, preguntar en el camino, tocar `IDEAS.md` | `BLOCKED.md`, `PR.md`, `backlog/PROPUESTAS.md`; en el CHANGELOG: Cierre, Decisiones (consenso, Retomar), la fila del entorno |
+| Rol | Dónde corre | Hace | No hace | Escribe |
+|---|---|---|---|---|
+| **analista** | sesión principal (`/draft`) | entrevista, supuestos, casos borde con diagrama, dudas `D-n` | decidir cómo se implementa | `SPEC.md` en `0-draft/` |
+| **analyst** | subagente, ante una `DECISION:` | busca evidencia en historial, código y principios, y elige o dice "sin evidencia" (`consensus.md`) | decidir por gusto, hablar con la persona | nada |
+| **designer** | subagente (`/draft`) | propone UX/UI y wireframes `SCR-n` con `mindstack:design` | tocar código, hablar con la persona | `notes/ux.md`, `wireframes/*.wireloom` (renderiza `rendered/`) |
+| **planificador** | sesión principal (`/plan`) | acoplamiento, tajadas, tareas con rol y verificación, fechas, Done | implementar, tachar | `PLAN.md`, `TODO.md`, `CHECKLIST.md`, `CHANGELOG.md` vacío |
+| **researcher** | subagente (`/plan`) | compara 2 a 4 librerías con datos y recomienda una o "propio" | decidir por recuerdo, instalar | nada |
+| **developer** | subagente: una tarea, una corrección o un CI rojo | pone en verde los tests que escribió qa; Cambios, Decisiones; no commitea (lo hace el orquestador) | tests, reviews, refactors grandes, adivinar | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md` |
+| **qa** | subagente | caja negra: reproduce, escribe los tests de cada tarea antes del código, verifica los `CB-n` en revisión | código de producción, leer el cuerpo de las funciones | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
+| **code-reviewer** | subagente | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
+| **security-auditor** | subagente | zero trust | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
+| **verifier** | subagente | cada línea de la checklist con evidencia | juzgar calidad, escribir código o tests, cambiar líneas | `CHECKLIST.md` (solo tacha) |
+| **approver** | subagente | decide cada hallazgo (`agents/approver.md`) | editar código o tests, agregar hallazgos | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del `CHANGELOG.md` |
+| **conflict-resolver** | subagente | rebase, suite, `--force-with-lease` | `--force`, "el mío" entero | lo que esté en conflicto, Conflictos del `CHANGELOG.md` |
+| **orquestador** | sesión principal (`/orchestrate`) | lee las referencias y llama a los roles en orden; mueve carpetas; filtra propuestas al backlog | lógica propia, mergear, preguntar en el camino, tocar `IDEAS.md` | `BLOCKED.md`, `PR.md`, `backlog/PROPUESTAS.md`; en el CHANGELOG: Cierre, Decisiones (consenso, Retomar), la fila del entorno |
 
 ## Quién invoca a quién
 
-Los roles no se llaman entre sí: los invoca la sesión principal (un comando o `/mindstack:orchestrate`), que es la única que puede lanzar `Agent` (siempre con `model` y `effort` de `config.sh`) y hablar con la persona (qué puede cada tipo: `CLAUDE.md` del plugin, "Command, agent o skill"). Claude Code elige la skill por su `description` (por eso toda description dice "Usar cuando …"); los agentes se eligen por nombre, acá:
+Los roles no se llaman entre sí: los invoca la sesión principal, la única que lanza `Agent` y habla con la persona (`CLAUDE.md` del plugin, "Command, agent o skill"). Cada `Agent` sale con `model` y `effort` de `config.sh` (`SKILL.md › Configuración`).
 
-| Quién invoca | A quién | Cuándo | Con qué |
+```mermaid
+flowchart LR
+    D["/draft"] --> QR[qa reproducir] & DS[designer]
+    PL["/plan"] --> RS[researcher]
+    O["/orchestrate"] --> DV[developer] & QA[qa] & RV[code-reviewer · security-auditor · verifier] & AP[approver] & AN[analyst] & CR[conflict-resolver]
+    RB["/rebase"] --> CR
+```
+
+| Quién | A quién | Cuándo | Con qué |
 |---|---|---|---|
-| `/draft (analyze)` | `qa` (`reproducir`) | la tarea es un fix | síntoma + punto de entrada; sin la causa |
-| `/draft (analyze)` | `designer` | la tarea toca la interfaz | slug, pedido, pantallas que ya existen |
-| `/plan` | `researcher`, uno por necesidad | una tarea pide un componente o algoritmo que el stack no cubre | la necesidad; `research.md` |
-| `orchestrate › implement` | `developer`, después `qa` (`testear`) | después de cada tarea del TODO | slug + número de tarea |
-| `orchestrate › implement` | `analyst` ×3 | el dev devolvió `DECISION:` | la pregunta, las opciones, un ángulo cada uno |
-| `orchestrate › review` | `qa` (`verificar`), `code-reviewer`, `security-auditor`, `verifier` | TODO completo y Done verde | slug, ronda, base `main` (working tree sin commitear); los cuatro en un turno |
-| `orchestrate › fix` | `approver` | la ronda tiene hallazgos o checklist abierta | slug, ronda n de `rondas_revision` |
-| `orchestrate › fix` | `developer` (`corregir`), después `qa` (`testear correcciones`) | el approver mandó arreglar algo | slug, ronda, la lista del approver |
-| `orchestrate › pr` | `developer` (`ci`), después `qa` | CI rojo del cambio | slug, id del run |
-| `orchestrate › conflicts`, `/rebase` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
-| `/mindstack:orchestrate` | las cuatro fases de arriba, en orden | la persona delega el flujo, normalmente desde `1-pending` en un worktree | lee `references/<fase>.md` |
-| `/draft "qué falta" (en el worktree)` | `qa` (`reproducir`) si lo que falta es un bug | probaste el PR y falta algo | crea la iteración; después `/orchestrate` en el mismo worktree |
-
-## Iteración por fase
-
-El loop no es solo de implementación. Cada fase itera hasta su condición de salida, y la condición es verificable, no "parece que está":
-
-| Fase | Itera | Hasta que |
-|---|---|---|
-| analizar | pregunta → respuesta → supuestos y casos borde | no queda ambigüedad que cambie el SPEC; en un fix, además `REPRO` ≠ `NO` |
-| planificar | plan → corrección de la persona | la persona dice que está y cada tarea tiene rol y verificación |
-| implementar | una tarea del TODO por vuelta, `qa` después | TODO completo y Done verde; para en `BLOCKED:` o `fallos_por_tarea` fallos seguidos |
-| consenso | tres analistas en paralelo | 3/3 misma opción; si no, `blocked/` |
-| revisar ↔ corregir | cuatro revisores → approver → developer y qa → cuatro revisores sobre lo que cambió | nada que arreglar según el approver y checklist completa; máximo `rondas_revision`; en la última, el approver solo bloquea lo que no se negocia |
-| pr ↔ CI | push → checks → `developer ci` → push | CI verde (`4-done`); `rondas_ci` o fallo ajeno, `blocked/` |
-| pr ↔ conflictos | rebase → suite → push | el PR es mergeable |
+| `/draft` | `qa reproducir` | la tarea es un fix | síntoma + punto de entrada, sin la causa |
+| `/draft` | `designer` | la tarea toca la interfaz | slug, pedido, pantallas que ya existen |
+| `/plan` | `researcher`, uno por necesidad | algo que el stack no cubre | la necesidad (`research.md`) |
+| implement | `qa testear`, después `developer implementar` | cada tarea del TODO | slug + número |
+| implement | `analyst` | el developer devolvió `DECISION:` | pregunta y opciones |
+| review | `qa verificar`, `code-reviewer`, `security-auditor`, `verifier` | TODO completo y Done verde | slug, ronda, base (`review.md`) |
+| fix | `approver` | después de cada review | slug, ronda n de `rondas_revision` |
+| fix | `developer corregir`, después `qa testear correcciones` | `APPROVAL: fix` | slug, ronda |
+| pr | `developer ci`, después `qa testear ci` | CI rojo del cambio | slug, id del run |
+| conflicts, `/rebase` | `conflict-resolver` | el PR está en conflicto | slug o #pr |
 
 ## Skills externas
 
-Todos los agentes tienen la herramienta `Skill`: pueden cargar cualquier skill instalada en la máquina, de este plugin o de otro (`ponytail`, `caveman`, la que sea). Mindstack no limita el catálogo; el `CLAUDE.md` del proyecto dice cuáles aplican y cada agente carga además las que su trabajo pide. Lo único cerrado es qué archivos escribe cada rol.
-
-Cada rol tiene un permiso que le impide hacer el trabajo de otro: QA no toca producción; los revisores no tienen Edit; el approver decide y no edita código; el dev no escribe tests ni reviews; nadie edita SPEC ni PLAN desde que la tarea está pendiente; ningún agente mergea. No es desconfianza: es lo que hace que un fallo quede en un solo lugar y que el changelog diga quién vio qué.
-
-| Rol | Dónde corre | Escribe |
-|---|---|---|
-| analista (entrevista) | sesión principal | `SPEC.md` en `0-draft/` |
-| analista (consenso) | subagente | nada |
-| planificador | sesión principal | `PLAN.md`, `TODO.md`, `CHECKLIST.md`, `CHANGELOG.md` en `0-draft/` |
-| desarrollador | subagente, uno por tarea, corrección o CI rojo | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md`; nunca tests, SPEC, PLAN, REVIEW, CHECKLIST |
-| qa | subagente | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
-| researcher | subagente | nada |
-| code-reviewer | subagente | `REVIEW-code.md` |
-| security-auditor | subagente | `REVIEW-security.md` |
-| verifier | subagente | `CHECKLIST.md` |
-| approver | subagente | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del CHANGELOG |
-| conflict-resolver | subagente | lo que esté en conflicto, `CHANGELOG.md` |
+Todos los agentes tienen la herramienta `Skill`: pueden cargar cualquier skill instalada, de este plugin o de otro. Mindstack no limita el catálogo; lo único cerrado es qué archivos escribe cada rol.

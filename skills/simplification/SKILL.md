@@ -241,7 +241,7 @@ Prop drilling, inyección de dependencias, capas de indirección: son decisiones
 
 ## En el flujo mindstack
 
-Quién la carga: el agente `developer` cuando el `PLAN.md` de la tarea tiene `tipo: refactor`; y el mismo agente en modo `corregir` al cerrar hallazgos de legibilidad del `code-reviewer` en `/mindstack:orchestrate (fase fix)`.
+Quién la carga: el agente `developer` cuando el `skills:` del PLAN la lista (`tipo: refactor`), también en modo `corregir`.
 
 - **Un refactor es una tarea propia, con su SPEC.** En una tarea normal, un refactor grande que aparece en el camino va a `TECHNICAL_DEBT.md` de la tarea, con vencimiento; no se hace de paso.
 - **Sin cambiar comportamiento.** `qa` corre la suite antes y después del refactor. Cualquier diferencia es un bug del refactor, no un test a ajustar.

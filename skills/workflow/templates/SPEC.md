@@ -2,12 +2,13 @@
 title: "<título corto, en imperativo: Permitir reintentos en pagos fallidos>"
 slug: <slug>
 fecha: AAAA-MM-DD
+camino: quick | full
 padre:
 ---
 
 # <mismo título>
 
-<!-- Lo escribe /mindstack:draft en diálogo con la persona, y se corrige con sus comentarios hasta que está de acuerdo y pide el plan. Vive en todolist/0-draft/<slug>/ hasta que el plan lo deja en 1-pending/: desde ahí no se edita (el hook lo bloquea; /mindstack:draft sin texto lo vuelve a borrador). Lo que cambie después va a CHANGELOG.md › Decisiones, o es otra tarea. -->
+<!-- Formato del SPEC. Cómo se escribe: references/analyze.md; cuándo se congela: SKILL.md › Qué se congela y qué se escribe. -->
 
 ## Pedido original
 

@@ -8,11 +8,20 @@ working_tree: <salida de git status --short | wc -l> archivos
 
 # Revisión de <rol>: <título>
 
-<!-- Lo escribe un solo rol; el hook bloquea a los demás. Se reescribe entero en cada ronda: la ronda anterior queda en git, y lo que se decidió de cada hallazgo, en APPROVAL.md. -->
+<!-- Un archivo por rol, reescrito entero en cada ronda. Quién lo escribe: references/roles-and-artifacts.md. -->
 
 Solo hallazgos. Sin elogios, sin "considerá", sin nits de estilo. Tabla vacía = nada que objetar.
 
-ID por rol: `QA-n` · `CODE-n` · `SEC-n`. Severidad: **crítica** (pérdida de datos, plata o acceso) · **alta** (bug en el camino principal) · **media** (bug en camino secundario) · **baja**. Orienta al `approver`, que decide qué se arregla. Solo lo que el diff trae o hace alcanzable.
+ID por rol: `QA-n` · `CODE-n` · `SEC-n`, numerados de nuevo en cada ronda. Solo lo que el diff trae o hace alcanzable. Máximo `hallazgos_por_revisor` (lo dice el prompt); el resto, a "A verificar".
+
+Severidad, por consecuencia y no por tamaño del fix. Esta es la única escala; orienta al `approver`, que decide qué se arregla:
+
+| Severidad | qa · code-reviewer | security-auditor |
+|---|---|---|
+| **crítica** | pérdida de datos, plata o acceso | pérdida de datos, plata o acceso |
+| **alta** | bug en el camino principal | explotable por un usuario autenticado |
+| **media** | bug en un camino secundario | requiere condiciones |
+| **baja** | molestia, no bug | defensa en profundidad |
 
 | ID | Severidad | Archivo:línea | Qué falla, con qué entrada | CB | Fix en una línea |
 |---|---|---|---|---|---|

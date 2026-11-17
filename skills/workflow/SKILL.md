@@ -1,7 +1,7 @@
 ---
 name: workflow
 description: >-
-  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en todolist/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done, más blocked); SPEC.md y PLAN.md se congelan cuando el plan está; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, verificador, approver, resolutor) que escriben solo sus archivos; consenso entre analistas antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, plan, orchestrate o rebase, al escribir un agente o un hook del plugin, o al tocar todolist/.
+  Cómo se trabaja una tarea de punta a punta con mindstack: una tarea es una carpeta en todolist/<estado>/<slug>/ y su estado es la carpeta (0-draft a 4-done, más blocked); SPEC.md y PLAN.md se congelan cuando el plan está; TODO.md mide el avance y CHANGELOG.md es la memoria (decisiones, deuda, revisión); roles con responsabilidades separadas (analista, planificador, desarrollador, qa, revisor de código, auditor de seguridad, verificador, approver, resolutor) que escriben solo sus archivos; un analista busca evidencia antes de molestar a la persona; un orquestador opcional. Usar cuando se pregunta cómo se trabaja, qué es una tarea, un estado, un rol o un artefacto, al correr /mindstack:draft, plan, orchestrate o rebase, o al escribir un agente o un hook del plugin. Los subagentes no la cargan: leen references/agent-card.md.
 ---
 
 # Flujo: de la idea al merge
@@ -59,34 +59,33 @@ En la rama default (`main`) no se corre ningún comando del flujo: el PR necesit
 
 ## Qué se congela y qué se escribe
 
-| Archivo | Lo escribe | Cuándo cambia | Qué responde |
-|---|---|---|---|
-| `SPEC.md` y `wireframes/` | analista con la persona; `designer` propone los wireframes; en un fix, `qa` aporta la reproducción | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica. Para cambiarlo, `/draft` sin texto lo vuelve a borrador | ¿qué se pidió y cómo sabemos que está? |
-| `PLAN.md` | planificador con la persona | solo en `0-draft/`. Después, **nunca** | ¿cómo se hace, en qué orden, con qué Done? |
-| `TODO.md` | el planificador lo deriva al pasar a pendiente; el dev tacha | en cada tarea terminada | ¿qué se hizo? |
-| `CHECKLIST.md` | el planificador la deriva de los `CA-n`, `CB-n` y Estado final; solo `verifier` tacha | en cada ronda de revisión | ¿está todo lo pedido, con código, test y evidencia? |
-| `APPROVAL.md` | solo el approver (hook), una sección por ronda | se agrega en cada ronda; nunca se reescribe | ¿qué se arregla, qué no y por qué? |
-| `TECHNICAL_DEBT.md` | approver y developer | se agrega | ¿qué se dejó a propósito, hasta cuándo? |
-| `CHANGELOG.md` | todos los roles, cada uno su sección | en cada paso. Solo se agrega, nunca se reescribe | ¿qué pasó, qué se vio, qué se decidió y por qué, qué se dejó? |
-| `REVIEW-*.md` | un rol cada uno | se reescribe entero por ronda | ¿qué está mal? (solo eso) |
-| `backlog/IDEAS.md` | solo la persona; ningún agente (hook). Tabla: Descripción, Prioridad, Fecha, Notas | cuando se le ocurre algo; `/draft backlog:` saca la fila | ¿qué quiero hacer algún día? |
-| `backlog/PROPUESTAS.md` | el orquestador en la fase pr, filtrando `CHANGELOG › Propuestas` y `REVIEW-*.md › Propuestas` | al llegar a done; la persona borra lo que no le sirve | ¿qué vieron los agentes que sumaría? |
+Quién escribe cada uno: `references/roles-and-artifacts.md`.
 
-Por qué el PLAN no se tacha: si el contrato cambia debajo del loop, "está hecho" deja de significar algo. El avance va al TODO; los giros van a Decisiones con fecha, quién y principio. Así la persona sabe en todo momento por qué se tomó un camino distinto al planeado.
+| Archivo | Cuándo cambia | Qué responde |
+|---|---|---|
+| `SPEC.md` y `wireframes/` | solo en `0-draft/`. Después, **nunca**: el hook `plan-immutable.sh` lo bloquea y CI lo verifica. Para cambiarlo, `/draft` sin texto lo vuelve a borrador | ¿qué se pidió y cómo sabemos que está? |
+| `PLAN.md` | solo en `0-draft/`. Después, **nunca** | ¿cómo se hace, en qué orden, con qué Done? |
+| `TODO.md` | en cada tarea terminada | ¿qué se hizo? |
+| `CHECKLIST.md` | en cada ronda de revisión | ¿está todo lo pedido, con código, test y evidencia? |
+| `APPROVAL.md` | se agrega en cada ronda; nunca se reescribe | ¿qué se arregla, qué no y por qué? |
+| `TECHNICAL_DEBT.md` | se agrega | ¿qué se dejó a propósito, hasta cuándo? |
+| `CHANGELOG.md` | en cada paso. Solo se agrega, nunca se reescribe | ¿qué pasó, qué se vio, qué se decidió y por qué, qué se dejó? |
+| `REVIEW-*.md` | se reescribe entero por ronda | ¿qué está mal? (solo eso) |
+| `backlog/IDEAS.md` | cuando se le ocurre algo; `/draft backlog:` saca la fila | ¿qué quiero hacer algún día? |
+| `backlog/PROPUESTAS.md` | al llegar a done; la persona borra lo que no le sirve | ¿qué vieron los agentes que sumaría? |
 
-Por qué el backlog son dos archivos: una idea tuya es una intención; una propuesta de agente es una hipótesis con evidencia ("en CB-3 soporte no puede forzar el reintento"). Mezcladas, no sabés cuál pediste vos. Los agentes hacen y proponen, pero no escriben el backlog: proponen en su tarea y el orquestador filtra (con dónde se vio, sin repetidas, tres por tarea), para que no sea un cajón que nadie lee.
+El backlog son dos archivos porque una idea tuya es una intención y una propuesta de agente es una hipótesis con evidencia. Cómo se filtran las propuestas: `references/pr.md` paso 3; su formato: `templates/PROPUESTAS.md`.
 
 ```mermaid
 flowchart LR
     P([persona]) --> I[backlog/IDEAS.md]
-    A[developer · qa · revisores · approver] --> C["CHANGELOG › Propuestas<br/>REVIEW-*.md › Propuestas"]
+    A[developer · qa · revisores] --> C["CHANGELOG › Propuestas<br/>REVIEW-*.md › Propuestas"]
     C -->|fase pr: filtra, deduplica, máx. propuestas_por_tarea| PR[backlog/PROPUESTAS.md]
     I & PR -->|"/mindstack:draft backlog: título"| D[0-draft/slug]
 ```
 
 Si la persona pregunta qué del backlog conviene hacer: leé las dos listas y, de cada candidata, la tarea de origen. Ordená primero por peso: cuántas tareas distintas la vieron (la de origen más sus `Visto también`); una necesidad que aparece en cuatro tareas ya costó cuatro veces. Después, qué tan cerca está de lo que se viene haciendo (las últimas tareas de `4-done/`), tamaño y antigüedad; las ideas de la persona pesan más que una propuesta vista una sola vez, y su columna Prioridad manda: una idea 🔥 alta va primero salvo que una propuesta tenga mucho peso. Respondé con tres, una línea cada una con el porqué, y el comando para empezar la primera. No se escribe nada.
 
-Por qué un changelog por tarea: la memoria de un agente termina con su sesión. QA ve un bug ajeno y no lo arregla: Observaciones. El dev elige una librería sobre otra: Decisiones, con la descartada y el principio. El approver decide cada hallazgo en `APPROVAL.md`, con motivo, y lo que deja como deuda va a `TECHNICAL_DEBT.md`, con origen, vencimiento e issue. Sin eso, cada rol que entra empieza de cero y la persona que mergea no sabe qué se dejó afuera.
 
 ## El flujo entero
 
@@ -99,9 +98,9 @@ flowchart TD
     S1 -->|/draft sin texto: reopen| S0
     S1 -->|/orchestrate| S2["2-in-progress"]
     subgraph IMPL["loop: una tarea del TODO por vuelta"]
-        D[dev implementa sin commit, Cambios, tacha] --> Q[qa: tests de la tarea]
-        D -. DECISION .-> C[consenso: 3 analistas]
-        C -. sin acuerdo .-> BL
+        Q[qa: tests de la tarea, en rojo] --> D[developer: los pone en verde] --> W[commit wip local]
+        D -. DECISION .-> C[analyst: evidencia]
+        C -. sin evidencia .-> BL
     end
     S2 --> IMPL
     IMPL -->|Done verde| S3["3-in-review"]
@@ -131,27 +130,13 @@ iteración, mismo PR"] --> S0
     class U0,PRUEBA,M persona
 ```
 
+Hay dos caminos con el mismo grafo: `full` y `quick`, para cambios chicos sin áreas de riesgo (SPEC y PLAN cortos, dos revisores). Lo decide `/draft` solo: `references/analyze.md › Camino`.
+
 Naranja es la persona: pide, pide el plan, prueba, desempata, mergea. Todo lo demás lo hacen los roles. `/mindstack:orchestrate` recorre este grafo solo y termina únicamente en `4-done` con CI verde o en `blocked/`; un hook de parada no lo deja terminar en otro lado. "Probar" no lo frena. Los casos de uso con diagramas de secuencia están en `use-cases/` del plugin.
 
 ## Roles
 
-Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfianza: es lo que saca el sesgo (el que implementa testea lo que pensó, no lo que el código hace) y hace que un fallo quede en un solo lugar.
-
-| Rol | Escribe |
-|---|---|
-| **analista** | `SPEC.md` |
-| **planificador** | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
-| **investigador** | nada |
-| **desarrollador** | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md` |
-| **qa** | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
-| **code-reviewer** | `REVIEW-code.md` |
-| **security-auditor** | `REVIEW-security.md` |
-| **verifier** | `CHECKLIST.md` (solo tacha) |
-| **approver** | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del CHANGELOG; no edita código |
-| **conflict-resolver** | lo que esté en conflicto, `CHANGELOG.md` |
-| **orquestador** | `BLOCKED.md`, `PR.md`, `backlog/PROPUESTAS.md`; en el CHANGELOG: Cierre, Decisiones (consenso, Retomar) y la fila del entorno |
-
-Qué hace y qué no cada uno: `references/roles-and-artifacts.md` (sección "Qué hace y qué no cada rol"); herramientas y `maxTurns`, en `agents/*.md` del plugin; modelo y esfuerzo, en `config/defaults.conf`.
+Quién hace, quién no y qué escribe cada rol, y quién invoca a quién: `references/roles-and-artifacts.md`. El límite lo pone el hook de cada agente, no el prompt. Herramientas y `maxTurns`: `agents/*.md`; modelo y esfuerzo: `config/defaults.conf`.
 
 Las prácticas (`qa`, `tdd`, `debugging`, `code-review`, `security`, `git`, `simplification`, `performance`, `api-design`, `migration`, `observability`, `documentation`, `ci-cd`) no son roles: son conocimiento que un rol carga según la tarea. El `PLAN.md` dice en `tipo:` qué clase de tarea es y en `skills:` cuáles van; la tabla está en `references/plan.md`.
 
@@ -168,8 +153,8 @@ flowchart LR
     C --> M["todo Agent del flujo: model y effort por agente"]
 ```
 
-- **Modelos:** están solo ahí; los `agents/*.md` no tienen `model:`. Cualquier comando que lance un `Agent` (`/draft`, `/plan`, `/orchestrate`, `/rebase`) le pasa siempre `model` = `modelo_<agente>`, y `effort` = `esfuerzo_<agente>` si tiene valor. Sin eso, el agente correría con el modelo de la sesión.
-- **Turnos (`turnos_<agente>`):** también están ahí, pero Claude Code no deja pasar `maxTurns` al lanzar el `Agent`: vive en el frontmatter de `agents/*.md` y `scripts/sync-agents.sh` lo copia desde el config (`hooks/test.sh` falla si difieren). Por eso es del plugin y no se pisa por proyecto. Si un agente se queda sin turnos, devuelve lo que tiene; en implement cuenta como un fallo (`fallos_por_tarea`), en otra fase el orquestador lo relanza una vez y, si vuelve a pasar, `blocked/`.
+- **Modelos y esfuerzo:** los `agents/*.md` no tienen `model:`. Cualquier comando que lance un `Agent` le pasa `model` = `modelo_<agente>` y, si tiene valor, `effort` = `esfuerzo_<agente>`. Sin eso, el agente corre con el modelo de la sesión.
+- **Turnos:** `turnos_<agente>` se copia al `maxTurns` de cada agente con `scripts/sync-agents.sh` (Claude Code no deja pasarlo al lanzar). Qué pasa si se acaban: `references/orchestrate.md › Bloquear`.
 
 ## Redes de contención, de adentro hacia afuera
 
@@ -181,7 +166,7 @@ flowchart LR
 6. `CHECKLIST.md` la tacha solo `verifier`, con código, test y evidencia: sin todas las líneas, no hay PR.
 7. Cada hallazgo lo decide el `approver`, mirando todo junto contra el SPEC: arreglar, deuda, riesgo aceptado, descartado o bloqueado, con motivo visible en el PR.
 8. `rondas_revision` rondas de revisión como máximo; en la última, el approver cierra lo suyo y solo lo que no se negocia va a `blocked/`.
-9. El código no se commitea hasta que la revisión pasa: lo commiteado es lo revisado.
+9. Commits `wip` locales y un solo push en la fase pr; el PR se mergea con squash: a `main` entra solo lo revisado.
 10. `4-done` es CI verde; el orquestador itera con el log hasta `rondas_ci` veces.
 11. `hooks/orchestrate-stop.sh`: el orquestador no termina el turno fuera de `4-done` con CI verde o de `blocked/`.
 12. Nadie mergea.
@@ -191,16 +176,17 @@ flowchart LR
 | Referencia | Qué tiene | Cuándo leerla |
 |---|---|---|
 | `references/analyze.md` | la entrevista, supuestos con confianza, casos borde, mapa de capacidades, qué va al SPEC | `/draft (analyze)` |
-| `references/plan.md` | acoplamiento, caracterizar, tajadas verticales, tareas con rol, Done, fechas, empates | `/draft (plan)` |
+| `references/plan.md` | acoplamiento, caracterizar, tajadas verticales, tareas con rol, Done, fechas, empates | `/plan` |
 | `references/implement.md` | precondiciones, el loop de subagentes por tarea, sus reglas, seguir a review sin cortar | `fase implement` |
-| `references/consensus.md` | el protocolo `DECISION:` → tres analistas → `blocked/` si no coinciden | el dev encuentra una ambigüedad |
+| `references/consensus.md` | el protocolo `DECISION:` → un analista con evidencia → `blocked/` si no alcanza | el dev encuentra una ambigüedad |
 | `references/review.md` | cuatro agentes en un turno (con `verifier`), rondas, veredicto | `fase review` |
 | `references/fix.md` | el approver decide cada hallazgo; developer y qa arreglan lo que mandó; deuda con origen y vencimiento | `fase fix` |
 | `references/pr.md` | llegar a `4-done`: Cierre, commits, un solo push, `gh pr create`, CI verde | `fase pr` |
 | `references/conflicts.md` | rebase, dos intenciones, suite, `--force-with-lease` | `fase conflicts` |
 | `references/orchestrate.md` | el modelo de uso (N worktrees, un orquestador cada uno), detección de estado, las dos salidas, bloquear y retomar, el hook de parada | `/orchestrate` |
 | `references/iterate.md` | la iteración: iterar sobre un PR que probaste, mismo worktree, mismo PR | `/draft "qué falta" (en el worktree)`, probaste y falta algo |
-| `references/roles-and-artifacts.md` | diagramas de clases: artefactos y roles; quién invoca a quién y cuándo; qué itera cada fase y hasta cuándo; skills externas | al escribir o cambiar un agente, al preguntarse quién llama a quién |
+| `references/agent-card.md` | lo mínimo que lee cada subagente al empezar | al escribir o cambiar un agente |
+| `references/roles-and-artifacts.md` | la única tabla de roles (hace, no hace, escribe); quién invoca a quién | al escribir o cambiar un agente, al preguntarse quién llama a quién |
 | `references/worktree.md` | qué arma el hook `WorktreeCreate` y por qué | al abrir una sesión, al tocar el hook |
 | `references/environment.md` | el entorno local por tarea: `env-up.sh`, puertos por slug, copia de la DB, dónde queda la URL, por qué no se publica | al probar una tarea, al tocar `env-up.sh` o el compose |
 | `references/git.md` | ramas, commits, prefijos, `.gitignore` | al tocar ramas, commits, `.gitignore` |
@@ -208,26 +194,19 @@ flowchart LR
 
 ## Qué pasa si no
 
+Solo los atajos cuya regla no tiene otro dueño; el porqué de cada fase está en su referencia.
+
 | Atajo | Lo que cuesta |
 |---|---|
 | Implementar sin SPEC | el dev decide el alcance. Lo que la persona quería y no dijo no existe; lo que no quería, sí |
 | Arreglar un bug sin reproducirlo antes | nadie sabe si existía, si se arregló, ni si vuelve. Un fix entra con el test que fallaba antes; si solo reproduce a mano, igual se aprueba con esa evidencia y el test llega al nivel de la causa raíz |
 | Un SPEC sin casos borde con diagrama | QA no sabe qué reproducir y testea el camino feliz. Lo que rompe en producción es siempre un borde |
-| Commitear el código por tarea, antes de la revisión | el historial muestra como terminado lo que nadie miró. El worktree aislado guarda el trabajo; el commit llega cuando los revisores y el verificador dijeron que está |
 | Parar a pedir permiso en cada `git mv` | el flujo no termina solo. Los comandos declaran sus commits y `/install` deja los permisos |
 | Pedir el plan sin haber leído el SPEC | el plan se congela con el SPEC: lo que el SPEC no dice, no se hace. Se vuelve con `/draft` sin texto, pero es una vuelta |
-| Editar el PLAN durante la ejecución | el Done cambia debajo del loop. "Está hecho" deja de significar algo |
-| El dev escribe sus tests | los tests prueban lo que el dev pensó. Lo que no pensó no tiene test, y es justo lo que rompe |
-| Un solo revisor para todo | mira todo por encima. Tres con un encargo cada uno encuentran lo suyo |
 | Revisar solo cómo está hecho y no si está hecho | pasan lint, tests y revisión, y falta una validación que nadie escribió. La checklist con `CA-n` y el `verifier` lo cierran |
 | Que el que corrige decida si el hallazgo es real | rechaza lo que le cuesta y aplica lo que no entiende. Decide el `approver`; el developer aplica |
 | Que el orquestador pregunte o se rinda en silencio | la tarea queda en review y nadie la mira. Lo que necesita a la persona va a `blocked/` y el aviso de sesión lo muestra |
-| Hallazgos positivos en la revisión | ruido. "Está bien" no genera ninguna acción; un archivo de revisión vacío ya lo dice |
-| Deuda sin issue ni vencimiento | olvido para siempre. Cada vencimiento vencido es una alarma que alguien ve |
 | Adivinar una ambigüedad para no interrumpir | código que nadie pidió, descubierto en revisión, que cuesta una ronda entera |
-| Preguntar cada ambigüedad a la persona | veinte interrupciones por tarea. El consenso resuelve las que ya tienen respuesta en el repo |
-| Sin tope de rondas | dos modelos discutiendo un `media` hasta que se acaba el presupuesto |
+| Preguntar cada ambigüedad a la persona | veinte interrupciones por tarea. El analista resuelve las que ya tienen respuesta en el repo |
 | Un refactor "de paso" | la tarea crece, el diff no se puede revisar, y el refactor queda a medias. Es otra tarea con su SPEC |
 | Trabajar en `main`, o dos PRs en el mismo checkout | la tarea en curso y "una cosita" comparten `git status`. Uno commitea lo del otro. Una rama por PR, idealmente en su propio worktree |
-| Entregar el PR con CI rojo | un link a trabajo a medias. CI es parte de la tarea: se itera con el log hasta que pasa, o se dice por qué no |
-| Agente que mergea | se pierde el único punto donde una persona ve el cambio entero y lee el changelog |

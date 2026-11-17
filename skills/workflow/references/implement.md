@@ -4,25 +4,23 @@ Lo corre el orquestador (fase implement) en un worktree. Requiere la carpeta en 
 
 ```mermaid
 sequenceDiagram
-    participant P as persona
     participant O as orquestador (sesión principal)
-    participant D as developer (subagente)
     participant Q as qa (subagente)
-    participant A as analyst ×3 (subagentes)
-    P->>O: /mindstack:orchestrate
+    participant D as developer (subagente)
+    participant A as analyst (subagente)
     O->>O: git mv a 2-in-progress, commit
     loop mientras TODO.md tenga una línea sin [x]
-        alt rol: developer
-            O->>D: Agent developer: <slug> <n>
-            D-->>O: TASK OK n / DECISION / BLOCKED
+        O->>Q: testear slug n: tests de la tarea contra el SPEC, en rojo
+        Q-->>O: TESTS ROJOS n (o TESTS OK n si la tarea es rol qa)
+        opt rol: developer
+            O->>D: implementar slug n: ponerlos en verde
+            D-->>O: TASK OK n / DECISION / TEST / BLOCKED
+            opt DECISION
+                O->>A: consensus.md
+                A-->>O: OPTION → Decisiones, se relanza n · sin evidencia → Bloquear
+            end
         end
-        O->>Q: Agent qa: testear <slug> <n>
-        Q-->>O: tests corridos
-        opt DECISION
-            O->>A: consensus.md
-            A-->>O: acuerdo → Decisiones, y se relanza n
-            A-->>O: sin acuerdo → blocked/
-        end
+        O->>O: commit wip(slug): tarea n (local, sin push)
     end
     O->>O: Done entero, env-up
     O->>O: sigue con review.md, sin terminar el turno
@@ -49,18 +47,22 @@ Tu directorio y las tareas pendientes.
 
 ## El loop
 
-Lo hace la sesión principal, sin plugin de loop: lee `TODO.md`, lanza un subagente por tarea y vuelve a leer. Cada `developer` arranca con contexto vacío (lee SPEC, PLAN, TODO, CHANGELOG y nada más), así que treinta tareas no ensucian a la que sigue; la sesión principal solo acumula la última línea de cada uno.
+Lo hace la sesión principal, sin plugin de loop: lee `TODO.md`, lanza un subagente por tarea y vuelve a leer. Cada subagente arranca con contexto vacío, así que treinta tareas no ensucian a la que sigue; la sesión principal solo acumula la última línea de cada uno.
 
 ```
 mientras TODO.md tenga una línea sin [x]:
   n = la primera sin [x], en orden
-  rol developer → Agent developer "<slug> <n>"
-      TASK OK n      → Agent qa "testear <slug> <n>" → siguiente
+  Agent qa "testear <slug> <n>"            → tests de la tarea, nuevos o actualizados según el SPEC
+      TESTS ROJOS n  → (rol developer) sigue abajo
+      TESTS OK n     → (rol qa) tachada → commit
+  Agent developer "implementar <slug> <n>" → los pone en verde sin tocarlos
+      TASK OK n      → commit
+      TEST: <archivo> <por qué> → Agent qa "testear <slug> <n>" con eso; qa lo corrige o lo confirma; relanzar n
       DECISION: ...  → consensus.md → la respuesta queda en Decisiones → relanzar n
-      BLOCKED: ...   → blocked/ (orchestrate.md › Bloquear)
-  rol qa        → Agent qa "testear <slug> <n>" → siguiente
-  la misma n falla fallos_por_tarea veces → blocked/, con por qué
-Done entero; rojo → Agent developer con el log, como una tarea más
+      BLOCKED: ...   → orchestrate.md › Bloquear
+  commit wip(<slug>): tarea n   (git add -A: código, tests, TODO, CHANGELOG; sin push)
+  la misma n falla fallos_por_tarea veces → orchestrate.md › Bloquear
+Done entero; rojo → Agent developer "ci <slug> local" con el log → commit wip(<slug>): done local
 ```
 
 **No se termina el turno entre tareas ni al final del loop.** Un resumen de "voy por la 3 de 8" no es una parada: la persona no lo pidió y frena todo. El turno termina solo en `4-done/` o en `blocked/` (`orchestrate.md › Un solo turno`).
@@ -70,12 +72,11 @@ Reglas dentro del loop:
 | Regla | Por qué |
 |---|---|
 | Una tarea por subagente. Si no cierra en una, el developer la parte en `na` y `nb` en `TODO.md` y lo anota en Decisiones | el PLAN no se toca; el TODO sí |
-| El dev no escribe tests. Las tareas `qa` y los tests de cada tarea `developer` los hace el agente `qa` | el que implementa testea lo que pensó, no lo que el código hace |
-| No modificar un test existente para que pase. Si estaba mal: Decisiones | un test que se ajusta al código no prueba nada |
+| Primero los tests (`qa`), después el código (`developer`). El developer no toca tests: si uno contradice el SPEC, lo dice con `TEST:` | TDD: el test sale del SPEC, no de lo que el código terminó haciendo |
+| Un test existente que el SPEC cambia lo actualiza `qa`, en el mismo paso, con fila en Decisiones citando el `CA-n` | un test que se ajusta al código no prueba nada; uno que se ajusta al SPEC sí |
 | No bajar umbral de cobertura ni desactivar lint | el Done cambia debajo del loop |
 | Sin refactors grandes. Lo que molesta y no es de la tarea va a Observaciones o a `TECHNICAL_DEBT.md` | un refactor es otra tarea con su SPEC |
-| **Nada se commitea durante el loop.** Código, `TODO.md` y `CHANGELOG.md` quedan en el working tree del worktree hasta que la revisión pasa; el commit lo hace el orquestador (fase pr) | lo que está commiteado parece terminado. Un commit por tarea a medio revisar es un historial de estados que nadie validó; el worktree aislado es la red mientras tanto |
-| La misma tarea falla `fallos_por_tarea` veces seguidas (`config.sh`): `blocked/` con por qué, no insistir | fallar seguido es una ambigüedad o un bloqueo, no mala suerte |
+| Un commit `wip(<slug>): tarea n` por tarea, local; el push es uno solo, en la fase pr (`git.md`) | el trabajo no se pierde con un crash o un `checkout`; CI corre una vez |
 
 ## Al terminar
 
@@ -83,4 +84,4 @@ Reglas dentro del loop:
 - Si hay compose y `$CI` vacío: `env-up.sh <entorno>` levanta api y web de la rama en `localhost`, en los puertos de la tarea. Fila en `CHANGELOG › Cambios`: "entorno levantado: `http://localhost:52xx`". Sin compose: el comando del stack para levantar y la URL, en la misma fila. Es local; no se publica en ningún lado (`skills/workflow/references/environment.md`).
 - La carpeta se queda en `2-in-progress/`. Una línea con Done verde y la URL donde probar, **y en el mismo turno** seguí con `review.md`. La persona prueba cuando quiere; no se la espera.
 
-Lo que la persona pida después en la sesión ("el botón dice Guardar, no Enviar") se hace acá con las mismas reglas: sin commit, fila en Cambios, tests al agente `qa`.
+Lo que la persona pida después en la sesión ("el botón dice Guardar, no Enviar") se hace acá con las mismas reglas: tests de `qa` primero, después el developer, commit `wip`.

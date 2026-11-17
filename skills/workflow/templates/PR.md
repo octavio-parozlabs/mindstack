@@ -1,5 +1,7 @@
 <!-- body del PR. Lo arma el orquestador (fase pr) con los datos de la tarea; la persona lo lee en 30 segundos -->
 
+Se mergea con **squash**: a `main` entra un solo commit con el título del PR.
+
 Tarea: `todolist/4-done/<slug>/` (`SPEC.md` dice qué se pidió, `PLAN.md` es el contrato, `CHANGELOG.md` lo que pasó)
 
 ## Qué cambia

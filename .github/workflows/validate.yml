@@ -22,6 +22,8 @@ jobs:
         run: node scripts/validate/mermaid.mjs .
       - name: hooks
         run: bash hooks/test.sh
+      - name: una regla, un archivo
+        run: bash scripts/validate/single-source.sh
       - name: versiones de los manifiestos
         run: test "$(jq -r .version .claude-plugin/plugin.json)" = "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)"
       - name: toda skill citada existe

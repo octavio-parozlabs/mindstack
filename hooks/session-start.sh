@@ -48,6 +48,17 @@ if [ -n "$main" ] && [ "$main" = "$(pwd)" ] && [ "$rama" = "${default:-main}" ];
     [ -n "$wt" ] && avisos+="mergeada sin limpiar: $slug → (cd $wt && ${CLAUDE_PLUGIN_ROOT}/scripts/env-down.sh $(basename "$wt")); git worktree remove $wt"$'\n'
   done
 fi
+# Deuda vencida: en las tareas de esta rama (o las mergeadas, en la default), filas de TECHNICAL_DEBT.md con Vence < hoy.
+hoy=$(date +%F)
+vencidas=$(for f in todolist/*/*/TECHNICAL_DEBT.md; do
+  [ -f "$f" ] || continue
+  slug=$(basename "$(dirname "$f")")
+  awk -F'|' -v h="$hoy" -v s="$slug" '$7 ~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/ { gsub(/ /,"",$7); gsub(/^ +| +$/,"",$4); gsub(/ /,"",$8); if ($7 < h) print "deuda vencida: " s " — " $4 " (venció " $7 ", " ($8==""?"sin issue":$8) ")" }' "$f"
+done)
+if [ -n "$vencidas" ]; then
+  avisos+="$(head -5 <<<"$vencidas")"$'\n'
+  n=$(wc -l <<<"$vencidas"); [ "$n" -gt 5 ] && avisos+="… y $((n - 5)) más (todolist/*/*/TECHNICAL_DEBT.md)"$'\n'
+fi
 [ -n "$avisos" ] && printf '\n## Avisos\n%s' "$avisos"
 if [ "$rama" = "${default:-main}" ]; then
   echo "Rama $rama: acá no corre ningún comando del flujo. Una rama por PR (claude -w <slug>, orca o a mano)."

@@ -1,8 +1,6 @@
 # Deuda técnica: <título>
 
-<!-- Lo que esta tarea deja a propósito. Lo escriben el approver (un hallazgo decidido como deuda) y el developer
-(algo suyo que deja a sabiendas). Solo se agrega. Sin issue no es deuda, es olvido; sin vencimiento, es para siempre.
-Origen: el ID del hallazgo (CODE-3, SEC-2) o `developer`. El PR lista lo abierto en "Lo que la persona tiene que mirar". -->
+<!-- Una fila por deuda, se agrega abajo. Sin issue es olvido; sin vencimiento, para siempre. Origen: el ID del hallazgo (CODE-3, SEC-2) o `developer`. -->
 
 | Fecha | Quién | Qué falta | Por qué no ahora | Origen | Vence | Issue |
 |---|---|---|---|---|---|---|

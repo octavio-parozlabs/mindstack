@@ -16,11 +16,11 @@ sequenceDiagram
     participant H as hooks
     participant G as git / GitHub
 
-    Note over C,G: 3-in-review · ronda 1 (código sin commitear, se revisa git diff main)
+    Note over C,G: 3-in-review · ronda 1 (código en commits wip locales, se revisa contra el merge-base con origin/main)
     par un turno
-        C->>QA: verificar ronda 1 base main
-        C->>CR: revisar ronda 1 base main
-        C->>SA: auditar ronda 1 base main
+        C->>QA: verificar ronda 1
+        C->>CR: revisar ronda 1
+        C->>SA: auditar ronda 1
         C->>VF: verificar ronda 1
     end
     CR->>H: Write REVIEW-qa.md (por error)
@@ -42,13 +42,14 @@ sequenceDiagram
     AP->>AP: CODE-2: nombre poco claro en un helper interno → riesgo aceptado
     AP-->>C: APPROVAL.md ronda 1 · APPROVAL: fix 3
     C->>DEV: corregir facturas-pdf ronda 1: SEC-1
-    DEV->>DEV: SEC-1: verifica dueño en el handler (sin commit)
+    DEV->>DEV: SEC-1: verifica dueño en el handler
     DEV->>H: Edit todolist/3-in-review/facturas-pdf/PLAN.md
     H-->>DEV: exit 2: PLAN.md es inmutable fuera de 0-draft
     DEV->>DEV: la nota va a CHANGELOG › Decisiones
     DEV-->>C: FIX OK · cambió invoices.controller.ts
     C->>QA: testear facturas-pdf correcciones ronda 1: QA-1, CA-4, invoices.controller.ts
     QA-->>C: tests CB-3, CA-4 y SEC-1 verdes
+    C->>G: commit wip(facturas-pdf): ronda 1 (local)
 
     Note over C,G: ronda 2
     par un turno
@@ -64,7 +65,7 @@ sequenceDiagram
     C->>G: commit review(facturas-pdf): round 2
     C-->>C: limpia → fase pr
 
-    C->>G: git mv → 4-done · Cierre · PR.md · commit done · commit feat(facturas-pdf) · un push · gh pr create
+    C->>G: git mv → 4-done · Cierre · PR.md · commit done · un push · gh pr create (se mergea con squash)
     G-->>C: PR #88 · mergeable: CONFLICTING
     Note over C: mergeable CONFLICTING → fase conflicts, sin parar
     C->>RS: resolver

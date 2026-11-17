@@ -8,7 +8,7 @@ sequenceDiagram
     participant C as Claude (worktree pagos-timeout)
     participant QA as qa
     participant DEV as developer (subagente por tarea)
-    participant AN as analyst ×3
+    participant AN as analyst
     participant CR as code-reviewer
     participant SA as security-auditor
     participant VF as verifier
@@ -49,12 +49,15 @@ sequenceDiagram
     Note over C,G: 2-in-progress · implementación (en worktree)
     C->>G: git mv → 2-in-progress · commit
     C->>C: env-up.sh pagos-timeout db
-    loop una línea de TODO.md por vuelta, sin commit, mismo turno
-        C->>QA: tarea 1 (rol qa): test de repro a la suite → rojo
-        C->>DEV: Agent developer: pagos-timeout 2
-        DEV-->>C: TASK OK 2 · fix en pagos.service, [x], fila en Cambios
-        C->>QA: Agent qa: testear pagos-timeout 2
-        QA-->>C: 4 tests, CB-1..CB-4 verdes
+    loop una línea de TODO.md por vuelta, mismo turno
+        C->>QA: testear pagos-timeout 1 (rol qa): test de repro a la suite
+        QA-->>C: TESTS OK 1 (el test queda en rojo a propósito: es el bug)
+        C->>G: commit wip(pagos-timeout): tarea 1 (local)
+        C->>QA: testear pagos-timeout 2: CB-1..CB-4 contra el SPEC
+        QA-->>C: TESTS ROJOS 2
+        C->>DEV: implementar pagos-timeout 2
+        DEV-->>C: TASK OK 2 · fix en pagos.service, los 4 tests en verde
+        C->>G: commit wip(pagos-timeout): tarea 2 (local)
     end
     C->>C: Done verde
     C->>C: env-up.sh pagos-timeout → http://localhost:5247
@@ -65,9 +68,9 @@ sequenceDiagram
     Note over C,G: 3-in-review · revisión y corrección
     C->>G: git mv → 3-in-review · commit
     par en un solo turno
-        C->>QA: verificar ronda 1 base main
-        C->>CR: revisar ronda 1 base main
-        C->>SA: auditar ronda 1 base main
+        C->>QA: verificar ronda 1
+        C->>CR: revisar ronda 1
+        C->>SA: auditar ronda 1
         C->>VF: verificar ronda 1
     end
     QA-->>C: REVIEW-qa.md: 0
@@ -96,7 +99,6 @@ sequenceDiagram
 
     Note over C,G: pr.md: llegar a done
     C->>G: git mv → 4-done · Cierre · PR.md · commit plan(pagos-timeout): done
-    C->>G: git add -A · commit fix(pagos-timeout): reintento idempotente
     C->>G: un solo push -u origin HEAD
     C->>G: gh pr create --body-file PR.md
     G-->>C: PR #87
@@ -121,7 +123,7 @@ sequenceDiagram
 | Parada | Por qué no se puede saltear |
 |---|---|
 | pedir el plan (`/plan` o "generá el plan", tuyo) | es el contrato. Lo que no está en el SPEC no se hace; con el plan hecho, los dos se congelan. El orquestador no arranca sin eso |
-| `blocked/` (consenso sin acuerdo, `APPROVAL: blocked`, última ronda con algo que no se negocia, `BLOCKED:`, `fallos_por_tarea`, CI ajeno o `rondas_ci`) | necesita una decisión tuya. Lo dice `BLOCKED.md`, lo muestra el aviso al abrir `claude`, y el PR vuelve a draft |
+| `blocked/` (motivos: `orchestrate.md › Bloquear`) | necesita una decisión tuya. Lo dice `BLOCKED.md`, lo muestra el aviso al abrir `claude`, y el PR vuelve a draft |
 | `4-done` | lista para mergear: probás y mergeás, o `/draft` lo que falta |
 | merge | ningún agente mergea |
 

@@ -31,6 +31,6 @@ faltan=
 for p in 'git commit' 'git push' 'git mv' 'gh pr'; do
   grep -qsF "Bash($p:*)" .claude/settings.json .claude/settings.local.json || faltan+=" $p"
 done
-[ -z "$faltan" ] && ok "permisos de git y gh" || aviso "sin permiso para:$faltan → el orquestador frena a preguntar (/mindstack:install paso 6b)"
+[ -z "$faltan" ] && ok "permisos de git y gh" || aviso "sin permiso para:$faltan → fuera del modo auto, el orquestador frena a preguntar (/mindstack:install paso 6b)"
 
 exit "$mal"

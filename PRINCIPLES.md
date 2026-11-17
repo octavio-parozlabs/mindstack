@@ -20,5 +20,5 @@ Fuente: el Zen de Python (https://peps.python.org/pep-0020/), que no es de Pytho
 
 - En un plan: cuando dos opciones empatan, el principio decide y queda en Decisiones del `CHANGELOG.md`, columna Principio. Una decisión sin principio es gusto, y el gusto se discute en el PR.
 - En una revisión: un comentario que dice "yo lo haría distinto" no es hallazgo. "Rompe explícito antes que implícito: el handler lee `process.env`" sí.
-- En un consenso: cada analista cita el principio que respalda su opción. Dos opciones con principio distinto es un empate real y lo decide la persona.
+- En una `DECISION:`: el analista cita el principio que respalda su opción. Dos opciones con principio distinto y el mismo peso es un empate real: lo decide la persona.
 - En el plugin: una regla nueva tiene que responder a uno de estos. Si no responde a ninguno, es preferencia y va marcada ajustable.

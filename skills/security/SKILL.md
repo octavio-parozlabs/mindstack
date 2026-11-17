@@ -135,30 +135,13 @@ Patrón: [Idempotencia y carreras](references/patterns.md#idempotencia-y-carrera
 
 ## Formato de salida: REVIEW-security.md
 
-Cuando esta skill audita (como `security-auditor` o a pedido), el resultado es un solo archivo con **solo hallazgos**. Sin elogios, sin "considerá", sin nits de estilo. Tabla vacía = nada que objetar.
-
-```markdown
-| ID | Severidad | Archivo:línea | Qué falla, con qué entrada | CB | Fix en una línea |
-|---|---|---|---|---|---|
-| SEC-1 | crítica | `pagos.service.ts:42` | reintento tras timeout vuelve a cobrar; payload `{orden: 7}` enviado dos veces | CB-3 | clave de idempotencia por orden antes de llamar al gateway |
-| SEC-2 | alta | `tareas.controller.ts:18` | `GET /tareas/:id` devuelve la tarea de otro usuario; `id=9` con sesión del usuario 2 | — | verificar `tarea.ownerId === sesion.userId` antes de responder |
-```
-
-- **ID**: `SEC-n`, correlativo en la ronda.
-- **Severidad**: `crítica` (pérdida de datos, plata o acceso) · `alta` (explotable por un usuario autenticado) · `media` (requiere condiciones) · `baja` (defensa en profundidad). Orienta al `approver`, que decide qué se arregla.
-- **Qué falla, con qué entrada**: la entrada hostil concreta: el payload, el id, el header, el nombre de archivo. Sin entrada concreta no es hallazgo, va a "A verificar".
-- **CB**: el caso borde del SPEC que lo cubre, si existe.
-- **Fix en una línea**: qué cambiar, no una disertación.
-- Máximo `hallazgos_por_revisor` hallazgos (config de mindstack). Lo que parece fallo y no se confirmó va bajo `## A verificar`, una línea cada uno; no cuenta ni bloquea.
-- Termina con el conteo por severidad.
-
-La plantilla con frontmatter está en `skills/workflow/templates/REVIEW.md`.
+Formato, escala de severidad, tope de hallazgos, "A verificar" y "Fuera del diff": `skills/workflow/templates/REVIEW.md`. Lo propio de seguridad: cada fila lleva la entrada hostil concreta (el payload, el id, el header, el nombre de archivo); sin entrada concreta no es hallazgo, va a "A verificar".
 
 ## En el flujo mindstack
 
-- La usa el agente `security-auditor` en `/mindstack:orchestrate (fase review) <slug>`, en el mismo turno y en paralelo con `qa` y `code-reviewer`. Cada uno escribe solo su archivo; el hook bloquea los demás.
-- Se audita lo que el diff trae, y lo viejo que el diff hace alcanzable. Lo que ya estaba roto y el diff no toca va a "Fuera del diff" del REVIEW, no a la tabla: el approver lo pasa a Observaciones para que sea otra tarea.
-- El `approver` decide cada hallazgo en `/mindstack:orchestrate (fase fix)` (`fix.md`): arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo en `APPROVAL.md`; un secreto o una pérdida irreversible se arreglan siempre. El developer aplica lo que manda arreglar. El auditor no edita código.
+- La usa el agente `security-auditor` en `/mindstack:orchestrate (fase review) <slug>`, en el mismo turno y en paralelo con `qa`, `code-reviewer` y `verifier`. Cada uno escribe solo su archivo; el hook bloquea los demás.
+- Se audita lo que el diff trae, y lo viejo que el diff hace alcanzable (`templates/REVIEW.md › Fuera del diff`).
+- Qué pasa con cada hallazgo lo decide el `approver` (`agents/approver.md`). El auditor no edita código.
 - La revisión general (lógica, legibilidad, arquitectura) la hace `mindstack:code-review`; acá solo seguridad.
 
 ## Racionalizaciones comunes

@@ -26,6 +26,43 @@ sequenceDiagram
     A-->>P: SPEC sin dudas abiertas. Leelo, comentá, y cuando esté pedime el plan (o /mindstack:plan)
 ```
 
+## Entrada
+
+Lo lee `/mindstack:draft`. Trabaja sobre el directorio y su rama, sin mirar cómo se llama ni si es un worktree; en la rama default (`main`) para: el PR necesita una rama propia. Cuentan las tareas que la rama trae respecto de la base (`git diff --name-only origin/main...HEAD -- todolist/`); las de `4-done/` que vinieron de `main` no.
+
+| Lo que hay | Con texto | Sin texto |
+|---|---|---|
+| ninguna tarea | tarea nueva (§ Slug). Este archivo hasta que el SPEC está escrito; cada comentario lo corrige (commit por vuelta); el plan, cuando la persona lo pide (`/mindstack:plan` o en palabras), con `plan.md` | — |
+| texto que empieza con `backlog:` | tarea nueva desde el backlog (§ Si sale del backlog) | — |
+| una en `0-draft/` | comentario sobre ella; si la persona dice que es otra tarea, primero esa termina en `1-pending/` | seguir el diálogo |
+| todas en `1-pending/` o después, sin PR | otra tarea de la cola, con su propio slug (§ Slug; `orchestrate.md › Cola`) | retomar (§ Reabrir) |
+| la rama tiene PR (`gh pr view`) | iteración (`iterate.md`) | — |
+
+### Reabrir
+
+Una tarea en `1-pending/` vuelve a borrador: si son varias, preguntá cuál. `git mv` a `0-draft/`, `chmod u+w` a SPEC y PLAN, commit `plan(<slug>): reopen`, y preguntá qué quiere corregir. Es el único procedimiento de reapertura; `orchestrate.md › Retomar` lo usa.
+
+## Camino: quick o full
+
+Lo decide el analista al leer el pedido y el código, sin preguntar, y lo escribe en el frontmatter del SPEC (`camino: quick` o `camino: full`). La persona lo cambia en esa línea mientras la tarea está en borrador.
+
+| Va por `quick` si todo esto es cierto | Si no, `full` |
+|---|---|
+| el diff estimado está por debajo de `quick_max_lineas` (`config.sh`) | más grande |
+| no toca identidad, sesiones ni permisos; plata ni pagos; datos personales; una migración de datos o de esquema; un endpoint, evento o contrato nuevo; una dependencia nueva | toca cualquiera |
+| no crea una pantalla nueva (cambiar un texto o un campo sí entra) | pantalla nueva: `designer` |
+
+| | `quick` | `full` |
+|---|---|---|
+| SPEC | Pedido, Qué se hace y qué no, `CA-n`, al menos un `CB-n` (diagrama si ayuda, no obligatorio), Dudas | completo |
+| designer | no | si toca la interfaz |
+| PLAN | corto (`plan.md › Camino quick`) | completo |
+| revisión | `code-reviewer` con pasada de seguridad y `verifier` (`review.md`) | los cuatro |
+
+Lo demás no cambia: SPEC y PLAN congelados, TDD, checklist con evidencia, approver, PR y CI. Si en la revisión el diff resulta tocar un área de riesgo o pasarse del tope, la revisión es la completa.
+
+**Retoque.** Un pedido sobre un PR abierto que no cambia ningún `CA-n` ni `CB-n` y entra en `retoque_max_lineas` ("renombrá esta variable", "el botón dice Guardar") es una iteración `quick` sin dudas: el SPEC y el PLAN salen en el mismo turno y la persona solo corre `/mindstack:orchestrate` (`iterate.md`).
+
 ## Antes de preguntar
 
 1. Leé el repo donde el pedido pega: entrypoints, el módulo que se nombra, sus callers. Con `graphify query "qué depende de <módulo>"` si existe `graphify-out/graph.json`; con `grep` si no. Diez minutos de lectura ahorran cinco preguntas.
@@ -50,7 +87,7 @@ Lo que está arriba de 80% se afirma y se deja corregir; lo que está abajo se p
 - **No hay más dudas cuando no queda ambigüedad que cambie el SPEC.** No cuando se acaban las preguntas posibles. Si una respuesta no cambiaría ni el alcance ni un caso borde, no se pregunta.
 - **Cada respuesta genera o descarta casos borde.** Anotalos al momento, numerados. Un caso borde es una entrada o situación donde el camino feliz no alcanza: vacío, duplicado, timeout, concurrencia, permiso, cantidad cero o enorme, estado intermedio.
 - **Si toca endpoints, las reglas se escriben una por una.** Por cada endpoint, comando o evento que se crea o cambia: cada campo (tipo, rango, obligatorio, si tiene que existir), quién puede llamarlo, y qué responde cuando falla. Contestalas leyendo el schema o contrato que ya existe (`contracts`, DTO, Zod) y los endpoints vecinos; preguntá solo lo que no esté, con tu hipótesis. Cada regla es un `CA-n` en Criterios de aceptación: una validación que no está escrita no la implementa nadie y no la verifica nadie.
-- **Si toca la interfaz, el diseño lo propone `designer`, siempre.** Toca la interfaz si el pedido nombra algo que la persona ve (pantalla, modal, botón, mensaje, ruta) o si lo que leíste del repo cambia un archivo de una app de front (`CLAUDE.md › Apps y paquetes`). En la duda, toca. No es opcional ni se reemplaza por una descripción tuya: sin `designer` no hay wireframes, y sin wireframes `/plan` no pasa. Antes de la primera pregunta de UX, lanzá `Agent` (`subagent_type: designer`, `model`/`effort` de `config.sh`, prompt `proponer <slug>` más el pedido, las pantallas o rutas que toca y lo que la persona ya respondió). Devuelve `notes/ux.md` con la propuesta completa y sus preguntas. Sus dudas entran a `SPEC › Dudas` como las tuyas, con número `D-n`; lo que está arriba de 80% se afirma y se deja corregir. Si la persona trae un mockup o nombra una pantalla parecida, pasáselo en el prompt. Si las respuestas cambian mucho la propuesta (otra pantalla, otro flujo), relanzalo con las respuestas; si no, ajustá vos la sección.
+- **Si toca la interfaz, el diseño lo propone `designer`, siempre (en `camino: quick` no hay pantalla nueva y no hace falta).** Toca la interfaz si el pedido nombra algo que la persona ve (pantalla, modal, botón, mensaje, ruta) o si lo que leíste del repo cambia un archivo de una app de front (`CLAUDE.md › Apps y paquetes`). En la duda, toca. No es opcional ni se reemplaza por una descripción tuya: sin `designer` no hay wireframes, y sin wireframes `/plan` no pasa. Antes de la primera pregunta de UX, lanzá `Agent` (`subagent_type: designer`, prompt `proponer <slug>` más el pedido, las pantallas o rutas que toca y lo que la persona ya respondió). Devuelve `notes/ux.md` con la propuesta completa y sus preguntas. Sus dudas entran a `SPEC › Dudas` como las tuyas, con número `D-n`; lo que está arriba de 80% se afirma y se deja corregir. Si la persona trae un mockup o nombra una pantalla parecida, pasáselo en el prompt. Si las respuestas cambian mucho la propuesta (otra pantalla, otro flujo), relanzalo con las respuestas; si no, ajustá vos la sección.
 - **Pedido grande.** Si el pedido junta varias capacidades que se prueban por separado (identidad + facturación + notificaciones), antes del SPEC proponé un mapa: una tabla `módulo | responsabilidad | depende de` y un orden. La persona lo aprueba y se hace un SPEC por módulo, en orden de dependencia, cada uno con su slug, en la misma rama: son una cola (`orchestrate.md › Cola`). `padre:` no se usa acá: es de las iteraciones. Un pedido normal no pasa por acá.
 
 ## Si es un fix
@@ -70,7 +107,7 @@ flowchart TD
 
 1. **Síntoma antes que causa.** Qué se ve, dónde, el error textual. Si la persona ya trae la causa, se anota como hipótesis igual.
 2. **Hipótesis con evidencia.** Leé el flujo donde pega (grep, graphify, logs si hay). `archivo:línea`, por qué, confianza en %. Lo que miraste y descartaste también se anota.
-3. **Encargá la reproducción a `qa`** con `Agent` (`subagent_type: qa`, `model`/`effort` de `config.sh`, prompt `reproducir <slug>` más el síntoma y el punto de entrada: endpoint, función exportada o pantalla). **No le pases la hipótesis de causa**: QA trabaja en caja negra y una reproducción que sabe dónde está el bug prueba la hipótesis, no el síntoma. QA sube por la escalera unitario → integración → e2e → manual y se queda en el primer nivel que reproduce. Deja `notes/repro.md` y el working tree limpio; no commitea.
+3. **Encargá la reproducción a `qa`** con `Agent` (`subagent_type: qa`, prompt `reproducir <slug>` más el síntoma y el punto de entrada: endpoint, función exportada o pantalla). **No le pases la hipótesis de causa**: QA trabaja en caja negra y una reproducción que sabe dónde está el bug prueba la hipótesis, no el síntoma. QA sube por la escalera unitario → integración → e2e → manual y se queda en el primer nivel que reproduce. Deja `notes/repro.md` y el working tree limpio; no commitea.
 4. **Sin reproducción no hay plan.** `REPRO: NO` termina la entrevista: la persona decide si consigue más datos o cierra la tarea. `REPRO: manual` alcanza para aprobar; el test automático llega como tarea 1 del plan, al nivel de la causa raíz confirmada.
 5. Los casos borde de un fix son las variantes del síntoma: misma entrada con otro estado, el camino vecino que no debe cambiar, la condición de carrera si la hay.
 

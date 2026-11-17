@@ -23,10 +23,7 @@ Los ejemplos de abajo están en TypeScript y son ilustrativos. El ciclo es el mi
 
 ## En el flujo mindstack
 
-- El desarrollador no escribe tests. Los escribe el agente `qa`, que no vio cómo se pensó el código y por eso lo testea sin sesgo.
-- `qa` testea contra el `SPEC.md` de la tarea, no contra el código. Si difieren, el test falla y lo dice; no se acomoda el test al código.
-- Cada test que cubre un caso borde lo nombra con su id: `it('CB-3: timeout con cobro hecho no reintenta')`. En revisión, `qa` cruza cada `CB-n` del SPEC contra los tests y abre un hallazgo por cada uno sin test o con un test que no lo reproduce.
-- Un bug que no es de la tarea no se arregla ni se testea como si fuera correcto: va a `CHANGELOG.md › Observaciones`.
+Quién escribe los tests y cómo se nombran: `agents/qa.md` y `skills/workflow/references/roles-and-artifacts.md`. El developer no escribe tests.
 
 ## Primero descubrí el stack
 

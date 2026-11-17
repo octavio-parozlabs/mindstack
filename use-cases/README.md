@@ -14,12 +14,13 @@ Cómo interactuás con mindstack, de punta a punta, con diagramas de secuencia. 
 |---|---|
 | [01 · Un bug, de punta a punta, autónomo](01-fix-autonomous.md) | `/draft` entrevista y reproduce el bug → `/plan` → `/orchestrate`: implementa, revisa (con la checklist), corrige, deja la tarea en `4-done` con el PR en CI verde. Vos: dos comandos, una frase y el merge |
 | [02 · Lo que vos hacés: el borrador](02-draft.md) | `/draft` (SPEC, varias vueltas) → `/plan` o "generá el plan" (PLAN validado, tarea pendiente) → `/draft` sin texto si querés volver → delegar con `/orchestrate` en el worktree |
-| [03 · El dev no puede decidir](03-decision-consensus.md) | `DECISION:` → tres analistas → acuerdo, o `blocked/` y te pregunta al retomar |
+| [03 · El dev no puede decidir](03-decision-consensus.md) | `DECISION:` → un analista con evidencia → decide, o `blocked/` y te pregunta al retomar |
 | [04 · Revisión con hallazgos, corrección y conflicto](04-review-fix-conflict.md) | ronda 1 con hallazgos y una línea de checklist abierta → `approver` (arregla, descarta, deuda, riesgo aceptado) → `developer` y `qa` → ronda 2 sobre lo que cambió → `4-done` → conflicto con main → rebase → CI verde → merge |
 | [05 · Variantes por tipo de tarea](05-task-types.md) | qué cambia en el flujo según `tipo:` del PLAN: refactor, migración, performance, docs, ci |
 | [06 · Varias tareas en paralelo e iteración sobre un PR](06-parallel-and-iterate.md) | dos tareas pendientes → dos worktrees → dos orquestadores → dos PRs; probás uno, falta algo → `/draft "qué falta"` → mismo PR → merge |
 | [07 · El backlog](07-backlog.md) | qa propone algo en una tarea → viaja en su PR → otra tarea lo vuelve a ver (peso 2) → preguntás qué conviene → `/draft backlog: <unas palabras>` |
 | [08 · Una cola para el fin de semana](08-queue.md) | tres tareas en un worktree → `/orchestrate` las corre en orden, una sesión nueva por tarea → un push, un PR, CI verde. Si una se bloquea: frena, PR draft con lo hecho, retomás |
+| [09 · Un cambio chico](09-quick.md) | `/draft` detecta un cambio chico sin riesgo → SPEC y PLAN cortos → dos revisores → PR; y el retoque sobre un PR abierto |
 
 ## La respuesta corta a "¿cómo lo uso?"
 
@@ -36,4 +37,4 @@ De ahí no para hasta `4-done`: implementa, testea, revisa con cuatro agentes (u
 
 Para varias tareas a la vez: un worktree por tarea, cada uno con su sesión; el borrador lo hacés de a uno, los orquestadores corren en paralelo, un PR cada una (caso 06). Si dependen entre sí o no hay apuro: todas en un worktree, `/orchestrate` las corre en cola, un PR para todas (caso 08).
 
-Seis comandos en total, ninguno con el nombre de la tarea: `/install` una vez por proyecto; `/doctor` cuando quieras revisar la máquina; `/draft`, `/plan` y `/orchestrate` en el día a día (el plan también se pide en palabras); `/rebase` para un PR colgado. Las fases internas (implement, review, fix, pr, conflicts) no son comandos: las corre el orquestador. Caso 02 muestra tu parte.
+Los comandos, uno por uno: `README.md › Comandos` del plugin. Caso 02 muestra tu parte.

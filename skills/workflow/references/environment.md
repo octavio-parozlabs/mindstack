@@ -50,10 +50,10 @@ Claude no trabaja adentro de los contenedores: edita en el worktree y el contene
 
 ## Dónde queda la URL
 
-`PLAN.md` está congelado, así que la URL no va ahí. Va a `CHANGELOG › Cambios` como fila de `developer`: "entorno levantado: `http://localhost:5247`". el orquestador (fase implement) la deja en pantalla al terminar y `PR.md › Cómo probarlo` la repite.
+`PLAN.md` está congelado, así que la URL no va ahí. Va a `CHANGELOG › Cambios` como fila del orquestador: "entorno levantado: `http://localhost:5247`". el orquestador (fase implement) la deja en pantalla al terminar y `PR.md › Cómo probarlo` la repite.
 
 ## Sin Docker
 
-El flujo no exige Docker: exige un comando para levantar y una URL para probar. Si el proyecto no tiene `docker-compose.yml`, el orquestador (fase implement) se saltea `env-up.sh` y el `developer` deja en `CHANGELOG › Cambios` cómo se levanta (el comando del stack) y dónde probar. Lo que se pierde sin Compose es el aislamiento de la DB entre tareas; con una sola tarea a la vez no importa.
+El flujo no exige Docker: exige un comando para levantar y una URL para probar. Si el proyecto no tiene `docker-compose.yml`, el orquestador (fase implement) se saltea `env-up.sh` y deja en `CHANGELOG › Cambios` cómo se levanta (el comando del stack) y dónde probar. Lo que se pierde sin Compose es el aislamiento de la DB entre tareas; con una sola tarea a la vez no importa.
 
 Costo real con Docker: una imagen por rama (capas cacheadas, un minuto la segunda vez), un Postgres idle de 50 MB y el tamaño de tu dump. Diez tareas a la vez caben en una máquina de desarrollo.

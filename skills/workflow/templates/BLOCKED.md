@@ -1,6 +1,6 @@
 # BLOCKED: <slug>
 
-<!-- Lo escribe el orquestador al mover la tarea a todolist/blocked/ (orchestrate.md › Bloquear). Es lo único que la persona lee: corto, cada motivo citando algo de la tarea (CA-n, CB-n, ID de hallazgo, tarea n del TODO), con opciones cerradas y una recomendada. Al retomar, las respuestas van a CHANGELOG › Decisiones y este archivo se borra. -->
+<!-- Corto: es lo único que la persona lee. Cada motivo cita algo de la tarea (CA-n, CB-n, ID de hallazgo, tarea n del TODO), con opciones cerradas y una recomendada. Cuándo se escribe: orchestrate.md › Bloquear. -->
 
 desde: <2-in-progress | 3-in-review | 4-done> · ronda <n> · PR #<n> (en draft) | sin PR
 

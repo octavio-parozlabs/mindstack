@@ -1,7 +1,6 @@
 # Aprobación: <título>
 
-<!-- Lo escribe solo el approver (hook). Una sección por ronda, se agrega abajo y nunca se reescribe: lo decidido no se rediscute.
-developer y qa leen solo "Para corregir" de la ronda en curso. El PR toma de acá los riesgos aceptados y los descartes. -->
+<!-- Una sección por ronda, agregada abajo. Quién la escribe y con qué criterio: agents/approver.md. -->
 
 ## Ronda 1 de <rondas_revision> · AAAA-MM-DD · APPROVAL: fix 2
 

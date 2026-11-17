@@ -46,7 +46,7 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
 2b. **Si es un fix: confirmar la causa.** El SPEC trae una causa probable; vos leés el código y la confirmás o refutás, con `archivo:línea` y por qué, en "Acoplamiento". Refutada y el alcance no cambia: Decisiones con la causa real. Refutada y el alcance cambia: pará, vuelve a `/mindstack:draft`. Las tareas de un fix tienen orden fijo: 1) `qa` lleva el test de `notes/repro.md` a la suite, al nivel de la causa confirmada, y queda en rojo; 2) `developer` arregla; el Done incluye ese test en verde. Si la reproducción fue manual y ningún test automático es viable, lo decís en Decisiones con principio y queda en deuda en `TECHNICAL_DEBT.md`, con vencimiento; nunca "arreglado, confiá".
 3. **Caracterizar antes de tocar.** Una fila de riesgo alto sin test convierte la primera tarea en tests de caracterización, rol `qa`. Marcá la decisión en el plan.
 4. **Tajadas verticales.** Una tarea = un camino completo que se puede probar (schema + api + ui de *una* cosa), no una capa entera. Mal: "toda la DB, toda la API, toda la UI". Bien: "el usuario puede X", "el usuario puede Y". Cada tajada deja el sistema funcionando.
-4b. **Buscar antes de construir.** Por cada necesidad que no cubre la tabla "Con qué" del stack y no es trivial (un componente, un algoritmo, una integración), lanzá un agente `researcher` (con `model`/`effort` de `config.sh`) con la necesidad; si son varias, todos en un turno. La recomendada va en la tarea ("con `elkjs`") y la tabla en `CHANGELOG › Decisiones`. Implementar algo propio es la última opción: `research.md`.
+4b. **Buscar antes de construir.** Por cada necesidad que no cubre la tabla "Con qué" del stack y no es trivial (un componente, un algoritmo, una integración), lanzá un agente `researcher` con la necesidad; si son varias, todos en un turno. La recomendada va en la tarea ("con `elkjs`") y la tabla en `CHANGELOG › Decisiones`. Implementar algo propio es la última opción: `research.md`.
 5. **Cada tarea** tiene número, rol (`developer` o `qa`), y verificación (un comando o un test que dice que está). Las de tests van a `qa`, nunca al que implementa. Una tarea que no entra en una iteración del loop son dos. Dibujá el grafo de dependencias entre tareas (flowchart) si son más de cuatro.
 6. **Estado final** = Criterios de aceptación del SPEC + lo que el plan agrega (cobertura del diff, lint, docs). Cada línea verificable.
 7. **Done** = los comandos del stack que el loop corre para parar. Salen de la skill del stack o del `CLAUDE.md` del proyecto. Todos, no alguno. **Done tiene que correr lo mismo que CI**: mirá `.github/workflows/` (o equivalente) y si CI corre un check que el Done no, agregalo. Un Done más chico que CI es un PR rojo asegurado.
@@ -58,7 +58,7 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
 12. **Commit.** `plan(<slug>): ronda n` con PLAN.md y CHANGELOG.md.
 13. **A pendiente, en el mismo turno.** Validá y mové:
     - `tipo:` es uno de la tabla; el SPEC tiene `CA-n` en Criterios de aceptación; cada línea de "Estado final" es verificable; cada tarea tiene `rol:` y verificación; Done es un bloque bash no vacío que cubre lo que corre CI; `fecha_inicio` y `fecha_fin` están.
-    - Si alguna tarea del PLAN toca un archivo de una app de front y el SPEC no tiene "Referencias de UI": no pasa. Vuelve a la fase draft para que el `designer` dibuje las pantallas; un cambio de front sin wireframe es el developer decidiendo el diseño.
+    - Si alguna tarea del PLAN toca un archivo de una app de front, el SPEC es `camino: full` y no tiene "Referencias de UI": no pasa. Vuelve a la fase draft para que el `designer` dibuje las pantallas; un cambio de front sin wireframe es el developer decidiendo el diseño.
     - Si el SPEC tiene "Referencias de UI": cada `SCR-n` tiene su `wireframes/<nombre>.wireloom` y `node ${CLAUDE_PLUGIN_ROOT}/scripts/wireframes.mjs todolist/0-draft/<slug>/wireframes` sale en verde (regenera los SVG).
     - Si el SPEC tiene "Diagnóstico": Reproducción no está vacía ni es `NO`, "Causa raíz: confirmada", tarea 1 con rol `qa`. Sin eso, un fix no pasa a pendiente.
     - `D-n` abiertas del SPEC que quedaron: a "Riesgos y vuelta atrás" del PLAN.
@@ -68,6 +68,10 @@ Si una tarea mezcla dos tipos (feature con migración), elegí el más riesgoso 
     - `chmod a-w SPEC.md PLAN.md` (cosmético; la red real es el hook y CI).
     - `git mv todolist/0-draft/<slug> todolist/1-pending/<slug>`; commit propio `plan(<slug>): pending`.
 14. **Resumen de cinco líneas**, lo único que la persona lee: tipo y skills; N tareas y fechas; Done; qué agregaste a "Fuera de alcance" que no estaba en el SPEC; riesgos. Y el siguiente paso: `/mindstack:orchestrate` en este worktree, o `/mindstack:draft "otra cosa"` para sumar otra tarea a la cola del mismo PR (`orchestrate.md › Cola`). Si quiere cambiar algo: `/mindstack:draft` sin texto la vuelve a borrador.
+
+## Camino quick
+
+Con `camino: quick` en el SPEC, el PLAN lleva solo frontmatter (`tipo`, `skills`, `rama`, fechas), Objetivo, Tareas y Done: sin tabla de acoplamiento, sin Estado final propio (la CHECKLIST sale de los `CA-n` y `CB-n`) ni Riesgos. La validación del paso 13 es la misma salvo esas secciones. El resumen es de dos líneas.
 
 ## Qué no
 

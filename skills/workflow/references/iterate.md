@@ -20,7 +20,7 @@ La tarea es la de esta rama (ya existe y tiene el PR).
 
 1. Verificá: la carpeta `<slug>` está en `4-done/` y la rama tiene PR (`gh pr view`). Si no hay PR, no es una iteración: es otra tarea de la cola de esta rama (`commands/draft.md`, `orchestrate.md › Cola`). `gh pr ready --undo` con un comentario "iteración en curso: <qué falta>": mientras la iteración no llegue a `4-done`, el PR no está listo para mergear.
 2. Slug hijo: `<slug>-2`, `<slug>-3`, … (el siguiente libre).
-3. `analyze.md` con el pedido, acotado, y **pará con el SPEC escrito** como siempre: la persona lo lee, comenta, y pide el plan (`/mindstack:plan` o en palabras). Detalle del alcance: el "Cómo funciona hoy" es el estado del PR, no de `main`; el alcance es lo que falta, no la tarea entera; los casos borde son los nuevos. `padre: <slug>` en el frontmatter del SPEC y del PLAN; `rama:` la misma que el padre.
+3. ¿Es un retoque (`analyze.md › Camino`)? Entonces SPEC `quick` y PLAN en el mismo turno, sin dudas, `git mv` a `1-pending/` y terminá diciendo `/mindstack:orchestrate`. Si no: `analyze.md` con el pedido, acotado, y **pará con el SPEC escrito** como siempre: la persona lo lee, comenta, y pide el plan (`/mindstack:plan` o en palabras). Detalle del alcance: el "Cómo funciona hoy" es el estado del PR, no de `main`; el alcance es lo que falta, no la tarea entera; los casos borde son los nuevos. `padre: <slug>` en el frontmatter del SPEC y del PLAN; `rama:` la misma que el padre.
 4. `plan.md` igual que siempre. El Done es el mismo del padre más lo nuevo.
 5. `plan.md` termina con `git mv` a `1-pending/<slug>-2`, commit. Se hace en la rama de la tarea, no en `main`: la iteración vive y muere con el PR.
 6. La persona corre `/mindstack:orchestrate` en el mismo worktree; el orquestador toma la iteración (la de `1-pending/` con `padre:` igual al slug del worktree).
@@ -30,5 +30,5 @@ La tarea es la de esta rama (ya existe y tiene el PR).
 ## Qué no
 
 - Editar el SPEC o el PLAN del padre "porque es chico". Están congelados; el hook lo bloquea; y la iteración existe justamente para que el cambio tenga su propia memoria.
-- Hacer el cambio en la sesión sin iteración. Lo que pidas después del PR es una iteración, con revisión; antes del PR, es parte de la tarea.
+- Hacer el cambio en la sesión sin iteración. Lo que pidas después del PR es una iteración, con revisión (un retoque es una iteración corta, no una excepción); antes del PR, es parte de la tarea.
 - Abrir un segundo PR. Un PR por rama; la iteración lo actualiza.

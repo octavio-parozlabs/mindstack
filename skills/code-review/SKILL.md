@@ -131,16 +131,7 @@ Para cada archivo del diff, leé el archivo completo, no solo el hunk: necesitá
 
 ### Paso 4: clasificar
 
-Cada hallazgo lleva severidad **por consecuencia, no por tamaño del fix**:
-
-| Severidad | Significa | Efecto |
-|---|---|---|
-| **crítica** | pérdida de datos, plata o acceso | orienta al approver: arreglar salvo motivo fuerte |
-| **alta** | bug en el camino principal | orienta al approver |
-| **media** | bug en un camino secundario | orienta al approver |
-| **baja** | molestia, no bug | orienta al approver |
-
-La severidad no decide sola: el `approver` decide por consecuencia (`fix.md` de `mindstack:workflow`).
+Cada hallazgo lleva severidad **por consecuencia, no por tamaño del fix**, con la escala de `skills/workflow/templates/REVIEW.md`. La severidad no decide sola: decide el `approver`.
 
 Lo que en otros esquemas sería `Critical` es crítica o alta según la consecuencia; `Required` es alta o media según el camino; `Optional`/`Consider` y `Nit` **no se escriben**: si no es un fallo concreto con fix, no es hallazgo. `FYI` tampoco: el contexto va en "A verificar" si hace falta, o no va.
 
@@ -152,29 +143,11 @@ Qué tests se corrieron, si pasó el build, si se probó a mano, si hay capturas
 
 ## Formato de salida: `REVIEW-code.md`
 
-Un solo archivo, se reescribe entero en cada ronda (la anterior queda en git; lo decidido, en `APPROVAL.md`). Frontmatter con rol, ronda, fecha, base y `working_tree` (el código no está commiteado). Sin veredicto, sin sección de aciertos, sin elogios, sin nits de estilo, sin "considerá". Solo hallazgos.
-
-El formato exacto, con frontmatter (`base`, `working_tree`), tabla, "A verificar", "Fuera del diff" y "Propuestas", es `skills/workflow/templates/REVIEW.md` de `mindstack:workflow`.
-
-Reglas de la tabla:
-
-- IDs `CODE-n`, correlativos dentro de la ronda.
-- Cada fila tiene un fallo concreto, una entrada que lo dispara y un fix de una línea. Si no podés nombrar la entrada, no va en la tabla.
-- Columna **CB**: el `CB-n` del `SPEC.md` que cubre, o `—`.
-- **Máximo `hallazgos_por_revisor` hallazgos (config de mindstack).** Si hay más, los más graves en la tabla y el resto en "A verificar".
-- "A verificar": lo que parece fallo y no pudiste confirmar con una entrada concreta. Una línea cada uno. No cuenta como hallazgo ni bloquea.
-- **Tabla vacía = nada que objetar.** No la rellenes para justificar la ronda.
-- Terminá con el conteo por severidad.
+Formato, IDs, escala de severidad, tope de hallazgos, "A verificar", "Fuera del diff" y "Cerrados": `skills/workflow/templates/REVIEW.md`. Lo propio de esta skill: cada fila tiene una entrada que dispara el fallo; si no podés nombrarla, no va en la tabla. Tabla vacía = nada que objetar; no la rellenes.
 
 ## En el flujo mindstack
 
-Lo usa el agente `code-reviewer` dentro de `/mindstack:orchestrate (fase review)`, en un solo turno y en paralelo con `qa` (CB-n contra tests) y `security-auditor` (zero trust). Cada uno escribe su archivo y no lee el de los otros.
-
-- Lee `SPEC.md`: lo que el SPEC dice que no se hace, o queda fuera de alcance, no es hallazgo.
-- Lee `CHANGELOG.md › Decisiones`: lo decidido con principio no se vuelve a discutir. Un principio **mal aplicado** sí es hallazgo, con la evidencia.
-- "Yo lo haría distinto" no es hallazgo. "Rompe explícito antes que implícito: el handler lee `process.env`" sí.
-- El revisor no edita código ni escribe en el CHANGELOG. El `approver` decide cada hallazgo (**arreglar**, **deuda** con vencimiento, **riesgo aceptado**, **descartado** o **bloqueado** si cambia la feature, con motivo) y lo deja en `APPROVAL.md`.
-- Cualquier hallazgo → `/mindstack:orchestrate (fase fix)`: el approver decide. Lo que no cierra en `rondas_revision` y no se negocia va a `blocked/`.
+Lo carga el agente `code-reviewer` en la fase review (`skills/workflow/references/review.md`). Lo que el SPEC dice que no se hace no es hallazgo; lo decidido con principio en `CHANGELOG › Decisiones` tampoco, salvo un principio mal aplicado, con la evidencia. Qué pasa con cada hallazgo lo decide el `approver` (`agents/approver.md`).
 
 ## Código muerto
 

@@ -71,6 +71,15 @@ caso "approver escribe TECHNICAL_DEBT"          0 ./write-scope.sh '/(APPROVAL|T
 caso "approver escribe CHANGELOG"               0 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit todolist/3-in-review/x/CHANGELOG.md)"
 caso "approver no escribe código"                2 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit src/a.ts)"
 caso "approver no escribe REVIEW"                2 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit todolist/3-in-review/x/REVIEW-code.md)"
+caso "qa Bash > código bloquea"                2 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|/__tests__/|test-helpers|/fixtures/|REVIEW-qa\.md$|CHANGELOG\.md$|/notes/repro\.md$)' <<<"$(B 'echo x > src/a.ts')"
+caso "qa Bash > test pasa"                       0 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|/__tests__/|test-helpers|/fixtures/|REVIEW-qa\.md$|CHANGELOG\.md$|/notes/repro\.md$)' <<<"$(B 'echo x > src/a.test.ts')"
+caso "qa Bash 2>/dev/null pasa"                  0 ./write-scope.sh '(\.test\.|\.spec\.|/test/|/tests/|/__tests__/|test-helpers|/fixtures/|REVIEW-qa\.md$|CHANGELOG\.md$|/notes/repro\.md$)' <<<"$(B 'npm test 2>/dev/null')"
+caso "dev Bash sed -i test bloquea"              2 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|/__tests__/|/fixtures/|test-helpers)' <<<"$(B "sed -i s/a/b/ src/a.test.ts")"
+caso "dev Bash cp a test bloquea"                2 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|/__tests__/|/fixtures/|test-helpers)' <<<"$(B 'cp x src/__tests__/a.ts')"
+caso "dev Bash > código pasa"                    0 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|/__tests__/|/fixtures/|test-helpers)' <<<"$(B 'cat a > src/b.ts')"
+caso "dev Bash cd && tee test bloquea"           2 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|/__tests__/|/fixtures/|test-helpers)' <<<"$(B 'cd src && tee a.spec.ts')"
+caso "verifier Bash > código bloquea"            2 ./write-scope.sh '/CHECKLIST\.md$' <<<"$(B 'echo x >> src/a.ts')"
+caso "verifier Bash lee pasa"                    0 ./write-scope.sh '/CHECKLIST\.md$' <<<"$(B 'npx vitest run src/a.test.ts')"
 caso "sin file_path pasa"                        0 ./write-scope.sh 'REVIEW-code\.md$' <<<'{"tool_name":"Edit","tool_input":{}}'
 
 echo "orchestrate-stop.sh"

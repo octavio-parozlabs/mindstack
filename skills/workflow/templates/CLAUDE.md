@@ -11,14 +11,8 @@
 
 ## Cómo se trabaja
 
-La forma de trabajo es el plugin `mindstack`. Se respeta; si algo no cierra, PR al plugin, no un atajo en la tarea.
+La forma de trabajo es el plugin `mindstack`: skill `mindstack:workflow` (estados, artefactos, roles, commits) y sus hooks, que la hacen cumplir. Se respeta; si algo no cierra, PR al plugin, no un atajo en la tarea. Las reglas viven en el plugin y no se copian acá: así una actualización del plugin las cambia en todos los proyectos.
 
-- Una tarea es una carpeta en `todolist/<estado>/<slug>/`; la carpeta es el estado. Skill `mindstack:workflow` tiene el detalle. Resumen: `claude -w <slug>` → `/mindstack:draft "qué querés"` (SPEC, con vos) → comentás → `/mindstack:plan` o "generá el plan" (PLAN, queda pendiente) → `/mindstack:orchestrate` (implementa, testea, revisa, verifica la checklist, corrige y deja la tarea en `4-done/` con PR y CI verde, o en `blocked/` con `BLOCKED.md`) → probás en localhost → mergeás. Si falta algo, `/mindstack:draft "qué falta"` en el worktree y otra vuelta sobre el mismo PR. PR colgado: `/mindstack:rebase`.
-- `SPEC.md`, `PLAN.md` y `wireframes/` no se editan desde que la tarea está pendiente: el hook lo bloquea; `/mindstack:draft` sin texto la vuelve a borrador. Lo que cambia va a `CHANGELOG.md › Decisiones`, o es otra tarea.
-- Cada rol escribe sus archivos: el dev no escribe tests ni reviews; QA no toca producción; los revisores no editan código. Invocar `/mindstack:draft`, `plan`, `orchestrate` o `rebase` es el pedido explícito de los commits y push que cada uno declara.
-- Cuando dos reglas chocan o ninguna aplica, deciden los principios que el plugin pone en contexto al arrancar. Si no deciden, preguntar.
-- **Nada está listo sin evidencia.** Cada `[x]` en `TODO.md` tiene su fila en `CHANGELOG.md › Cambios` con comando y salida.
-- Un refactor grande es otra tarea. En esta, el código entra como está y la deuda queda anotada con issue y vencimiento.
 - Leer antes de tocar: `graphify query` si hay grafo, `grep` si no, para saber quién depende de lo que vas a cambiar.
 
 ## Stack
@@ -37,8 +31,3 @@ La forma de trabajo es el plugin `mindstack`. Se respeta; si algo no cierra, PR 
 
 - No cambiar el gestor de paquetes, el runner de tests, el formateador ni nada que esté en la tabla "Con qué" de una skill del stack.
 - No desactivar reglas de lint o del compilador para que pase. Arreglar la causa.
-- No modificar un test para que pase. Si el test estaba mal, decirlo y cambiarlo con fila en Decisiones; entra en el commit de código de la fase pr.
-- No editar `SPEC.md`, `PLAN.md` ni `wireframes/` fuera de `0-draft/`. No abrir `wireframes/rendered/`: los SVG son para la persona; la fuente es el `.wireloom`. No escribir un `REVIEW-*.md` que no sea de tu rol.
-- El código de una tarea no se commitea hasta que la revisión pasa: el orquestador (fase pr) hace el único commit de código. Los borradores y los movimientos de estado sí se commitean, uno por ronda.
-- No commitear ni pushear fuera de lo que un comando del flujo declara. Nunca crear una rama por iniciativa propia. Nada de `--force`: solo el resolutor, con `--force-with-lease`, sobre la rama de la tarea.
-- No trabajar en `main`: una rama por PR (`claude -w <slug>`, orca o a mano), del borrador al PR, con una tarea o varias en cola. En `main` no se corre ningún comando del flujo; el aviso de sesión dice qué limpiar.

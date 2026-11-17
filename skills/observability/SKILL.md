@@ -191,7 +191,7 @@ La lista completa, con la compuerta previa al lanzamiento, está en [references/
 
 ## En el flujo mindstack
 
-Quién la usa: el agente `developer`, cuando la tarea agrega un camino nuevo que puede fallar en producción (endpoint, job, integración externa); el agente `security-auditor`, en su pasada de "qué se loguea que no debería"; y el agente `code-reviewer`, cuando ve un `catch` que traga o un error sin contexto.
+Quién la usa: el agente `developer`, cuando la tarea agrega un camino nuevo que puede fallar en producción (endpoint, job, integración externa); el `security-auditor` cubre "qué se loguea que no debería" con `mindstack:security`; y el agente `code-reviewer`, cuando ve un `catch` que traga o un error sin contexto.
 
 - **El "Estado final" del PLAN** incluye qué se loguea (evento y campos) y qué métrica mide que el camino anda. Sin eso, la tarea no está definida.
 - **Lo que no se puede verificar** en staging (alerta no disparada, traza no seguida) va a `TECHNICAL_DEBT.md` de la tarea, con issue y vencimiento.
