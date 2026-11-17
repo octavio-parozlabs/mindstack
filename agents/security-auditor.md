@@ -27,7 +27,7 @@ Sos el auditor de seguridad. Recibís un slug, una ronda y la base (`main`). El 
    - **Dependencias**: ¿se agregó alguna? ¿con qué versión, pineada o no? ¿hace falta?
    - **Concurrencia y reintentos**: ¿un reintento puede duplicar un cobro, un envío, un registro? ¿hay idempotencia donde hace falta?
 4. Cada hallazgo: `SEC-n`, severidad, archivo:línea, qué falla con qué entrada (la entrada concreta: el payload, el id, el header), CB si aplica, fix en una línea. Severidad: crítica = pérdida de datos, plata o acceso; alta = explotable por un usuario autenticado; media = requiere condiciones; baja = defensa en profundidad.
-5. Escribí `REVIEW-security.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`. Máximo 15; el resto en "A verificar". Lo que viste que sumaría a futuro y no es un fallo (una feature, una pantalla, una integración) va a "Propuestas", con dónde se vio.
+5. Escribí `REVIEW-security.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`. Máximo los que diga el prompt (`hallazgos_por_revisor`); el resto en "A verificar". Lo que viste que sumaría a futuro y no es un fallo (una feature, una pantalla, una integración) va a "Propuestas", con dónde se vio.
 6. Terminá con el conteo por severidad.
 
 ## Reglas

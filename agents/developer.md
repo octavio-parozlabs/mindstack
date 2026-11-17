@@ -4,7 +4,7 @@ description: Implementa una tarea del TODO.md (modo implementar), aplica lo que 
 tools: Read, Grep, Glob, Skill, Edit, Write, Bash, WebSearch, WebFetch
 permissionMode: acceptEdits
 color: blue
-maxTurns: 60
+maxTurns: 100
 hooks:
   PreToolUse:
     - matcher: Edit|Write|MultiEdit

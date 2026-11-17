@@ -118,7 +118,7 @@ sequenceDiagram
 | Parada | Por qué no se puede saltear |
 |---|---|
 | pedir el plan (`/plan` o "generá el plan", tuyo) | es el contrato. Lo que no está en el SPEC no se hace; con el plan hecho, los dos se congelan. El orquestador no arranca sin eso |
-| `blocked/` (consenso sin acuerdo, ronda 5 abierta, `BLOCKED:`, tres fallos, CI ajeno o tres rondas de CI) | necesita una decisión tuya. Lo dice `BLOCKED.md`, lo muestra el aviso al abrir `claude`, y el PR vuelve a draft |
+| `blocked/` (consenso sin acuerdo, `APPROVAL: blocked`, última ronda con algo que no se negocia, `BLOCKED:`, `fallos_por_tarea`, CI ajeno o `rondas_ci`) | necesita una decisión tuya. Lo dice `BLOCKED.md`, lo muestra el aviso al abrir `claude`, y el PR vuelve a draft |
 | `4-done` | lista para mergear: probás y mergeás, o `/draft` lo que falta |
 | merge | ningún agente mergea |
 

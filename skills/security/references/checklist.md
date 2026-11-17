@@ -137,7 +137,7 @@ Cuando la skill audita, el único resultado es este archivo, con solo hallazgos:
 - [ ] Tabla `ID | Severidad | Archivo:línea | Qué falla, con qué entrada | CB | Fix en una línea`
 - [ ] IDs `SEC-n` correlativos; severidad `crítica` / `alta` / `media` / `baja`
 - [ ] Cada fila con la entrada hostil concreta (payload, id, header, nombre de archivo) y un fix
-- [ ] Máximo 15; lo no confirmado bajo "A verificar", una línea cada uno
+- [ ] Máximo `hallazgos_por_revisor` (config de mindstack); lo no confirmado bajo "A verificar", una línea cada uno
 - [ ] Solo lo que el diff trae o hace alcanzable; lo preexistente, en "Fuera del diff"
 - [ ] Sin elogios, sin "considerá", sin nits de estilo
 - [ ] Conteo por severidad al final

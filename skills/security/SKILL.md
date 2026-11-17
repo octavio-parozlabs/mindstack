@@ -149,7 +149,7 @@ Cuando esta skill audita (como `security-auditor` o a pedido), el resultado es u
 - **Qué falla, con qué entrada**: la entrada hostil concreta: el payload, el id, el header, el nombre de archivo. Sin entrada concreta no es hallazgo, va a "A verificar".
 - **CB**: el caso borde del SPEC que lo cubre, si existe.
 - **Fix en una línea**: qué cambiar, no una disertación.
-- Máximo 15 hallazgos. Lo que parece fallo y no se confirmó va bajo `## A verificar`, una línea cada uno; no cuenta ni bloquea.
+- Máximo `hallazgos_por_revisor` hallazgos (config de mindstack). Lo que parece fallo y no se confirmó va bajo `## A verificar`, una línea cada uno; no cuenta ni bloquea.
 - Termina con el conteo por severidad.
 
 La plantilla con frontmatter está en `skills/workflow/templates/REVIEW.md`.
@@ -211,6 +211,6 @@ Antes de dar por cerrado código con impacto en seguridad, y como pasada final d
 - [ ] Operaciones con efecto idempotentes ante reintento; verificaciones y escrituras en la misma transacción
 - [ ] Datos personales clasificados, con propósito, retención y borrado real (backups, caches, índices)
 - [ ] Si es web: headers, cookies, CORS y CSP verificados con `mindstack:web-security`
-- [ ] Si se auditó: `REVIEW-security.md` con solo hallazgos `SEC-n`, entrada concreta y fix por fila, máximo 15, conteo por severidad al final
+- [ ] Si se auditó: `REVIEW-security.md` con solo hallazgos `SEC-n`, entrada concreta y fix por fila, máximo `hallazgos_por_revisor`, conteo por severidad al final
 
 La checklist completa por superficie está en [references/checklist.md](references/checklist.md).

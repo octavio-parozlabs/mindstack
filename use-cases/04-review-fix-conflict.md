@@ -92,6 +92,6 @@ sequenceDiagram
 | `approver` mirando todo junto | CODE-3 estaba mal: nadie tocó un listado que andaba. CODE-1 y CODE-2 no frenaron la tarea: quedaron como deuda y riesgo aceptado, con motivo, y los ves en el PR |
 | `verifier` y `CHECKLIST.md` | CA-4 (otro usuario no ve tu PDF) no tenía test aunque el código lo cubría; ahora lo tiene. Eso no se negocia |
 | ronda 2 sobre lo que cambió | los revisores no encontraron cosas nuevas en código que ya había pasado |
-| tope de cinco rondas | en la 5, el approver cierra lo suyo como deuda o riesgo; solo una línea de checklist, un `QA-n`, un secreto o una pérdida irreversible abiertos van a `blocked/` |
+| tope `rondas_revision` (8) | en la última, el approver cierra lo suyo como deuda o riesgo; solo una línea de checklist, un `QA-n`, un secreto o una pérdida irreversible abiertos van a `blocked/` |
 | rebase y `--force-with-lease`, nunca `--force` | el resolutor no pisó lo que otro pusheó |
 | nadie mergea | el merge fue tuyo |

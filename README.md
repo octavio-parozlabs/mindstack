@@ -128,7 +128,7 @@ modelo_code-reviewer=sonnet
 esfuerzo_approver=max
 ```
 
-Los modelos por defecto, con su porqué en el mismo archivo: opus para `designer`, `developer`, `security-auditor`, `approver` y `conflict-resolver`; sonnet para `analyst`, `researcher`, `qa`, `code-reviewer` y `verifier`. El SPEC lo escribe tu sesión: usá opus en `/draft`. `scripts/config.sh` muestra los valores efectivos. El `maxTurns` de cada agente no se configura: es del frontmatter de `agents/*.md`.
+Los modelos por defecto, con su porqué en el mismo archivo: opus para `designer`, `developer`, `security-auditor`, `approver` y `conflict-resolver`; sonnet para `analyst`, `researcher`, `qa`, `code-reviewer` y `verifier`. El SPEC lo escribe tu sesión: usá opus en `/draft`. `scripts/config.sh` muestra los valores efectivos. Los turnos por agente (`turnos_*`) también están ahí, pero solo se cambian en el plugin: Claude Code los lee del frontmatter de `agents/*.md`, y `scripts/sync-agents.sh` los copia desde el config.
 
 ## Skills
 

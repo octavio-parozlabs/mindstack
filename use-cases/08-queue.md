@@ -56,7 +56,7 @@ sequenceDiagram
     participant G as GitHub
     actor U as Vos
     O->>H: hija cupones-carrito
-    H->>H: ronda 5 con CODE-2 abierto → blocked/ + BLOCKED.md · commit local
+    H->>H: approver: arreglar CODE-2 cambia cómo se aplican los cupones → APPROVAL: blocked · BLOCKED.md · commit local
     H-->>O: fin: cupones-carrito en blocked/
     Note over O: resumen-compra depende de los cupones: la cola frena
     O->>G: push de lo hecho · gh pr create --draft · "bloqueada: cupones-carrito"

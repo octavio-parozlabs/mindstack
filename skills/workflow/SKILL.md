@@ -163,7 +163,7 @@ flowchart LR
 ```
 
 - **Modelos:** están solo ahí; los `agents/*.md` no tienen `model:`. Quien lanza un `Agent` (`/draft`, `/plan`, `/orchestrate`) le pasa siempre `model` = `modelo_<agente>`, y `effort` = `esfuerzo_<agente>` si tiene valor. Sin eso, el agente correría con el modelo de la sesión.
-- **Lo que no se configura:** el `maxTurns` de cada agente. Es frontmatter de Claude Code y el `Agent` no lo pisa: cambiarlo es cambiar `agents/<rol>.md` del plugin. Si un agente se queda sin turnos, devuelve lo que tiene y cuenta como un fallo (`fallos_por_tarea`).
+- **Turnos (`turnos_<agente>`):** también están ahí, pero Claude Code no deja pasar `maxTurns` al lanzar el `Agent`: vive en el frontmatter de `agents/*.md` y `scripts/sync-agents.sh` lo copia desde el config (`hooks/test.sh` falla si difieren). Por eso es del plugin y no se pisa por proyecto. Si un agente se queda sin turnos, devuelve lo que tiene y cuenta como un fallo (`fallos_por_tarea`).
 
 ## Redes de contención, de adentro hacia afuera
 
@@ -176,7 +176,7 @@ flowchart LR
 7. Cada hallazgo que bloquea lo valida otro agente antes de corregirse; si no coinciden, consenso; si no hay acuerdo, `blocked/`.
 8. Cinco rondas de revisión como máximo; después, `blocked/`.
 9. El código no se commitea hasta que la revisión pasa: lo commiteado es lo revisado.
-10. `4-done` es CI verde; el orquestador itera con el log hasta tres veces.
+10. `4-done` es CI verde; el orquestador itera con el log hasta `rondas_ci` veces.
 11. `hooks/orchestrate-stop.sh`: el orquestador no termina el turno fuera de `4-done` con CI verde o de `blocked/`.
 12. Nadie mergea.
 

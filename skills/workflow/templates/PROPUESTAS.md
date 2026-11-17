@@ -2,7 +2,7 @@
 
 <!-- Lo escribe solo el orquestador en la fase pr: con la tarea terminada y revisada, antes del push, para que viaje en el PR.
 Sale de CHANGELOG › Propuestas y REVIEW-*.md › Propuestas de la tarea, que siguen ahí: la entrada apunta a la tarea y la tarea guarda su fila.
-Entra lo que trae dónde se vio; lo repetido suma una línea "Visto también" a la existente. Máximo tres por tarea.
+Entra lo que trae dónde se vio; lo repetido suma una línea "Visto también" a la existente. Máximo propuestas_por_tarea por tarea (config del plugin).
 
     ## Reintento manual desde el detalle del pago
     - Propuesta: 2026-10-20 · qa · tarea `reintento-pagos` → todolist/4-done/reintento-pagos/ (CHANGELOG › Propuestas)

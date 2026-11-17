@@ -120,6 +120,8 @@ caso "default del plugin"                        0 bash -c 'cd "$1/repo" && [ "$
 caso "clave inexistente sale 1"                 1 bash -c 'cd "$1/repo" && "$2/../scripts/config.sh" no_existe' _ "$tmp" "$hooks" <<<""
 caso "el proyecto pisa el modelo"                0 bash -c 'cd "$1/repo" && mkdir -p .claude && echo "modelo_qa=opus # más caro" >.claude/mindstack.conf && [ "$("$2/../scripts/config.sh" modelo_qa)" = opus ]; r=$?; rm -r .claude; exit $r' _ "$tmp" "$hooks" <<<""
 
+caso "maxTurns de agents/ igual a turnos_* del config" 0 ../scripts/sync-agents.sh --check <<<""
+
 echo "orchestrate-start.sh"
 start() { (cd "$tmp/repo" && "$hooks/orchestrate-start.sh"); }
 rm -rf "$M"

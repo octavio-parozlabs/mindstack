@@ -33,8 +33,8 @@ Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima.
 2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`. Desde la ronda 2, `qa`, `code-reviewer` y `security-auditor` reciben además `solo: <archivos>` (los que tocaron developer y qa en la fase fix) y los IDs que se mandaron a arreglar: revisan eso y confirman que esos IDs se cerraron, no vuelven a revisar lo que ya pasó. El `verifier` recorre la checklist entera siempre: es barato y un arreglo puede romper una línea ya tachada.
 3. **Un solo turno con cuatro `Agent`**, cada uno con `subagent_type` del rol y este prompt mínimo:
    - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests."
-   - `code-reviewer`: "revisar <slug> ronda <n> base main. Lógica, legibilidad, arquitectura, rendimiento. Escribí REVIEW-code.md."
-   - `security-auditor`: "auditar <slug> ronda <n> base main. Zero trust. Escribí REVIEW-security.md."
+   - `code-reviewer`: "revisar <slug> ronda <n> base main. Lógica, legibilidad, arquitectura, rendimiento. Escribí REVIEW-code.md. Máximo <hallazgos_por_revisor> hallazgos."
+   - `security-auditor`: "auditar <slug> ronda <n> base main. Zero trust. Escribí REVIEW-security.md. Máximo <hallazgos_por_revisor> hallazgos."
    - `verifier`: "verificar <slug> ronda <n>. Tachá CHECKLIST.md con evidencia."
 4. Cuando los cuatro terminan: un commit `review(<slug>): round <n>` **solo con los tres `REVIEW-*.md` y `CHECKLIST.md`** (`git add` de esos archivos, nada más). El código sigue sin commitear.
 5. Veredicto:

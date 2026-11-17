@@ -4,7 +4,7 @@ description: Reproduce un bug al nivel más atómico posible y deja la evidencia
 tools: Read, Grep, Glob, Skill, Edit, Write, Bash
 permissionMode: acceptEdits
 color: green
-maxTurns: 40
+maxTurns: 60
 hooks:
   PreToolUse:
     - matcher: Edit|Write|MultiEdit

@@ -177,7 +177,7 @@ Reglas de la tabla:
 - IDs `CODE-n`, correlativos dentro de la ronda.
 - Cada fila tiene un fallo concreto, una entrada que lo dispara y un fix de una línea. Si no podés nombrar la entrada, no va en la tabla.
 - Columna **CB**: el `CB-n` del `SPEC.md` que cubre, o `—`.
-- **Máximo 15 hallazgos.** Si hay más, los 15 más graves en la tabla y el resto en "A verificar".
+- **Máximo `hallazgos_por_revisor` hallazgos (config de mindstack).** Si hay más, los más graves en la tabla y el resto en "A verificar".
 - "A verificar": lo que parece fallo y no pudiste confirmar con una entrada concreta. Una línea cada uno. No cuenta como hallazgo ni bloquea.
 - **Tabla vacía = nada que objetar.** No la rellenes para justificar la ronda.
 - Terminá con el conteo por severidad.
@@ -259,7 +259,7 @@ Al terminar la revisión:
 - [ ] Cada `CODE-n` tiene severidad, archivo:línea, entrada que lo dispara y fix en una línea
 - [ ] Nada en la tabla está fuera del alcance del SPEC ni rediscute una decisión con principio
 - [ ] Lo no confirmado está en "A verificar", no en la tabla
-- [ ] Hay como máximo 15 hallazgos
+- [ ] Hay como máximo `hallazgos_por_revisor` hallazgos
 - [ ] Al menos una mutación sobre una condición nueva se probó contra la suite
 - [ ] Se revisó la historia de verificación del autor (tests, build, manual)
 - [ ] Los bumps de dependencias se revisaron contra su changelog, aislados por paquete, con suite verde y lockfile revisado

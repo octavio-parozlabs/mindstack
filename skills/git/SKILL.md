@@ -264,7 +264,7 @@ ADRs; este es el contrato con los consumidores.
 ## En el flujo mindstack
 
 Las reglas de ramas, commits y `.gitignore` del flujo de tareas están en la
-skill `mindstack:workflow`, `skills/workflow/references/git.md`: una rama `worktree-<slug>` por
+skill `mindstack:workflow`, `skills/workflow/references/git.md`: una rama por
 tarea, commits de movimiento de estado `plan(<slug>): …`, prefijos
 `feat|fix|test|chore(<slug>)`, `review(<slug>): round n`, nadie mergea,
 `--force-with-lease` solo el resolutor, `.gitignore` desde la plantilla. Lo
