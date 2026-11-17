@@ -40,10 +40,15 @@ rebote() {
   if [ "$n" -ge "$exige" ]; then
     echo "mindstack: $n intentos de parar sin avance. Pasá la tarea a blocked/ con BLOCKED.md, motivo: no avanza ($1). orchestrate.md › Bloquear." >&2
   else
-    echo "mindstack: $1" >&2
+    echo "mindstack: $1 Si estás esperando agentes en segundo plano: touch '$marker.esperando' y terminá el turno." >&2
   fi
   exit 2
 }
+
+# Esperando agentes en segundo plano: el Agent corre en background y su aviso llega con el turno terminado.
+# El modelo lo declara con el archivo que le dio orchestrate-start; vale una espera y caduca a la hora.
+# ponytail: confía en el modelo; si miente, la sesión queda quieta como antes de este hook.
+if [ -n "$(find "$marker.esperando" -mmin -60 2>/dev/null)" ]; then rm -f "$marker.esperando"; exit 0; fi
 
 # Hija de una cola: termina con su tarea en 4-done (commit local) o en blocked/. El push y el PR son del padre.
 hija=$(sed -nE 's/.*orchestrate[[:space:]]+hija[[:space:]]+([^[:space:]]+).*/\1/p' "$marker" | head -1)
@@ -63,7 +68,7 @@ default=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's
 # Padre esperando a una hija: deja parar. El fin del proceso en segundo plano lo despierta.
 # ponytail: una hija muerta sin limpiar deja su marcador; el padre lo borra al despertar (orchestrate.md › Cola).
 for m in "$gitdir"/mindstack-orchestrating/*; do
-  [ "$m" != "$marker" ] && [ "${m%.rebotes}" = "$m" ] && grep -Eqs 'orchestrate[[:space:]]+hija' "$m" && exit 0
+  [ "$m" != "$marker" ] && [ "${m%.rebotes}" = "$m" ] && [ "${m%.esperando}" = "$m" ] && grep -Eqs 'orchestrate[[:space:]]+hija' "$m" && exit 0
 done
 
 # Las tareas de este turno son las de la cola. Una en 0-draft (Retomar la reabrió) también es salida: sigue /draft.

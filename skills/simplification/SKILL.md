@@ -243,7 +243,7 @@ Prop drilling, inyección de dependencias, capas de indirección: son decisiones
 
 Quién la carga: el agente `developer` cuando el `PLAN.md` de la tarea tiene `tipo: refactor`; y el mismo agente en modo `corregir` al cerrar hallazgos de legibilidad del `code-reviewer` en `/mindstack:orchestrate (fase fix)`.
 
-- **Un refactor es una tarea propia, con su SPEC.** En una tarea normal, un refactor grande que aparece en el camino va a `CHANGELOG.md › Deuda técnica`, con vencimiento; no se hace de paso.
+- **Un refactor es una tarea propia, con su SPEC.** En una tarea normal, un refactor grande que aparece en el camino va a `TECHNICAL_DEBT.md` de la tarea, con vencimiento; no se hace de paso.
 - **Sin cambiar comportamiento.** `qa` corre la suite antes y después del refactor. Cualquier diferencia es un bug del refactor, no un test a ajustar.
 - **Un hallazgo de legibilidad** ya lo decidió el `approver`: si dice arreglar, lo aplicás con esta skill. Lo que no está en el hallazgo no se toca.
 - Para los tests que protegen cada paso, `mindstack:tdd`. Para el hallazgo que lo origina, `mindstack:code-review`. Para la rama y los commits por paso, `mindstack:git`.

@@ -40,7 +40,7 @@ sequenceDiagram
     AP->>AP: CODE-3: el listado ya hace un JOIN (invoices.repo.ts:30) → descartado
     AP->>AP: CODE-1: real, no rompe nada → deuda #52 vence 2026-12-15
     AP->>AP: CODE-2: nombre poco claro en un helper interno → riesgo aceptado
-    AP-->>C: CHANGELOG › Revisión · APPROVAL: fix 3
+    AP-->>C: APPROVAL.md ronda 1 · APPROVAL: fix 3
     C->>DEV: corregir facturas-pdf ronda 1: SEC-1
     DEV->>DEV: SEC-1: verifica dueño en el handler (sin commit)
     DEV->>H: Edit todolist/3-in-review/facturas-pdf/PLAN.md

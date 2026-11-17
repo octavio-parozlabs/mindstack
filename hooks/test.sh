@@ -36,6 +36,8 @@ caso "Bash echo > PLAN en blocked bloquea"       2 ./plan-immutable.sh <<<"$(B '
 caso "CHECKLIST por verifier pasa"               0 ./plan-immutable.sh <<<"$(E Edit todolist/3-in-review/x/CHECKLIST.md ',"agent_type":"verifier"')"
 caso "CHECKLIST por mindstack:verifier pasa"       0 ./plan-immutable.sh <<<"$(E Edit todolist/3-in-review/x/CHECKLIST.md ',"agent_type":"mindstack:verifier"')"
 caso "REVIEW-qa por mindstack:qa pasa"          0 ./plan-immutable.sh <<<"$(E Write todolist/3-in-review/x/REVIEW-qa.md ',"agent_type":"mindstack:qa"')"
+caso "APPROVAL por approver pasa"                0 ./plan-immutable.sh <<<"$(E Write todolist/3-in-review/x/APPROVAL.md ',"agent_type":"mindstack:approver"')"
+caso "APPROVAL por developer bloquea"            2 ./plan-immutable.sh <<<"$(E Edit todolist/3-in-review/x/APPROVAL.md ',"agent_type":"developer"')"
 caso "CHECKLIST por developer bloquea"           2 ./plan-immutable.sh <<<"$(E Edit todolist/2-in-progress/x/CHECKLIST.md ',"agent_type":"developer"')"
 caso "CHECKLIST sin agent_type (/plan) pasa"     0 ./plan-immutable.sh <<<"$(E Write todolist/0-draft/x/CHECKLIST.md)"
 caso "backlog por developer bloquea"            2 ./plan-immutable.sh <<<"$(E Edit todolist/backlog/PROPUESTAS.md ',"agent_type":"developer"')"
@@ -64,9 +66,11 @@ caso "verifier escribe CHECKLIST"               0 ./write-scope.sh '/CHECKLIST\.
 caso "verifier no escribe código"                2 ./write-scope.sh '/CHECKLIST\.md$' <<<"$(E Edit src/a.ts)"
 caso "dev no escribe CHECKLIST"                  2 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|/__tests__/|/fixtures/|test-helpers)' <<<"$(E Edit todolist/2-in-progress/x/CHECKLIST.md)"
 caso "dev no escribe fixtures"                   2 ./write-scope.sh --no '(PLAN\.md$|CHECKLIST\.md$|SPEC\.md$|REVIEW-[a-z]+\.md$|\.test\.|\.spec\.|/test/|/tests/|/__tests__/|/fixtures/|test-helpers)' <<<"$(E Edit src/__tests__/fixtures/a.json)"
-caso "approver escribe CHANGELOG"               0 ./write-scope.sh '/CHANGELOG\.md$' <<<"$(E Edit todolist/3-in-review/x/CHANGELOG.md)"
-caso "approver no escribe código"                2 ./write-scope.sh '/CHANGELOG\.md$' <<<"$(E Edit src/a.ts)"
-caso "approver no escribe REVIEW"                2 ./write-scope.sh '/CHANGELOG\.md$' <<<"$(E Edit todolist/3-in-review/x/REVIEW-code.md)"
+caso "approver escribe APPROVAL"                0 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit todolist/3-in-review/x/APPROVAL.md)"
+caso "approver escribe TECHNICAL_DEBT"          0 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit todolist/3-in-review/x/TECHNICAL_DEBT.md)"
+caso "approver escribe CHANGELOG"               0 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit todolist/3-in-review/x/CHANGELOG.md)"
+caso "approver no escribe código"                2 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit src/a.ts)"
+caso "approver no escribe REVIEW"                2 ./write-scope.sh '/(APPROVAL|TECHNICAL_DEBT|CHANGELOG)\.md$' <<<"$(E Edit todolist/3-in-review/x/REVIEW-code.md)"
 caso "sin file_path pasa"                        0 ./write-scope.sh 'REVIEW-code\.md$' <<<'{"tool_name":"Edit","tool_input":{}}'
 
 echo "orchestrate-stop.sh"
@@ -117,6 +121,10 @@ rm -rf "$tmp/repo/todolist"; mkdir -p "$tmp/repo/todolist/4-done/a" "$tmp/repo/t
 marca; printf 'a\nb\n' >"$C"; caso "cola frenada sin PR draft no deja parar" 2 env GH_VIEW=1 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks" <<<"$S"
 marca; printf 'a\nb\n' >"$C"; caso "cola frenada con PR draft deja parar" 0 stop <<<"$S"
 caso "y deja la cola para retomar"               0 test -s "$C" <<<""
+mover 3-in-review; marca; touch "$M/s1.esperando"; caso "esperando agentes deja parar"     0 stop <<<"$S"
+caso "la espera vale una vez"                    2 stop <<<"$S"
+marca; touch -d "2 hours ago" "$M/s1.esperando"; caso "una espera vieja no vale"   2 stop <<<"$S"
+rm -f "$M/s1.esperando"
 exige=$("$hooks/../scripts/config.sh" rebotes_exige_blocked); parar=$("$hooks/../scripts/config.sh" rebotes_deja_parar)
 marca; mover 3-in-review; for ((i = 1; i < exige; i++)); do stop <<<"$S" 2>/dev/null; done
 caso "rebotes_exige_blocked sin avance: blocked" 0 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh" 2>&1 >/dev/null | grep -q "Pasá la tarea a blocked"' _ "$tmp" "$hooks" <<<"$S"
@@ -145,6 +153,7 @@ caso "en cualquier rama marca"                  0 bash -c 'cd "$1/repo" && "$2/o
 git -C "$tmp/repo" switch -q -c worktree-x
 rm -rf "$M"
 caso "otro prompt no marca"                      1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"hola"}'
+caso "/mindstack:orchestrate dice cómo esperar" 0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" | grep -q "s9.esperando"' _ "$tmp" "$hooks" <<<'{"session_id":"s9","prompt":"/mindstack:orchestrate"}'
 caso "/mindstack:orchestrate marca"             0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -qx /mindstack:orchestrate .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
 caso "hija marca con su prompt"                  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -q "hija a" .git/mindstack-orchestrating/s2' _ "$tmp" "$hooks" <<<'{"session_id":"s2","prompt":"/mindstack:orchestrate hija a"}'
 

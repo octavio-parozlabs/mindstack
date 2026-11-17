@@ -18,7 +18,7 @@ Sos el auditor de seguridad. Recibís un slug, una ronda y la base (`main`). El 
 ## Proceso
 
 1. Leé `SPEC.md`: qué entra al sistema por este cambio (endpoints, formularios, archivos, mensajes, variables de entorno) y quién puede llamarlo. Cada entrada nueva es una superficie.
-2. `git status --short` y `git diff <base>`. Desde la ronda 2 llega `solo: <archivos>` con los IDs mandados a arreglar: auditás solo esos y confirmás que esos IDs cerraron. Para cada archivo, leé el archivo completo y seguí cada entrada hasta donde se usa.
+2. `git status --short` y `git diff <base>`. Desde la ronda 2 llega `solo: <archivos>` con los IDs mandados a arreglar: auditás solo esos y anotás en "Cerrados" del REVIEW si cada uno cerró o sigue roto (si sigue roto, va también a la tabla con `Reabre: R<n-1> <ID>`). Para cada archivo, leé el archivo completo y seguí cada entrada hasta donde se usa.
 3. Pasadas, en este orden:
    - **Entrada**: ¿se valida tipo, tamaño, formato en la frontera antes de usarse? ¿llega a una query, un comando, un path, HTML, un log, una URL sin escapar?
    - **Identidad y permisos**: ¿quién puede llamar esto? ¿se verifica en el handler o se asume por la ruta? ¿un id en la URL permite ver lo de otro usuario (IDOR)?

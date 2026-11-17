@@ -62,7 +62,7 @@ Desde que la persona dice "hacelo" hasta que entrega, el orquestador es responsa
 | el PR sin conflicto con `main` | `conflicts.md` | intenciones incompatibles: `blocked/` |
 | **CI verde** | espera los checks; rojo = `developer ci` con el log, `qa`, push; hasta `rondas_ci` | fallo ajeno al cambio o última ronda: `blocked/` |
 | el entorno local levantado y la URL en el CHANGELOG | `env-up.sh` al terminar el loop | sin compose: el comando del stack |
-| todo lo que pasó, escrito | Cambios, Decisiones, Deuda, Revisión, Conflictos en el CHANGELOG | nunca |
+| todo lo que pasó, escrito | Cambios, Decisiones, CI, Conflictos en el CHANGELOG; decisiones del approver en `APPROVAL.md`; deuda en `TECHNICAL_DEBT.md` | nunca |
 
 Lo que no es suyo: escribir SPEC y PLAN (eso es `/draft`), decidir un consenso sin acuerdo, mergear. Eso es de la persona: el orquestador deja la tarea en `blocked/` con la pregunta, o en `4-done/` lista para el merge.
 
@@ -94,6 +94,8 @@ El orquestador corre de `1-pending` a `4-done` **en un turno**, y solo tiene dos
 Todo lo demás es seguir: terminar una tarea, terminar el loop, una fase completa, levantar el entorno, esperar a CI. Un "listo con implement, ¿sigo?" o un resumen de avance es un error del orquestador. No pregunta con `AskUserQuestion` en el camino (solo al retomar una tarea bloqueada): una pregunta en una sesión que nadie mira es una tarea trabada que no se ve.
 
 **Lo garantiza un hook, no el prompt.** Al tipear `/mindstack:orchestrate`, el hook `UserPromptSubmit` (`hooks/orchestrate-start.sh`) deja un marcador de esta sesión, con el prompt, en `$(git rev-parse --git-dir)/mindstack-orchestrating/<session_id>`: el git dir del worktree, nunca se commitea. Mientras exista, el hook `Stop` (`hooks/orchestrate-stop.sh`) no deja terminar el turno si una tarea de la cola (`mindstack-cola`, que el orquestador escribe siempre) no llegó a `4-done`, o si todo está en `4-done` y el CI del PR no está verde. Si una de la cola está en `blocked/`, deja parar, pero antes exige que lo terminado esté subido como PR draft: le devuelve qué falta y el modelo sigue. En una de las dos salidas, borra el marcador. Una hija de cola termina antes (§ Cola), y el padre puede terminar el turno mientras una hija corre: lo despierta el fin del proceso. Las sesiones de `/draft` o las manuales no tienen marcador y no se ven afectadas. Si rebota `rebotes_exige_blocked` veces seguidas sin avance (mismo `HEAD`, mismo `git status`, mismo motivo, como un check que queda pendiente para siempre), le exige pasar la tarea a `blocked/`; a las `rebotes_deja_parar` lo deja parar, para no quemar tokens en un loop.
+
+**Esperar a un agente no es parar.** Los `Agent` corren en segundo plano: su resultado llega como aviso, y el aviso solo entra con el turno terminado. Para esperar, el hook de inicio te da un archivo propio de esta sesión: `touch` a ese archivo y terminá el turno; el hook de parada deja pasar esa vez sin contar rebote. Nada de `sleep`, `Monitor` ni loops con `grep` para esperar: gastan tokens y el aviso llega igual. Solo con agentes corriendo de verdad; si no, la sesión queda quieta y nadie la despierta.
 
 ## Cola
 

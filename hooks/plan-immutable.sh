@@ -42,6 +42,11 @@ case "$tool" in
         *) echo "mindstack: REVIEW-$rol.md lo escribe solo su rol, no '$agent'." >&2; exit 2 ;;
       esac
     fi
+    # APPROVAL.md: solo el approver (las decisiones no las reescribe quien las aplica).
+    if [ -n "$agent" ] && [ "$agent" != approver ] && grep -Eq 'todolist/([0-4]-[^/ ]+|blocked)/[^/ ]+/APPROVAL\.md' <<<"$file"; then
+      echo "mindstack: APPROVAL.md lo escribe solo approver, no '$agent'." >&2
+      exit 2
+    fi
     # CHECKLIST.md: la genera /plan (sesión principal, sin agent_type) y la tacha solo verifier.
     if [ -n "$agent" ] && [ "$agent" != verifier ] && grep -Eq "$CHECKLIST" <<<"$file"; then
       echo "mindstack: CHECKLIST.md la tacha solo verifier, no '$agent'." >&2

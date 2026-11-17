@@ -152,7 +152,7 @@ Qué tests se corrieron, si pasó el build, si se probó a mano, si hay capturas
 
 ## Formato de salida: `REVIEW-code.md`
 
-Un solo archivo, se reescribe entero en cada ronda (la anterior queda en git y en `CHANGELOG.md › Revisión`). Frontmatter con rol, ronda, fecha, base y `working_tree` (el código no está commiteado). Sin veredicto, sin sección de aciertos, sin elogios, sin nits de estilo, sin "considerá". Solo hallazgos.
+Un solo archivo, se reescribe entero en cada ronda (la anterior queda en git; lo decidido, en `APPROVAL.md`). Frontmatter con rol, ronda, fecha, base y `working_tree` (el código no está commiteado). Sin veredicto, sin sección de aciertos, sin elogios, sin nits de estilo, sin "considerá". Solo hallazgos.
 
 El formato exacto, con frontmatter (`base`, `working_tree`), tabla, "A verificar", "Fuera del diff" y "Propuestas", es `skills/workflow/templates/REVIEW.md` de `mindstack:workflow`.
 
@@ -173,7 +173,7 @@ Lo usa el agente `code-reviewer` dentro de `/mindstack:orchestrate (fase review)
 - Lee `SPEC.md`: lo que el SPEC dice que no se hace, o queda fuera de alcance, no es hallazgo.
 - Lee `CHANGELOG.md › Decisiones`: lo decidido con principio no se vuelve a discutir. Un principio **mal aplicado** sí es hallazgo, con la evidencia.
 - "Yo lo haría distinto" no es hallazgo. "Rompe explícito antes que implícito: el handler lee `process.env`" sí.
-- El revisor no edita código ni escribe en el CHANGELOG. El `approver` decide cada hallazgo (**arreglar**, **deuda** con vencimiento, **riesgo aceptado**, **descartado** o **bloqueado** si cambia la feature, con motivo) y lo deja en `CHANGELOG.md › Revisión`.
+- El revisor no edita código ni escribe en el CHANGELOG. El `approver` decide cada hallazgo (**arreglar**, **deuda** con vencimiento, **riesgo aceptado**, **descartado** o **bloqueado** si cambia la feature, con motivo) y lo deja en `APPROVAL.md`.
 - Cualquier hallazgo → `/mindstack:orchestrate (fase fix)`: el approver decide. Lo que no cierra en `rondas_revision` y no se negocia va a `blocked/`.
 
 ## Código muerto

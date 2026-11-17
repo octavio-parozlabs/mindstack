@@ -26,7 +26,9 @@ todolist/
     ├── PLAN.md          cómo se hace: fechas, estado final, acoplamiento, tareas con rol, Done
     ├── TODO.md          qué se hizo: las tareas del PLAN, las tacha el dev
     ├── CHECKLIST.md     qué tiene que ser cierto: CA-n, CB-n, Estado final; la tacha solo el verifier
-    ├── CHANGELOG.md     qué pasó: cambios, observaciones, propuestas, decisiones, deuda, revisión, conflictos, cierre
+    ├── CHANGELOG.md     qué pasó: cambios, observaciones, propuestas, decisiones, CI rojo, conflictos, cierre
+    ├── APPROVAL.md      qué decidió el approver, una sección por ronda: "Para corregir" (lo único que tocan developer y qa) y una decisión por hallazgo
+    ├── TECHNICAL_DEBT.md qué se dejó a propósito: origen, vencimiento, issue
     ├── REVIEW-qa.md     hallazgos de QA contra los CB del SPEC
     ├── REVIEW-code.md hallazgos del revisor de código
     ├── REVIEW-security.md hallazgos del auditor, zero trust
@@ -63,6 +65,8 @@ En la rama default (`main`) no se corre ningún comando del flujo: el PR necesit
 | `PLAN.md` | planificador con la persona | solo en `0-draft/`. Después, **nunca** | ¿cómo se hace, en qué orden, con qué Done? |
 | `TODO.md` | el planificador lo deriva al pasar a pendiente; el dev tacha | en cada tarea terminada | ¿qué se hizo? |
 | `CHECKLIST.md` | el planificador la deriva de los `CA-n`, `CB-n` y Estado final; solo `verifier` tacha | en cada ronda de revisión | ¿está todo lo pedido, con código, test y evidencia? |
+| `APPROVAL.md` | solo el approver (hook), una sección por ronda | se agrega en cada ronda; nunca se reescribe | ¿qué se arregla, qué no y por qué? |
+| `TECHNICAL_DEBT.md` | approver y developer | se agrega | ¿qué se dejó a propósito, hasta cuándo? |
 | `CHANGELOG.md` | todos los roles, cada uno su sección | en cada paso. Solo se agrega, nunca se reescribe | ¿qué pasó, qué se vio, qué se decidió y por qué, qué se dejó? |
 | `REVIEW-*.md` | un rol cada uno | se reescribe entero por ronda | ¿qué está mal? (solo eso) |
 | `backlog/IDEAS.md` | solo la persona; ningún agente (hook). Tabla: Descripción, Prioridad, Fecha, Notas | cuando se le ocurre algo; `/draft backlog:` saca la fila | ¿qué quiero hacer algún día? |
@@ -82,7 +86,7 @@ flowchart LR
 
 Si la persona pregunta qué del backlog conviene hacer: leé las dos listas y, de cada candidata, la tarea de origen. Ordená primero por peso: cuántas tareas distintas la vieron (la de origen más sus `Visto también`); una necesidad que aparece en cuatro tareas ya costó cuatro veces. Después, qué tan cerca está de lo que se viene haciendo (las últimas tareas de `4-done/`), tamaño y antigüedad; las ideas de la persona pesan más que una propuesta vista una sola vez, y su columna Prioridad manda: una idea 🔥 alta va primero salvo que una propuesta tenga mucho peso. Respondé con tres, una línea cada una con el porqué, y el comando para empezar la primera. No se escribe nada.
 
-Por qué un changelog por tarea: la memoria de un agente termina con su sesión. QA ve un bug ajeno y no lo arregla: Observaciones. El dev elige una librería sobre otra: Decisiones, con la descartada y el principio. El approver deja un hallazgo como deuda: Deuda técnica, con origen, vencimiento e issue; acepta un riesgo o descarta: Revisión, con motivo. Sin eso, cada rol que entra empieza de cero y la persona que mergea no sabe qué se dejó afuera.
+Por qué un changelog por tarea: la memoria de un agente termina con su sesión. QA ve un bug ajeno y no lo arregla: Observaciones. El dev elige una librería sobre otra: Decisiones, con la descartada y el principio. El approver decide cada hallazgo en `APPROVAL.md`, con motivo, y lo que deja como deuda va a `TECHNICAL_DEBT.md`, con origen, vencimiento e issue. Sin eso, cada rol que entra empieza de cero y la persona que mergea no sabe qué se dejó afuera.
 
 ## El flujo entero
 
@@ -138,12 +142,12 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro. No es desconfi
 | **analista** | `SPEC.md` |
 | **planificador** | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
 | **investigador** | nada |
-| **desarrollador** | código, `TODO.md`, `CHANGELOG.md` |
+| **desarrollador** | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md` |
 | **qa** | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
 | **code-reviewer** | `REVIEW-code.md` |
 | **security-auditor** | `REVIEW-security.md` |
 | **verifier** | `CHECKLIST.md` (solo tacha) |
-| **approver** | `CHANGELOG.md`: decide cada hallazgo, no edita código |
+| **approver** | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del CHANGELOG; no edita código |
 | **conflict-resolver** | lo que esté en conflicto, `CHANGELOG.md` |
 | **orquestador** | `BLOCKED.md`, `PR.md`, `backlog/PROPUESTAS.md`; en el CHANGELOG: Cierre, Decisiones (consenso, Retomar) y la fila del entorno |
 
@@ -200,7 +204,7 @@ flowchart LR
 | `references/worktree.md` | qué arma el hook `WorktreeCreate` y por qué | al abrir una sesión, al tocar el hook |
 | `references/environment.md` | el entorno local por tarea: `env-up.sh`, puertos por slug, copia de la DB, dónde queda la URL, por qué no se publica | al probar una tarea, al tocar `env-up.sh` o el compose |
 | `references/git.md` | ramas, commits, prefijos, `.gitignore` | al tocar ramas, commits, `.gitignore` |
-| `templates/` | `SPEC.md`, `PLAN.md`, `TODO.md`, `CHECKLIST.md`, `CHANGELOG.md`, `REVIEW.md`, `PR.md`, `BLOCKED.md`, `IDEAS.md`, `PROPUESTAS.md`, `CLAUDE.md`, `gitignore` | cada comando que crea un archivo |
+| `templates/` | `SPEC.md`, `PLAN.md`, `TODO.md`, `CHECKLIST.md`, `CHANGELOG.md`, `REVIEW.md`, `APPROVAL.md`, `TECHNICAL_DEBT.md`, `PR.md`, `BLOCKED.md`, `IDEAS.md`, `PROPUESTAS.md`, `CLAUDE.md`, `gitignore` | cada comando que crea un archivo |
 
 ## Qué pasa si no
 

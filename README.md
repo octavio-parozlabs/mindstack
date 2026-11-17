@@ -64,7 +64,9 @@ todolist/
     ├── PLAN.md            cómo se hace: fechas, estado final, acoplamiento, tareas con rol, Done
     ├── TODO.md            qué se hizo: las tareas del PLAN, las tacha el dev
     ├── CHECKLIST.md       qué tiene que ser cierto (CA-n, CB-n): la tacha solo el verificador
-    ├── CHANGELOG.md       qué pasó: cambios, observaciones, propuestas, decisiones, deuda, revisión, conflictos, cierre
+    ├── CHANGELOG.md       qué pasó: cambios, observaciones, propuestas, decisiones, CI rojo, conflictos, cierre
+    ├── APPROVAL.md        qué decidió el approver por ronda: "Para corregir" y una decisión por hallazgo
+    ├── TECHNICAL_DEBT.md  qué se dejó a propósito: origen, vencimiento, issue
     ├── REVIEW-qa.md       hallazgos de QA contra los CB del SPEC
     ├── REVIEW-code.md   hallazgos del revisor de código
     ├── REVIEW-security.md hallazgos del auditor, zero trust
@@ -80,6 +82,8 @@ todolist/
 | `CHECKLIST.md` | `verifier` tacha, con código, test y evidencia | en cada ronda de revisión |
 | `CHANGELOG.md` | todos, cada uno su sección | siempre se agrega, nunca se reescribe |
 | `REVIEW-*.md` | un rol cada uno | se reescribe por ronda. Solo hallazgos, con severidad |
+| `APPROVAL.md` | solo el approver | una sección por ronda, nunca se reescribe. developer y qa leen "Para corregir" |
+| `TECHNICAL_DEBT.md` | approver y developer | se agrega: origen, vencimiento, issue |
 | `backlog/IDEAS.md` | vos; ningún agente. Una fila por idea: Descripción, Prioridad, Fecha, Notas | cuando se te ocurre algo. `/mindstack:draft backlog: <unas palabras>` la convierte en tarea |
 | `backlog/PROPUESTAS.md` | el orquestador, con lo que los agentes propusieron en su tarea (con dónde se vio, máx. `propuestas_por_tarea` por tarea) | al llegar a done. Borrás lo que no te sirve |
 
@@ -105,12 +109,12 @@ Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee
 | `analyst` | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
 | `designer` | en el borrador, si toca la interfaz: propone la sección UX/UI del SPEC con la skill `design` y las pantallas que ya existen, y devuelve las preguntas | `notes/ux.md`, `wireframes/*.wireloom` (y renderiza `rendered/`) |
 | `researcher` | al planificar: compara librerías que ya resuelven una necesidad, con datos; lo propio es la última opción | nada |
-| `developer` | una tarea del TODO, lo que el approver manda arreglar o un CI rojo; sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
+| `developer` | una tarea del TODO, lo que el approver manda arreglar o un CI rojo; sin commit, decisiones en el CHANGELOG y deuda en `TECHNICAL_DEBT.md`. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md` |
 | `qa` | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
 | `code-reviewer` | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |
 | `security-auditor` | zero trust | `REVIEW-security.md` |
 | `verifier` | si está hecho: cada línea de la checklist con código, test que la nombra y test corrido | `CHECKLIST.md` |
-| `approver` | lee todos los hallazgos juntos y decide: arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo. Lo pedido y probado, secretos y pérdidas irreversibles se arreglan siempre | `CHANGELOG.md` |
+| `approver` | lee todos los hallazgos juntos y decide: arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo. Lo pedido y probado, secretos y pérdidas irreversibles se arreglan siempre | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del CHANGELOG |
 | `conflict-resolver` | rebase, suite, push | lo que esté en conflicto, `CHANGELOG.md` |
 
 El "escribe solo" lo garantiza un hook por agente (`hooks/write-scope.sh`), no el prompt. El dev no escribe tests ni reviews; QA no toca producción; los revisores no editan; nadie mergea.
@@ -148,7 +152,7 @@ Los principios que desempatan cuando dos reglas chocan están en `PRINCIPLES.md`
 0-draft        spec(slug): ronda n · plan(slug): ronda n      cada vuelta, commit
 estados        plan(slug): pending | reopen | implement | in review | done | blocked | unblocked
 implementar    nada: el código vive en el working tree del worktree
-revisar        review(slug): round n                           solo los REVIEW-*.md y CHECKLIST.md
+revisar        review(slug): round n · approval n             REVIEW-*.md y CHECKLIST.md · APPROVAL.md y TECHNICAL_DEBT.md
 fix            nada
 pr             plan(slug): done · feat|fix(slug): título       a 4-done, el único commit de código, UN push, PR
 ci             fix(slug): CI-n                                 solo si CI falla

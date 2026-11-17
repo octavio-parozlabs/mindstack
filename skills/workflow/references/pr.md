@@ -26,11 +26,11 @@ Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, una cola cortada,
 
 **En una cola** (`orchestrate.md › Cola`) se parte en dos: cada hija hace los pasos 1 a 4 para su tarea y termina con commit local; el padre hace del 5 en adelante una sola vez para toda la cola, con el body armado de los `PR.md` de cada tarea.
 
-1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; al menos un commit `review(<slug>): round n`, el último sin hallazgos o con `APPROVAL: pr`, y cada hallazgo de `CHANGELOG › Revisión` con decisión (los `arreglar` ya corregidos); todas las líneas de `CHECKLIST.md` con `[x]`. Si no, volvé a `fix.md`.
+1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; al menos un commit `review(<slug>): round n`, el último sin hallazgos o con `APPROVAL: pr`, y la última ronda de `APPROVAL.md` con `APPROVAL: pr` (los `arreglar` de rondas anteriores ya corregidos); todas las líneas de `CHECKLIST.md` con `[x]`. Si no, volvé a `fix.md`.
 2. Done de `PLAN.md` pasa ahora. Si no, volvé a `fix.md` con el log como hallazgo.
 3. **La carpeta llega a done antes del push**, en el working tree:
    - `git mv todolist/3-in-review/<slug> todolist/4-done/<slug>`.
-   - `CHANGELOG › Cierre`: inicio real (fecha del commit `plan(<slug>): implement`), fin real (hoy), al lado las planificadas; rondas de revisión; qué quedó distinto de lo planeado (dos o tres líneas de Decisiones); deuda abierta con issue y vencimiento.
+   - `CHANGELOG › Cierre`: inicio real (fecha del commit `plan(<slug>): implement`), fin real (hoy), al lado las planificadas; rondas de revisión; qué quedó distinto de lo planeado (dos o tres líneas de Decisiones); deuda abierta de `TECHNICAL_DEBT.md`, con issue y vencimiento.
    - `PR.md` desde `../templates/PR.md`: Objetivo en pasado, la `CHECKLIST` con su evidencia, cómo probar cada CB, resumen de rondas, lo que la persona tiene que mirar.
    - **Backlog**, ahora y no antes: lo pedido ya está hecho y revisado, y el commit `plan(<slug>): done` lo lleva en el PR. Cada fila de `CHANGELOG › Propuestas` y `REVIEW-*.md › Propuestas` pasa a `todolist/backlog/PROPUESTAS.md` con el formato de `../templates/PROPUESTAS.md`: fecha y rol de cuando se vio (no la de hoy), la tarea y su carpeta en `4-done/`, por qué suma, dónde se vio (`CA-n`, `CB-n`, `archivo:línea`), contexto, tamaño. La fila queda también en el CHANGELOG: la entrada apunta a la tarea y la tarea guarda su origen. Entra solo lo que trae dónde se vio; si ya hay una con la misma necesidad (aunque el texto cambie), no se crea otra: `Visto también: fecha · rol · tarea, CA-n` en la existente, una línea por tarea aunque la hayan visto varios roles. Es el peso de la propuesta: cuántas tareas distintas tropezaron con lo mismo. Máximo `propuestas_por_tarea` nuevas por tarea (`config.sh`), las de más valor; los `Visto también` no cuentan para el tope. `IDEAS.md` no se toca: es de la persona.
 4. Commits, todos locales: `plan(<slug>): done` con `git add todolist/` (la carpeta movida con `TODO.md`, `CHANGELOG.md` y `PR.md`, y `backlog/PROPUESTAS.md`), y `feat(<slug>): <title del PLAN>` (o `fix(`) con `git add -A`: el código y los tests. El de código es el primero de la tarea: todo lo anterior fueron docs (en una cola o una iteración, cada tarea tiene el suyo). Si preferís commits por tarea para leer el historial, no: la unidad revisada es el conjunto.
@@ -46,7 +46,7 @@ Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, una cola cortada,
    - Rojo por algo ajeno al cambio (infra, secreto que falta, test inestable de otro módulo), o la última ronda de CI roja (`rondas_ci`): `blocked` (`orchestrate.md › Bloquear`). Con un conflicto incompatible (paso 7), son los únicos casos en que la carpeta sale de `4-done`.
 
 Reglas del paso 8:
-- Cada fallo es un hallazgo `CI-n` en `CHANGELOG › Revisión` (rol `ci`), con decisión `arreglar` o `bloqueado` y el motivo (la línea del log).
+- Cada fallo es un `CI-n` en `CHANGELOG › Revisión`, con decisión `arreglar` o `bloqueado` y el motivo (la línea del log).
 - Si CI falló por algo que el Done de `PLAN.md` no corre, fila en Observaciones: "Done incompleto: CI corre X y el plan no".
 - El `developer` en modo `ci` corrige lo que el log dice, nada más. No se relanzan los revisores por un fix de CI: ya vieron el código, y el fix toca solo lo que el log dice.
 - Tope: `rondas_ci` (`config.sh`). Si el Done local es igual a CI, varios rojos seguidos son el entorno, no el código.

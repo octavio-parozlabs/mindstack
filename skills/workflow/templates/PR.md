@@ -19,13 +19,13 @@ La URL del entorno local de la tarea (`CHANGELOG › Cambios`, la levanta `env-u
 
 ## Revisión
 
-Rondas hechas y resultado, de `CHANGELOG.md › Revisión`: cuántos hallazgos por rol y cuántos de cada decisión del approver.
+Rondas hechas y resultado, de `APPROVAL.md`: cuántos hallazgos por rol y cuántos de cada decisión del approver; y los CI rojos de `CHANGELOG › Revisión`.
 
 ## Lo que la persona tiene que mirar
 
 Lo del `CHANGELOG.md` que necesita una decisión, una línea cada una:
 
-- **Riesgos aceptados y descartes** del approver: ID, qué decía el revisor, motivo. Primero los de seguridad.
-- Deuda técnica con issue y vencimiento.
+- **Riesgos aceptados y descartes** de `APPROVAL.md`: ID, qué decía el revisor, motivo. Primero los de seguridad.
+- Lo abierto de `TECHNICAL_DEBT.md`, con issue y vencimiento.
 - Decisiones discutibles y Observaciones fuera de la tarea.
 

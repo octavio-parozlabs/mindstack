@@ -135,7 +135,9 @@ todolist/4-done/pagos-timeout/
 ├── PLAN.md          tipo: fix · causa raíz confirmada · tareas 1 (qa) y 2 (dev)
 ├── TODO.md          [x] [x]
 ├── CHECKLIST.md     CA-1..3, CB-1..4, todas tachadas con evidencia
-├── CHANGELOG.md     Cambios, Decisiones, Deuda (#45), Revisión (2 rondas, decisiones del approver), Cierre
+├── CHANGELOG.md     Cambios, Decisiones, CI-1, Cierre
+├── APPROVAL.md      2 rondas de decisiones del approver
+├── TECHNICAL_DEBT.md CODE-1 (#45)
 ├── REVIEW-qa.md     ronda 2, vacío
 ├── REVIEW-code.md   ronda 2, vacío
 ├── REVIEW-security.md ronda 2, vacío

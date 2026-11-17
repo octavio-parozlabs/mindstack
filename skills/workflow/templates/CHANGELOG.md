@@ -2,7 +2,7 @@
 
 Memoria de la tarea mientras se ejecuta. Lo escriben los roles al terminar cada paso; nadie reescribe, solo se agrega abajo. Es lo primero que lee quien entra a la tarea y lo primero que lee quien mergea.
 
-Quién: `analyst` · `planner` · `developer` · `qa` · `approver` · `conflict-resolver` · `orchestrator` · `consensus` · `person`. Los revisores no escriben acá: aparecen como Rol en Revisión.
+Quién: `analyst` · `planner` · `developer` · `qa` · `approver` (solo Observaciones; sus decisiones van a `APPROVAL.md` y la deuda a `TECHNICAL_DEBT.md`) · `conflict-resolver` · `orchestrator` · `consensus` · `person`. Los revisores no escriben acá: aparecen como Rol en Revisión.
 
 ## Cambios
 
@@ -22,7 +22,7 @@ Lo que se vio y no es de esta tarea: bugs ajenos, código raro, módulos sin tes
 
 ## Propuestas
 
-Lo que mientras trabajabas viste que sumaría a futuro y no es de esta tarea: una feature, una pantalla, una integración. No es un bug (Observaciones) ni algo que dejaste a medias (Deuda). Sin "dónde se vio" no se propone. El orquestador las pasa a `todolist/backlog/PROPUESTAS.md` al llegar a done.
+Lo que mientras trabajabas viste que sumaría a futuro y no es de esta tarea: una feature, una pantalla, una integración. No es un bug (Observaciones) ni algo que dejaste a medias (`TECHNICAL_DEBT.md`). Sin "dónde se vio" no se propone. El orquestador las pasa a `todolist/backlog/PROPUESTAS.md` al llegar a done.
 
 La fecha es la de cuando se vio, no la de done: es la que viaja al backlog. Contexto: lo curioso que acompaña (una observación relacionada, un dato del log, qué lo disparó), en una línea.
 
@@ -38,23 +38,13 @@ Elecciones que alguien va a cuestionar después, y todo giro respecto del PLAN. 
 |---|---|---|---|---|
 | | | | | |
 
-## Deuda técnica
-
-Lo que se dejó a propósito. Sin issue no es deuda, es olvido. Sin vencimiento no es deuda, es para siempre. Origen: el id del hallazgo de revisión que la generó, o `developer` si la dejó el desarrollador.
-
-| Fecha | Quién | Qué falta | Por qué no ahora | Origen | Vence | Issue |
-|---|---|---|---|---|---|---|
-| | | | | CODE-3 | 2026-12-01 | #45 |
-
 ## Revisión
 
-Una fila por hallazgo por ronda. La escribe el `approver` (`fix.md`). Decisión: `arreglar` · `deuda #issue` · `riesgo aceptado` · `descartado` · `bloqueado`. Lo que no es `arreglar` lleva un motivo que se pueda discutir al mergear: aparece en el PR. Un CI rojo después del push es una ronda `ci-n` con rol `ci` e ID `CI-n`, la escribe el `developer`.
+Las decisiones del approver sobre los hallazgos están en `APPROVAL.md`, una sección por ronda. Acá solo los CI rojos después del push: una fila por fallo, la escribe el `developer` en modo `ci`.
 
-| Ronda | Rol | ID | Severidad | Decisión | Motivo |
-|---|---|---|---|---|---|
-| 1 | code-reviewer | CODE-1 | alta | arreglar | `orders.service.ts:48` crea el pedido con un producto borrado (rompe CA-2) |
-| 1 | security-auditor | SEC-2 | media | riesgo aceptado | rate limit en un endpoint solo de admins internos detrás de VPN; Práctico antes que puro |
-| 1 | code-reviewer | CODE-3 | alta | descartado | pide paginar el listado; SPEC › Qué no se hace: "paginación, otra tarea" |
+| Ronda | ID | Decisión | Motivo (la línea del log) |
+|---|---|---|---|
+| ci-1 | CI-1 | arreglar | `lint: 'retry' is defined but never used` |
 
 ## Conflictos
 
@@ -72,4 +62,4 @@ Lo escribe el orquestador (fase pr) al pasar la tarea a `4-done`, antes del push
 - Rondas de revisión: n
 - Iteraciones: <slug>-2 (<qué agregó>), …
 - Qué quedó distinto de lo planeado:
-- Deuda que sigue abierta (issues):
+- Deuda que sigue abierta (issues, de `TECHNICAL_DEBT.md`):

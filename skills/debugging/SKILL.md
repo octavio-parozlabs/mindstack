@@ -179,7 +179,7 @@ función renderGrafico(datos):
     devolver EstadoError("no se pudo mostrar el gráfico")
 ```
 
-Un fallback no reemplaza el fix. Si quedó, es Deuda técnica con vencimiento.
+Un fallback no reemplaza el fix. Si quedó, es deuda técnica con vencimiento (`TECHNICAL_DEBT.md`).
 
 ## Instrumentación
 
@@ -204,7 +204,7 @@ Quién la usa: el agente `developer`, cuando una tarea del TODO falla o un test 
 - **El fix va con el test que fallaba antes.** El test lo escribe `qa`, no el dev. Si el fix cambia comportamiento, decilo en tu resumen para que `qa` lo cubra. Si necesitás un cambio en producción para que sea testeable (inyectar el reloj, exportar algo), hacelo y anotalo.
 - **La causa raíz y la alternativa descartada** van a `CHANGELOG.md › Decisiones`, con el principio que la justifica. El síntoma lo cuenta el commit; el porqué lo cuenta el changelog.
 - **Un bug ajeno a la tarea** va a `CHANGELOG.md › Observaciones`. No se arregla acá: es otra tarea con su SPEC.
-- **Un fallback que quedó** en vez del fix es `CHANGELOG.md › Deuda técnica`, con issue y vencimiento.
+- **Un fallback que quedó** en vez del fix es una fila en `TECHNICAL_DEBT.md`, con issue y vencimiento.
 - Para el loop rojo-verde del test que protege el fix, `mindstack:tdd`. Para el hallazgo que origina el arreglo, `mindstack:code-review`.
 
 ## Racionalizaciones comunes

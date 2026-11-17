@@ -97,4 +97,4 @@ Antes de que una feature salga a producción, todo esto es cierto:
 - [ ] Hay al menos una alerta por síntoma configurada, con runbook y disparada de prueba
 - [ ] Una request se puede trazar a través de cada servicio que toca
 - [ ] La guardia sabe dónde están los runbooks
-- [ ] En el flujo mindstack: el "Estado final" del PLAN dice qué se loguea y qué métrica lo mide, y lo no verificable quedó en `CHANGELOG.md › Deuda técnica`
+- [ ] En el flujo mindstack: el "Estado final" del PLAN dice qué se loguea y qué métrica lo mide, y lo no verificable quedó en `TECHNICAL_DEBT.md`

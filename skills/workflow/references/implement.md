@@ -73,7 +73,7 @@ Reglas dentro del loop:
 | El dev no escribe tests. Las tareas `qa` y los tests de cada tarea `developer` los hace el agente `qa` | el que implementa testea lo que pensó, no lo que el código hace |
 | No modificar un test existente para que pase. Si estaba mal: Decisiones | un test que se ajusta al código no prueba nada |
 | No bajar umbral de cobertura ni desactivar lint | el Done cambia debajo del loop |
-| Sin refactors grandes. Lo que molesta y no es de la tarea va a Observaciones o Deuda | un refactor es otra tarea con su SPEC |
+| Sin refactors grandes. Lo que molesta y no es de la tarea va a Observaciones o a `TECHNICAL_DEBT.md` | un refactor es otra tarea con su SPEC |
 | **Nada se commitea durante el loop.** Código, `TODO.md` y `CHANGELOG.md` quedan en el working tree del worktree hasta que la revisión pasa; el commit lo hace el orquestador (fase pr) | lo que está commiteado parece terminado. Un commit por tarea a medio revisar es un historial de estados que nadie validó; el worktree aislado es la red mientras tanto |
 | La misma tarea falla `fallos_por_tarea` veces seguidas (`config.sh`): `blocked/` con por qué, no insistir | fallar seguido es una ambigüedad o un bloqueo, no mala suerte |
 

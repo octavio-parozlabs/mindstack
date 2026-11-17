@@ -8,7 +8,7 @@ working_tree: <salida de git status --short | wc -l> archivos
 
 # Revisión de <rol>: <título>
 
-<!-- Lo escribe un solo rol; el hook bloquea a los demás. Se reescribe entero en cada ronda: la ronda anterior queda en git y en CHANGELOG.md › Revisión. -->
+<!-- Lo escribe un solo rol; el hook bloquea a los demás. Se reescribe entero en cada ronda: la ronda anterior queda en git, y lo que se decidió de cada hallazgo, en APPROVAL.md. -->
 
 Solo hallazgos. Sin elogios, sin "considerá", sin nits de estilo. Tabla vacía = nada que objetar.
 
@@ -17,6 +17,10 @@ ID por rol: `QA-n` · `CODE-n` · `SEC-n`. Severidad: **crítica** (pérdida de 
 | ID | Severidad | Archivo:línea | Qué falla, con qué entrada | CB | Fix en una línea |
 |---|---|---|---|---|---|
 | QA-1 | alta | `pagos.service.ts:42` | timeout con cobro hecho reintenta y cobra dos veces | CB-1 | consultar estado antes de reintentar |
+
+## Cerrados
+
+Desde la ronda 2: los IDs que se mandaron a arreglar (`APPROVAL.md › Ronda n-1 › Para corregir`), uno por línea, con `cerrado` o `sigue roto`. Uno que sigue roto va además a la tabla, con `Reabre: R<n-1> <ID>` en Qué falla. Los IDs de la tabla se numeran de nuevo en cada ronda.
 
 ## A verificar
 

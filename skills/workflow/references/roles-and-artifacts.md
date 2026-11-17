@@ -32,11 +32,20 @@ classDiagram
         +observaciones
         +propuestas: van al backlog
         +decisiones: con principio
-        +deuda: origen, vence, issue
-        +revisión: decisión por hallazgo
+        +revisión: CI rojo
         +conflictos
         +cierre: fechas reales
         solo se agrega
+    }
+    class APPROVAL {
+        una sección por ronda
+        +para corregir: developer, qa
+        +decisión por hallazgo, con motivo
+        solo approver
+    }
+    class TECHNICAL_DEBT {
+        +origen, vence, issue
+        approver y developer
     }
     class REVIEW {
         +uno por rol: qa, codigo, seguridad
@@ -118,7 +127,7 @@ classDiagram
     }
     class Approver {
         decide cada hallazgo: arreglar, deuda, riesgo, descartado
-        solo escribe CHANGELOG
+        escribe APPROVAL y TECHNICAL_DEBT
     }
     class Resolutor {
         rebase, suite, force-with-lease
@@ -153,13 +162,13 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: el que impleme
 |---|---|---|---|
 | **analista** | entrevista, supuestos, casos borde con diagrama, SPEC. En consenso: busca evidencia en historial, código o principios | decidir cómo se implementa | `SPEC.md` |
 | **planificador** | acoplamiento, tajadas verticales, tareas con rol y verificación, fechas, Done; valida y deja la tarea pendiente | implementar, tachar, preguntar lo que un principio decide | `PLAN.md`, `TODO.md`, `CHANGELOG.md` vacío |
-| **desarrollador** | una tarea por vuelta, lo que el approver manda arreglar, o un CI rojo; sin commit, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md` |
+| **desarrollador** | una tarea por vuelta, lo que el approver manda arreglar, o un CI rojo; sin commit, Cambios, Decisiones, Deuda. Senior: sabe arquitectura y sabe que la perfección no es el objetivo | tests, reviews, refactors grandes, adivinar ambigüedades | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md` |
 | **qa** | caja negra: entradas y salidas por la interfaz, sin leer la implementación. En un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB-n del SPEC contra los tests | código de producción, leer el cuerpo de las funciones | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
 | **researcher** | compara 2 a 4 librerías con datos (release, descargas, licencia, encaje) y recomienda una o "propio" | decidir por recuerdo, instalar | nada |
 | **code-reviewer** | lógica, legibilidad, arquitectura, rendimiento | editar, elogiar | `REVIEW-code.md` |
 | **security-auditor** | zero trust: toda entrada es hostil hasta que se valida | editar, bajar severidad por "poco probable" | `REVIEW-security.md` |
 | **verifier** | cada línea de la checklist: código, test que la nombra, test corrido; tacha solo con las tres | juzgar calidad, escribir código o tests, cambiar líneas | `CHECKLIST.md` |
-| **approver** | lee todos los hallazgos juntos contra el SPEC y decide cada uno: arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo. Lo pedido y probado (checklist, `QA-n`), secretos y pérdidas irreversibles se arreglan siempre | editar código o tests, agregar hallazgos, mandar a `blocked/` lo que puede decidir | `CHANGELOG.md` (Revisión, Deuda técnica, Observaciones) |
+| **approver** | lee todos los hallazgos juntos contra el SPEC y decide cada uno: arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo. Lo pedido y probado (checklist, `QA-n`), secretos y pérdidas irreversibles se arreglan siempre | editar código o tests, agregar hallazgos, mandar a `blocked/` lo que puede decidir | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del CHANGELOG |
 | **conflict-resolver** | rebase, suite, `--force-with-lease` | `--force`, "el mío" entero | lo que esté en conflicto, `CHANGELOG.md` |
 | **orquestador** | lee las referencias y llama a los roles en orden; mueve a `4-done` o a `blocked/`; filtra las propuestas al backlog | lógica propia, mergear, preguntar en el camino, tocar `IDEAS.md` | `BLOCKED.md`, `PR.md`, `backlog/PROPUESTAS.md`; en el CHANGELOG: Cierre, Decisiones (consenso, Retomar), la fila del entorno |
 
@@ -207,11 +216,11 @@ Cada rol tiene un permiso que le impide hacer el trabajo de otro: QA no toca pro
 | analista (entrevista) | sesión principal | `SPEC.md` en `0-draft/` |
 | analista (consenso) | subagente | nada |
 | planificador | sesión principal | `PLAN.md`, `TODO.md`, `CHECKLIST.md`, `CHANGELOG.md` en `0-draft/` |
-| desarrollador | subagente, uno por tarea, corrección o CI rojo | código, `TODO.md`, `CHANGELOG.md`; nunca tests, SPEC, PLAN, REVIEW, CHECKLIST |
+| desarrollador | subagente, uno por tarea, corrección o CI rojo | código, `TODO.md`, `CHANGELOG.md`, `TECHNICAL_DEBT.md`; nunca tests, SPEC, PLAN, REVIEW, CHECKLIST |
 | qa | subagente | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
 | researcher | subagente | nada |
 | code-reviewer | subagente | `REVIEW-code.md` |
 | security-auditor | subagente | `REVIEW-security.md` |
 | verifier | subagente | `CHECKLIST.md` |
-| approver | subagente | `CHANGELOG.md` |
+| approver | subagente | `APPROVAL.md`, `TECHNICAL_DEBT.md`, Observaciones del CHANGELOG |
 | conflict-resolver | subagente | lo que esté en conflicto, `CHANGELOG.md` |

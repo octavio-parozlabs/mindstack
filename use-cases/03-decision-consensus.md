@@ -32,7 +32,7 @@ sequenceDiagram
     U->>C: /mindstack:orchestrate
     C->>U: AskUserQuestion: ¿A o B? (lo de BLOCKED.md)
     U-->>C: A, y anotá que facturas-retry queda como deuda para unificar
-    C->>C: CHANGELOG › Decisiones: quién person, A, alternativa B, principio "una sola forma obvia" · Deuda: unificar facturas-retry
+    C->>C: CHANGELOG › Decisiones: quién person, A, alternativa B, principio "una sola forma obvia" · TECHNICAL_DEBT.md: unificar facturas-retry
     C->>C: borra BLOCKED.md · git mv → 2-in-progress · commit unblocked
     C->>DEV: seguí la tarea 2 con la decisión
 ```
