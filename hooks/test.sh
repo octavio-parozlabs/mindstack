@@ -130,10 +130,13 @@ rm -rf "$tmp/repo/todolist"; mkdir -p "$tmp/repo/todolist/4-done/a" "$tmp/repo/t
 marca; printf 'a\nb\n' >"$C"; caso "cola frenada sin PR draft no deja parar" 2 env GH_VIEW=1 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks" <<<"$S"
 marca; printf 'a\nb\n' >"$C"; caso "cola frenada con PR draft deja parar" 0 stop <<<"$S"
 caso "y deja la cola para retomar"               0 test -s "$C" <<<""
-mover 3-in-review; marca; touch "$M/s1.esperando"; caso "esperando agentes deja parar"     0 stop <<<"$S"
-caso "la espera vale una vez"                    2 stop <<<"$S"
-marca; touch -d "2 hours ago" "$M/s1.esperando"; caso "una espera vieja no vale"   2 stop <<<"$S"
-rm -f "$M/s1.esperando"
+T="$tmp/transcript.jsonl"; ST='{"session_id":"s1","transcript_path":"'"$T"'"}'
+echo '{"toolUseResult":{"isAsync":true,"status":"async_launched","agentId":"ag1"}}' >"$T"
+mover 3-in-review; marca; caso "agente en segundo plano sin aviso deja parar" 0 stop <<<"$ST"
+echo '{"content":"<task-notification>\n<task-id>ag1</task-id>"}' >>"$T"
+caso "con el aviso llegado no deja parar"        2 stop <<<"$ST"
+echo '{"toolUseResult":{"stdout":"","backgroundTaskId":"bg1"}}' >>"$T"
+marca; caso "Bash en segundo plano sin aviso deja parar" 0 stop <<<"$ST"
 exige=$("$hooks/../scripts/config.sh" rebotes_exige_blocked); parar=$("$hooks/../scripts/config.sh" rebotes_deja_parar)
 marca; mover 3-in-review; for ((i = 1; i < exige; i++)); do stop <<<"$S" 2>/dev/null; done
 caso "rebotes_exige_blocked sin avance: blocked" 0 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh" 2>&1 >/dev/null | grep -q "Pasá la tarea a blocked"' _ "$tmp" "$hooks" <<<"$S"
@@ -162,7 +165,6 @@ caso "en cualquier rama marca"                  0 bash -c 'cd "$1/repo" && "$2/o
 git -C "$tmp/repo" switch -q -c worktree-x
 rm -rf "$M"
 caso "otro prompt no marca"                      1 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && test -f .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"hola"}'
-caso "/mindstack:orchestrate dice cómo esperar" 0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" | grep -q "s9.esperando"' _ "$tmp" "$hooks" <<<'{"session_id":"s9","prompt":"/mindstack:orchestrate"}'
 caso "/mindstack:orchestrate marca"             0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -qx /mindstack:orchestrate .git/mindstack-orchestrating/s1' _ "$tmp" "$hooks" <<<'{"session_id":"s1","prompt":"/mindstack:orchestrate"}'
 caso "hija marca con su prompt"                  0 bash -c 'cd "$1/repo" && "$2/orchestrate-start.sh" && grep -q "hija a" .git/mindstack-orchestrating/s2' _ "$tmp" "$hooks" <<<'{"session_id":"s2","prompt":"/mindstack:orchestrate hija a"}'
 

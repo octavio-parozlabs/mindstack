@@ -22,7 +22,5 @@ mkdir -p "$dir"
 # Un padre nuevo limpia marcadores de hijas muertas: si no, el stop creería que hay una corriendo.
 grep -Eq 'orchestrate[[:space:]]+hija' <<<"$prompt" || grep -lEs 'orchestrate[[:space:]]+hija' "$dir"/* | xargs -r rm -f
 printf '%s\n' "$prompt" >"$dir/$id"
-rm -f "$dir/$id.rebotes" "$dir/$id.esperando"
-# Lo que imprime UserPromptSubmit entra al contexto: el modelo no conoce su session_id, así que se lo damos hecho.
-echo "mindstack: para terminar el turno mientras esperás agentes en segundo plano (su aviso te despierta): touch '$dir/$id.esperando'. Solo si de verdad hay agentes corriendo; vale una espera."
+rm -f "$dir/$id.rebotes"
 exit 0
