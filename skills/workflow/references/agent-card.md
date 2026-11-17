@@ -15,7 +15,7 @@ Es una carpeta, `todolist/<estado>/<slug>/`, y su estado es la carpeta: `0-draft
 | `CHANGELOG.md` | solo se agrega: Cambios (con evidencia), Observaciones (lo ajeno), Propuestas (lo que sumaría, con dónde se vio), Decisiones (con el principio), CI, Conflictos, Cierre |
 | `REVIEW-<rol>.md` | hallazgos de un revisor, uno por ronda (`templates/REVIEW.md`) |
 | `APPROVAL.md` | lo que decidió el approver, una sección por ronda; "Para corregir" es lo único que tocan developer y qa |
-| `TECHNICAL_DEBT.md` | lo que se dejó a propósito, con vencimiento e issue |
+| `TECHNICAL_DEBT.md` | lo que se dejó a propósito, con vencimiento |
 | `wireframes/*.wireloom` | las pantallas `SCR-n`; nunca abras `rendered/` |
 
 ## IDs

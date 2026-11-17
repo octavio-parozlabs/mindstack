@@ -15,7 +15,7 @@ Lo único que developer y qa tocan en esta ronda. Nada fuera de esta lista.
 
 ### Decisiones
 
-Una fila por hallazgo de los `REVIEW-*.md` y por línea sin tachar de `CHECKLIST.md`. Decisión: `arreglar` · `deuda #issue` · `riesgo aceptado` · `descartado` · `bloqueado`. Lo que no es `arreglar` lleva un motivo que se pueda discutir al mergear.
+Una fila por hallazgo de los `REVIEW-*.md` y por línea sin tachar de `CHECKLIST.md`. Decisión: `arreglar` · `deuda` · `riesgo aceptado` · `descartado` · `bloqueado`. Lo que no es `arreglar` lleva un motivo que se pueda discutir al mergear.
 
 | Rol | ID | Severidad | Decisión | Motivo |
 |---|---|---|---|---|

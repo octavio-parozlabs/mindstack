@@ -30,7 +30,7 @@ Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, una cola cortada,
 2. Done de `PLAN.md` pasa ahora. Si no, volvé a `fix.md` con el log como hallazgo.
 3. **La carpeta llega a done antes del push**, en el working tree:
    - `git mv todolist/3-in-review/<slug> todolist/4-done/<slug>`.
-   - `CHANGELOG › Cierre`: inicio real (fecha del commit `plan(<slug>): implement`), fin real (hoy), al lado las planificadas; rondas de revisión; qué quedó distinto de lo planeado (dos o tres líneas de Decisiones); deuda abierta de `TECHNICAL_DEBT.md`, con issue y vencimiento.
+   - `CHANGELOG › Cierre`: inicio real (fecha del commit `plan(<slug>): implement`), fin real (hoy), al lado las planificadas; rondas de revisión; qué quedó distinto de lo planeado (dos o tres líneas de Decisiones); deuda abierta de `TECHNICAL_DEBT.md`, con vencimiento.
    - `PR.md` desde `../templates/PR.md`: Objetivo en pasado, la `CHECKLIST` con su evidencia, cómo probar cada CB, resumen de rondas, lo que la persona tiene que mirar.
    - **Backlog**, ahora y no antes (lo pedido ya está revisado y el commit `plan(<slug>): done` lo lleva en el PR): las filas de `CHANGELOG › Propuestas` y `REVIEW-*.md › Propuestas` que traen dónde se vio pasan a `todolist/backlog/PROPUESTAS.md`, con el formato y la deduplicación de `../templates/PROPUESTAS.md`. Máximo `propuestas_por_tarea` nuevas, las de más valor. `IDEAS.md` no se toca.
 4. Commits, todos locales: `plan(<slug>): done` con `git add todolist/` (la carpeta movida con `TODO.md`, `CHANGELOG.md` y `PR.md`, y `backlog/PROPUESTAS.md`), y si queda código sin commitear, `feat(<slug>): <title del PLAN>` (o `fix(`) con `git add -A`. El código ya viene en los `wip` de implement y fix (`git.md`).

@@ -60,4 +60,4 @@ Lo escribe el orquestador (fase pr) al pasar la tarea a `4-done`, antes del push
 - Rondas de revisión: n
 - Iteraciones: <slug>-2 (<qué agregó>), …
 - Qué quedó distinto de lo planeado:
-- Deuda que sigue abierta (issues, de `TECHNICAL_DEBT.md`):
+- Deuda que sigue abierta (de `TECHNICAL_DEBT.md`):

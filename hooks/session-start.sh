@@ -53,7 +53,7 @@ hoy=$(date +%F)
 vencidas=$(for f in todolist/*/*/TECHNICAL_DEBT.md; do
   [ -f "$f" ] || continue
   slug=$(basename "$(dirname "$f")")
-  awk -F'|' -v h="$hoy" -v s="$slug" '$7 ~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/ { gsub(/ /,"",$7); gsub(/^ +| +$/,"",$4); gsub(/ /,"",$8); if ($7 < h) print "deuda vencida: " s " — " $4 " (venció " $7 ", " ($8==""?"sin issue":$8) ")" }' "$f"
+  awk -F'|' -v h="$hoy" -v s="$slug" '$7 ~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/ { gsub(/ /,"",$7); gsub(/^ +| +$/,"",$4); if ($7 < h) print "deuda vencida: " s " — " $4 " (venció " $7 ")" }' "$f"
 done)
 if [ -n "$vencidas" ]; then
   avisos+="$(head -5 <<<"$vencidas")"$'\n'

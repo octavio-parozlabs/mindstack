@@ -28,6 +28,6 @@ Rondas hechas y resultado, de `APPROVAL.md`: cuántos hallazgos por rol y cuánt
 Lo del `CHANGELOG.md` que necesita una decisión, una línea cada una:
 
 - **Riesgos aceptados y descartes** de `APPROVAL.md`: ID, qué decía el revisor, motivo. Primero los de seguridad.
-- Lo abierto de `TECHNICAL_DEBT.md`, con issue y vencimiento.
+- Lo abierto de `TECHNICAL_DEBT.md`, con vencimiento.
 - Decisiones discutibles y Observaciones fuera de la tarea.
 

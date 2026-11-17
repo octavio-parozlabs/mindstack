@@ -28,7 +28,7 @@ todolist/
     ├── CHECKLIST.md     qué tiene que ser cierto: CA-n, CB-n, Estado final; la tacha solo el verifier
     ├── CHANGELOG.md     qué pasó: cambios, observaciones, propuestas, decisiones, CI rojo, conflictos, cierre
     ├── APPROVAL.md      qué decidió el approver, una sección por ronda: "Para corregir" (lo único que tocan developer y qa) y una decisión por hallazgo
-    ├── TECHNICAL_DEBT.md qué se dejó a propósito: origen, vencimiento, issue
+    ├── TECHNICAL_DEBT.md qué se dejó a propósito: origen, vencimiento
     ├── REVIEW-qa.md     hallazgos de QA contra los CB del SPEC
     ├── REVIEW-code.md hallazgos del revisor de código
     ├── REVIEW-security.md hallazgos del auditor, zero trust
