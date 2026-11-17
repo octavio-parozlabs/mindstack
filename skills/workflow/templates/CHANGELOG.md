@@ -2,7 +2,7 @@
 
 Memoria de la tarea mientras se ejecuta. Lo escriben los roles al terminar cada paso; nadie reescribe, solo se agrega abajo. Es lo primero que lee quien entra a la tarea y lo primero que lee quien mergea.
 
-Quién: `analyst` · `planner` · `developer` · `qa` · `code-reviewer` · `security-auditor` · `verifier` · `approver` · `conflict-resolver` · `consensus` · `person`.
+Quién: `analyst` · `planner` · `developer` · `qa` · `approver` · `conflict-resolver` · `orchestrator` · `consensus` · `person`. Los revisores no escriben acá: aparecen como Rol en Revisión.
 
 ## Cambios
 

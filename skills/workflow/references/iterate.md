@@ -16,9 +16,9 @@ flowchart LR
 
 ## Qué hace `/mindstack:draft "<qué falta>"` en el worktree de una tarea con PR
 
-La tarea es la del worktree (la rama ya existe y tiene el PR).
+La tarea es la de esta rama (ya existe y tiene el PR).
 
-1. Verificá: la carpeta `<slug>` está en `4-done/` y la rama tiene PR (`gh pr view`). Si no hay PR, no es una iteración: es seguir trabajando en la misma tarea antes de `fase pr`. `gh pr ready --undo` con un comentario "iteración en curso: <qué falta>": mientras la hija no llegue a `4-done`, el PR no está listo para mergear.
+1. Verificá: la carpeta `<slug>` está en `4-done/` y la rama tiene PR (`gh pr view`). Si no hay PR, no es una iteración: es otra tarea de la cola de esta rama (`commands/draft.md`, `orchestrate.md › Cola`). `gh pr ready --undo` con un comentario "iteración en curso: <qué falta>": mientras la hija no llegue a `4-done`, el PR no está listo para mergear.
 2. Slug hijo: `<slug>-2`, `<slug>-3`, … (el siguiente libre).
 3. `analyze.md` con el pedido, acotado, y **pará con el SPEC escrito** como siempre: la persona lo lee, comenta, y pide el plan (`/mindstack:plan` o en palabras). Detalle del alcance: el "Cómo funciona hoy" es el estado del PR, no de `main`; el alcance es lo que falta, no la tarea entera; los casos borde son los nuevos. `padre: <slug>` en el frontmatter del SPEC y del PLAN; `rama:` la misma que el padre.
 4. `plan.md` igual que siempre. El Done es el mismo del padre más lo nuevo.

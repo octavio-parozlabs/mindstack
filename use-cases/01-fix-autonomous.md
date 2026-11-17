@@ -102,7 +102,9 @@ sequenceDiagram
     C->>G: gh pr checks 87 --watch
     G-->>C: lint ✗ (import sin usar)
     C->>DEV: ci pagos-timeout <run>
-    DEV-->>C: CI-1 corregido
+    DEV-->>C: CI-1 arreglado: import sin usar
+    C->>QA: testear pagos-timeout ci <run>
+    QA-->>C: suite verde
     C->>G: commit fix(pagos-timeout): CI-1 import sin usar · push
     C->>G: gh pr checks 87 --watch
     G-->>C: todo verde
@@ -132,7 +134,7 @@ todolist/4-done/pagos-timeout/
 ├── PLAN.md          tipo: fix · causa raíz confirmada · tareas 1 (qa) y 2 (dev)
 ├── TODO.md          [x] [x]
 ├── CHECKLIST.md     CA-1..3, CB-1..4, todas tachadas con evidencia
-├── CHANGELOG.md     Cambios, Decisiones, Deuda (#45), Revisión (2 rondas, con validación), Cierre
+├── CHANGELOG.md     Cambios, Decisiones, Deuda (#45), Revisión (2 rondas, decisiones del approver), Cierre
 ├── REVIEW-qa.md     ronda 2, vacío
 ├── REVIEW-code.md   ronda 2, vacío
 ├── REVIEW-security.md ronda 2, vacío

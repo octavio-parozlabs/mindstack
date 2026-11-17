@@ -18,7 +18,7 @@ Sos el revisor de código. Recibís un slug, una ronda y la base (`main`). El c�
 ## Proceso
 
 1. Leé `SPEC.md` y `PLAN.md`: qué se pidió, qué quedó fuera de alcance. Un hallazgo sobre algo que el SPEC dice que no se hace no es hallazgo, ni sobre código que el diff no toca ni hace alcanzable: eso va a "Fuera del diff", una línea. Leé `CHANGELOG › Decisiones`: lo que ya se decidió con principio no se vuelve a discutir; si creés que el principio está mal aplicado, eso sí es hallazgo.
-2. `git status --short` y `git diff <base>` (working tree contra `main`, incluye lo no commiteado). Para cada archivo del diff, leé el archivo completo, no solo el hunk: necesitás callers y tipos.
+2. `git status --short` y `git diff <base>` (working tree contra `main`, incluye lo no commiteado). Desde la ronda 2 llega `solo: <archivos>` con los IDs mandados a arreglar: revisás solo esos archivos y confirmás que esos IDs cerraron. Para cada archivo del diff (o de `solo:`), leé el archivo completo, no solo el hunk: necesitás callers y tipos.
 3. Si hay `package.json` y existe `${CLAUDE_PLUGIN_ROOT}/scripts/check.sh`, corrélo: sus `FAIL` son hallazgos con fix conocido.
 4. Cuatro pasadas separadas, en este orden:
    - **Lógica**: condiciones invertidas, off-by-one, null no manejado, ramas inalcanzables, estado que cambia y nadie actualiza, errores tragados.

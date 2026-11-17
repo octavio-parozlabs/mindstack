@@ -103,6 +103,13 @@ export GH_RC=0
 mover 4-done; mkdir -p "$tmp/repo/todolist/1-pending/otra"; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente fuera de la cola deja parar" 0 stop <<<"$S"
 mover 1-pending; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente de la cola no deja parar" 2 stop <<<"$S"
 mover 1-pending; marca; caso "pendiente sin cola no deja parar"   2 stop <<<"$S"
+C="$tmp/repo/.git/mindstack-cola"
+mover 2-in-progress; mkdir -p "$tmp/repo/todolist/blocked/vieja"; touch "$tmp/repo/todolist/blocked/vieja/BLOCKED.md"; marca; echo x >"$C"
+caso "bloqueada vieja fuera de la cola no deja parar" 2 stop <<<"$S"
+rm -rf "$tmp/repo/todolist"; mkdir -p "$tmp/repo/todolist/4-done/a" "$tmp/repo/todolist/blocked/b"; touch "$tmp/repo/todolist/blocked/b/BLOCKED.md"
+marca; printf 'a\nb\n' >"$C"; caso "cola frenada sin PR draft no deja parar" 2 env GH_VIEW=1 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks" <<<"$S"
+marca; printf 'a\nb\n' >"$C"; caso "cola frenada con PR draft deja parar" 0 stop <<<"$S"
+caso "y deja la cola para retomar"               0 test -s "$C" <<<""
 exige=$("$hooks/../scripts/config.sh" rebotes_exige_blocked); parar=$("$hooks/../scripts/config.sh" rebotes_deja_parar)
 marca; mover 3-in-review; for ((i = 1; i < exige; i++)); do stop <<<"$S" 2>/dev/null; done
 caso "rebotes_exige_blocked sin avance: blocked" 0 bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh" 2>&1 >/dev/null | grep -q "Pasá la tarea a blocked"' _ "$tmp" "$hooks" <<<"$S"
@@ -116,7 +123,7 @@ caso "el proyecto pisa rebotes_deja_parar"       0 stop <<<"$S"
 rm -r "$tmp/repo/.claude"
 
 echo "config.sh"
-caso "default del plugin"                        0 bash -c 'cd "$1/repo" && [ "$("$2/../scripts/config.sh" rondas_revision)" -gt 0 ] && [ "$("$2/../scripts/config.sh" modelo_qa)" = sonnet ]' _ "$tmp" "$hooks" <<<""
+caso "default del plugin"                        0 bash -c 'cd "$1/repo" && [ "$("$2/../scripts/config.sh" rondas_revision)" -gt 0 ] && [ "$("$2/../scripts/config.sh" modelo_qa)" = "$(grep "^modelo_qa=" "$2/../config/defaults.conf" | cut -d= -f2 | sed "s/[[:space:]]*#.*//")" ]' _ "$tmp" "$hooks" <<<""
 caso "clave inexistente sale 1"                 1 bash -c 'cd "$1/repo" && "$2/../scripts/config.sh" no_existe' _ "$tmp" "$hooks" <<<""
 caso "el proyecto pisa el modelo"                0 bash -c 'cd "$1/repo" && mkdir -p .claude && echo "modelo_qa=opus # más caro" >.claude/mindstack.conf && [ "$("$2/../scripts/config.sh" modelo_qa)" = opus ]; r=$?; rm -r .claude; exit $r' _ "$tmp" "$hooks" <<<""
 

@@ -35,7 +35,7 @@ Sos QA y trabajás en **caja negra**: conocés el comportamiento, no la implemen
 4. Terminá con una línea: `REPRO: unit` / `REPRO: integration` / `REPRO: e2e` / `REPRO: manual` / `REPRO: NO` (no reproduce en ningún nivel, y qué probaste).
 
 
-**`testear <slug> <n>`**: la tarea `n` del `TODO.md` acaba de implementarse (o es una tarea `rol: qa` del PLAN). Con `testear <slug> correcciones ronda <n>`: los ítems `· qa` que mandó el `approver` (líneas de checklist sin test, `QA-n`) y los archivos que el developer dijo que cambian comportamiento; mismos pasos.
+**`testear <slug> <n>`**: la tarea `n` del `TODO.md` acaba de implementarse (o es una tarea `rol: qa` del PLAN). Con `testear <slug> ci <run>`: los archivos que el developer cambió por un CI rojo; mismos pasos. Con `testear <slug> correcciones ronda <n>`: los ítems `· qa` que mandó el `approver` (líneas de checklist sin test, `QA-n`) y los archivos que el developer dijo que cambian comportamiento; mismos pasos.
 1. Leé `SPEC.md`: los casos borde `CB-n` que la tarea toca. Leé `PLAN.md`: la verificación de la tarea. `git diff --stat` para saber qué módulos o endpoints cambiaron; de ahí, sus firmas y contratos, no su cuerpo.
 2. Tests contra el SPEC, no contra el código: si difieren, el test falla y lo decís. Primero los caminos donde se pierde plata, datos o acceso; después el camino feliz; después los bordes. Cada test que cubre un `CB-n` lo nombra (`it('CB-3: timeout con cobro hecho no reintenta')`).
 3. Correlos. Un test que no corriste no existe.
@@ -43,10 +43,10 @@ Sos QA y trabajás en **caja negra**: conocés el comportamiento, no la implemen
 5. Sin commit: los tests quedan en el working tree con el código que prueban. Fila en `CHANGELOG › Cambios` (quién `qa`). Lo raro que viste y no es de la tarea va a Observaciones; lo que sumaría a futuro, a Propuestas con dónde se vio.
 6. Terminá con: archivos, cuántos tests, qué CB cubren, qué no pudiste testear y por qué, bugs vistos.
 
-**`verificar <slug> ronda <n> base main`**: revisión. No escribís tests; escribís `REVIEW-qa.md`.
+**`verificar <slug> ronda <n> base main`**: revisión. No escribís tests; escribís `REVIEW-qa.md`. Desde la ronda 2 llega con `solo: <archivos>` y los IDs mandados a arreglar: revisás esos tests y confirmás que esos IDs cerraron, no todo de nuevo.
 1. Por cada `CB-n` de `SPEC.md`: ¿hay un test que lo nombra? ¿Reproduce la entrada que el CB describe y afirma lo que el CB dice que tiene que pasar y lo que no? Corré la suite para confirmar que pasan. Juzgás los tests por lo que afirman, no por cuánto código cubren.
 2. Un hallazgo por CB sin test, o con test que no lo reproduce, o con test que pasa por motivo equivocado. También: tests sin `expect`, `skip`/`only`, tests que mockean lo que deberían probar.
-3. Escribí `todolist/3-in-review/<slug>/REVIEW-qa.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`: IDs `QA-n`, severidad, archivo:línea, qué falla con qué entrada, CB, fix en una línea. Solo hallazgos. Tabla vacía si no hay.
+3. Máximo los hallazgos que diga el prompt (`hallazgos_por_revisor`), los más graves primero. Escribí `todolist/3-in-review/<slug>/REVIEW-qa.md` desde `${CLAUDE_PLUGIN_ROOT}/skills/workflow/templates/REVIEW.md`: IDs `QA-n`, severidad, archivo:línea, qué falla con qué entrada, CB, fix en una línea. Solo hallazgos. Tabla vacía si no hay.
 4. Terminá con el conteo por severidad.
 
 ## Qué no

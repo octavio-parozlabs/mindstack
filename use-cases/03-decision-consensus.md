@@ -47,4 +47,4 @@ Uno confirma lo que el dev ya pensó. Tres con ángulos distintos (lo que se dec
 
 ## Por qué no pregunta en el momento
 
-Una pregunta con `AskUserQuestion` en el medio del turno espera en una sesión que quizás nadie mira: la tarea queda trabada y no se ve. `blocked/` es una carpeta que aparece en el aviso de cualquier sesión, con un archivo que dice qué falta. El mismo camino sigue un hallazgo de revisión que el validador refuta y los tres analistas no destraban.
+Una pregunta con `AskUserQuestion` en el medio del turno espera en una sesión que quizás nadie mira: la tarea queda trabada y no se ve. `blocked/` es una carpeta que aparece en el aviso de cualquier sesión, con un archivo que dice qué falta. En revisión no hay consenso: los hallazgos los decide el `approver` (`fix.md`).

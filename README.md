@@ -52,9 +52,9 @@ Diagramas de secuencia con vos como actor, de "arreglame esto" al PR: [`use-case
 
 ```
 todolist/
-├── 0-draft/           claude -w slug · /draft → comentás → /plan → comentás
+├── 0-draft/           /draft → comentás → /plan (o "generá el plan") → 1-pending
 ├── 1-pending/          plan hecho → SPEC y PLAN congelados (/draft sin texto los reabre)
-├── 2-in-progress/  fase implement, en worktree
+├── 2-in-progress/  fase implement
 ├── 3-in-review/        fase review ↔ fase fix
 ├── 4-done/         lista para mergear: todo commiteado, PR abierto, CI verde
 ├── blocked/        necesita a la persona: BLOCKED.md dice por qué
@@ -85,14 +85,14 @@ todolist/
 
 ## Comandos
 
-Cinco. Tres en el día a día. Ninguno necesita el nombre de la tarea: la lee del worktree.
+Seis. Tres en el día a día. Ninguno necesita el nombre de la tarea: la lee de `todolist/` de la rama actual.
 
 | Comando | Vos | Hace | git |
 |---|---|---|---|
 | `/mindstack:install` | una vez por proyecto | tablero `todolist/`, bloque en `CLAUDE.md`, `.gitignore`, permisos para que el flujo no frene, chequeo del compose | — |
 | `/mindstack:doctor` | cuando quieras, antes de dejarlo solo | revisa lo que el flujo da por hecho: `gh` con sesión, docker levantado si hay compose, node, jq, permisos para no frenar, tablero. No cambia nada | — |
 | `/mindstack:draft "<qué querés>"` | en tu rama (worktree o no): respondés la entrevista, leés, comentás, pedís el plan en palabras | el análisis: supuestos, casos borde con diagrama, `qa` reproduce si es un bug → `SPEC.md`. Sin texto: retoma la tarea a borrador. En un worktree que ya tiene tarea: sin PR, suma una tarea a la cola; con PR, abre la tarea hija con lo que falta | commit por vuelta |
-| `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md` y `CHECKLIST.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | commit |
+| `/mindstack:plan` | pedís el plan (o lo decís en palabras: "generá el plan") | acoplamiento, tipo, tareas con rol, fechas, Done igual a CI → `PLAN.md`, validado; `TODO.md` y `CHECKLIST.md`; la tarea queda en `1-pending` con un resumen de cinco líneas | `plan(<slug>): ronda n` · `pending` |
 | `/mindstack:orchestrate` | te sentás a esperar | en la misma rama: implement (`developer` y `qa` por tarea, consenso), review ×4, approver y fix, pr, conflicts, CI verde. Termina en `4-done` con el link del PR, o en `blocked/` con `BLOCKED.md`. Con varias pendientes en el worktree: te pregunta cuáles y las corre en cola, una sesión nueva por tarea, en un solo PR. Sobre una tarea bloqueada: te pregunta y sigue | todos los que las fases declaran |
 | `/mindstack:rebase` | cuando un PR quedó colgado | rebase sobre `main`, conflictos, suite, CI verde, `--force-with-lease` | push |
 
@@ -103,14 +103,14 @@ Cada comando apunta a `skills/workflow/references/<fase>.md`; el orquestador lee
 | Agente | Hace | Escribe solo |
 |---|---|---|
 | `analyst` | consenso: busca evidencia desde un ángulo (historial, código, principios) | nada |
-| `designer` | en el borrador, si toca la interfaz: propone la sección UX/UI del SPEC con la skill `design` y las pantallas que ya existen, y devuelve las preguntas | `notes/ux.md` |
+| `designer` | en el borrador, si toca la interfaz: propone la sección UX/UI del SPEC con la skill `design` y las pantallas que ya existen, y devuelve las preguntas | `notes/ux.md`, `wireframes/*.wireloom` (y renderiza `rendered/`) |
 | `researcher` | al planificar: compara librerías que ya resuelven una necesidad, con datos; lo propio es la última opción | nada |
 | `developer` | una tarea del TODO, lo que el approver manda arreglar o un CI rojo; sin commit, decisiones y deuda en el CHANGELOG. Senior: sin refactors grandes | código, `TODO.md`, `CHANGELOG.md` |
-| `qa` | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `REVIEW-qa.md`, `CHANGELOG.md` |
+| `qa` | en un fix, reproduce el bug antes del plan; tests de cada tarea; en revisión, cruza cada CB del SPEC contra los tests | tests, `notes/repro.md`, `REVIEW-qa.md`, `CHANGELOG.md` |
 | `code-reviewer` | lógica, legibilidad, arquitectura, rendimiento | `REVIEW-code.md` |
 | `security-auditor` | zero trust | `REVIEW-security.md` |
 | `verifier` | si está hecho: cada línea de la checklist con código, test que la nombra y test corrido | `CHECKLIST.md` |
-| `approver` | lee todos los hallazgos juntos y decide: arreglar, deuda, riesgo aceptado o descartado, con motivo. Lo pedido y probado, secretos y pérdidas irreversibles se arreglan siempre | `CHANGELOG.md` |
+| `approver` | lee todos los hallazgos juntos y decide: arreglar, deuda, riesgo aceptado, descartado o bloqueado (si cambia la feature), con motivo. Lo pedido y probado, secretos y pérdidas irreversibles se arreglan siempre | `CHANGELOG.md` |
 | `conflict-resolver` | rebase, suite, push | lo que esté en conflicto, `CHANGELOG.md` |
 
 El "escribe solo" lo garantiza un hook por agente (`hooks/write-scope.sh`), no el prompt. El dev no escribe tests ni reviews; QA no toca producción; los revisores no editan; nadie mergea.
@@ -124,7 +124,7 @@ Cuando el dev encuentra una ambigüedad que ni el SPEC, ni el PLAN, ni un princi
 ```bash
 rondas_revision=3
 modelo_qa=opus
-modelo_code-reviewer=sonnet
+modelo_code-reviewer=opus
 esfuerzo_approver=max
 ```
 
@@ -163,8 +163,8 @@ Lo commiteado es lo revisado. El flujo tiene libertad para llegar hasta el PR si
 3. `hooks/plan-immutable.sh` global: `SPEC.md`, `PLAN.md` y `wireframes/` fuera de `0-draft/`, bloqueado; `CHECKLIST.md` solo la tacha `verifier`.
 4. `chmod a-w` local al pasar a pendiente.
 5. `scripts/ci-plans-immutable.sh` en el CI del proyecto.
-6. Cada hallazgo que bloquea lo valida otro agente antes de corregirse.
-7. Cinco rondas de revisión como máximo; después, `blocked/`.
+6. Cada hallazgo lo decide el `approver` (arreglar, deuda, riesgo aceptado, descartado o bloqueado), con motivo visible en el PR.
+7. `rondas_revision` rondas de revisión como máximo; en la última, el approver cierra lo suyo y solo lo que no se negocia va a `blocked/`.
 8. `hooks/orchestrate-stop.sh`: el orquestador no termina el turno fuera de `4-done` con CI verde o de `blocked/`.
 9. `hooks/session-start.sh`: al abrir `claude`, las tareas bloqueadas de cualquier worktree y las mergeadas sin limpiar.
 10. Nadie mergea.

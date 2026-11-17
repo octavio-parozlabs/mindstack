@@ -39,14 +39,18 @@ if [ -n "$main" ] && [ "$main" = "$(pwd)" ]; then
   for d in todolist/4-done/*/; do
     [ -d "$d" ] || continue
     slug=$(basename "$d")
-    wt=$(git worktree list 2>/dev/null | awk -v b="[worktree-$slug]" '$NF == b {print $1}')
-    [ -n "$wt" ] && avisos+="mergeada sin limpiar: $slug → (cd $wt && ${CLAUDE_PLUGIN_ROOT}/scripts/env-down.sh $slug); git worktree remove $wt"$'\n'
+    # La rama se llama como su primera tarea (último tramo, sin worktree-): claude -w, orca o a mano.
+    # ponytail: una cola se detecta por su primera tarea; las siguientes viajan en la misma rama.
+    wt=$(git worktree list 2>/dev/null | awk -v s="$slug" '{b=$NF; gsub(/[][]/,"",b); sub(/.*\//,"",b); sub(/^worktree-/,"",b)} b == s {print $1}')
+    [ -n "$wt" ] && avisos+="mergeada sin limpiar: $slug → (cd $wt && ${CLAUDE_PLUGIN_ROOT}/scripts/env-down.sh $(basename "$wt")); git worktree remove $wt"$'\n'
   done
 fi
 [ -n "$avisos" ] && printf '\n## Avisos\n%s' "$avisos"
-if [ -n "$main" ] && [ "$main" = "$(pwd)" ]; then
-  echo "Sesión en el checkout principal. Una tarea, del borrador al PR listo para mergear: 'claude -w <slug>'."
+rama=$(git branch --show-current 2>/dev/null)
+default=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
+if [ "$rama" = "${default:-main}" ]; then
+  echo "Rama $rama: acá no corre ningún comando del flujo. Una rama por PR (claude -w <slug>, orca o a mano)."
 else
-  echo "Worktree: $(git branch --show-current 2>/dev/null). La tarea es este worktree."
+  echo "Rama: $rama. Las tareas de esta rama viajan en su PR."
 fi
 exit 0

@@ -8,7 +8,7 @@ flowchart TD
     A --> D{"por hallazgo"}
     D -- "línea de CHECKLIST · QA-n · secreto · pérdida irreversible" --> FX[arreglar: no se negocia]
     D -- "CODE-n · SEC-n" --> J["real · lo pide el SPEC · ¿rompe algo?"]
-    J -- "rompe CA/CB o daña datos, plata, acceso" --> FX
+    J -- "rompe CA/CB o daña datos, plata, acceso<br/>(en la última ronda: deuda o riesgo)" --> FX
     J -- "no es real o el SPEC no lo pide" --> DS[descartado, con evidencia]
     J -- "real, no rompe" --> DR["deuda #issue o riesgo aceptado, con motivo"]
     J -- "arreglarlo cambia la feature" --> BL([blocked/: decide la persona])
@@ -18,10 +18,10 @@ flowchart TD
 
 ## Pasos
 
-1. `Agent approver`: "aprobar <slug> ronda <n> de <rondas_revision>". Escribe su decisión por hallazgo en `CHANGELOG › Revisión` y las deudas en `CHANGELOG › Deuda técnica`, y termina con la lista para corregir y una de tres:
+1. `Agent approver`: "aprobar <slug> ronda <n> de <rondas_revision>". Escribe su decisión por hallazgo en `CHANGELOG › Revisión`, las deudas en `CHANGELOG › Deuda técnica` y lo de fuera del diff en `CHANGELOG › Observaciones`, y termina con la lista para corregir y una de tres:
    - `APPROVAL: pr` → `pr.md`.
    - `APPROVAL: blocked <ID>` → `blocked` (`orchestrate.md › Bloquear`), con las opciones que dio el approver como motivo.
-   - `APPROVAL: fix <n>` → sigue.
+   - `APPROVAL: fix <n>` → sigue. En la última ronda no hay `fix`: lo que no se negocia y sigue abierto sale como `APPROVAL: blocked <IDs>`.
 2. `Agent developer`: "corregir <slug> ronda <n>", con los ítems `· developer` de la lista. Si no hay, se saltea. Si termina con `BLOCKED: …` → `blocked`.
 3. `Agent qa`: "testear <slug> correcciones ronda <n>", con los ítems `· qa` de la lista y los archivos que el developer dijo que cambian comportamiento.
 4. Vuelta a `review.md`, ronda siguiente, sobre lo que cambió: los archivos que tocaron developer y qa, y los IDs que se mandaron a arreglar.

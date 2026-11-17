@@ -31,8 +31,8 @@ Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima.
 
 1. Ronda 1: `git mv todolist/2-in-progress/<slug> todolist/3-in-review/<slug>`, commit propio `plan(<slug>): in review`.
 2. Lo que se revisa es `git diff main` (working tree contra la base), más `git status --short` para ver qué archivos nuevos hay. Cada revisor lo recibe como `base main`. Desde la ronda 2, `qa`, `code-reviewer` y `security-auditor` reciben además `solo: <archivos>` (los que tocaron developer y qa en la fase fix) y los IDs que se mandaron a arreglar: revisan eso y confirman que esos IDs se cerraron, no vuelven a revisar lo que ya pasó. El `verifier` recorre la checklist entera siempre: es barato y un arreglo puede romper una línea ya tachada.
-3. **Un solo turno con cuatro `Agent`**, cada uno con `subagent_type` del rol y este prompt mínimo:
-   - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests."
+3. **Un solo turno con cuatro `Agent`**, cada uno con `subagent_type` del rol, `model` y `effort` de `config.sh` (`orchestrate.md › Reglas`) y este prompt mínimo:
+   - `qa`: "verificar <slug> ronda <n> base main. Por cada CB-n de SPEC.md: ¿hay un test que lo nombra y lo cubre? Un hallazgo por CB sin test o con test que no lo reproduce. Escribí REVIEW-qa.md. No escribas tests. Máximo <hallazgos_por_revisor> hallazgos."
    - `code-reviewer`: "revisar <slug> ronda <n> base main. Lógica, legibilidad, arquitectura, rendimiento. Escribí REVIEW-code.md. Máximo <hallazgos_por_revisor> hallazgos."
    - `security-auditor`: "auditar <slug> ronda <n> base main. Zero trust. Escribí REVIEW-security.md. Máximo <hallazgos_por_revisor> hallazgos."
    - `verifier`: "verificar <slug> ronda <n>. Tachá CHECKLIST.md con evidencia."
@@ -40,7 +40,7 @@ Por qué cuatro agentes y no uno: un revisor que mira todo mira todo por encima.
 5. Veredicto:
    - ningún hallazgo nuevo y `CHECKLIST` completa: fase pr (`pr.md`).
    - si no: fase fix (`fix.md`). Ahí el `approver` decide qué se arregla, qué queda como deuda o riesgo aceptado y qué se descarta.
-   - en la última ronda (`rondas_revision`), si después del approver queda algo que no se negocia (línea sin tachar, `QA-n`, secreto, pérdida irreversible): `blocked` (`orchestrate.md › Bloquear`), con cada ID o línea abierta como motivo.
+   - el tope de rondas lo resuelve `fix.md`: en la última, el approver no devuelve `fix`.
 
 ## Qué no
 

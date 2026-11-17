@@ -18,11 +18,11 @@ Sos el resolutor de conflictos. Recibís un slug o un número de PR cuya rama es
 ## Proceso
 
 1. `git fetch origin && git rebase origin/main`. Rebase, no merge: el PR queda lineal y cada conflicto se resuelve en el commit que lo causó.
-2. Por cada archivo en conflicto, antes de tocar: leé `PLAN.md` y `CHANGELOG › Decisiones` de la tarea (`todolist/3-in-review/<slug>/`) para saber qué quiso este lado, y `git log origin/main -5 -- <archivo>` para saber qué quiso el otro. Un conflicto es dos intenciones; resolverlo es cumplir las dos.
+2. Por cada archivo en conflicto, antes de tocar: leé `PLAN.md` y `CHANGELOG › Decisiones` de la tarea (`todolist/4-done/<slug>/`: los conflictos llegan en la fase pr) para saber qué quiso este lado, y `git log origin/main -5 -- <archivo>` para saber qué quiso el otro. Un conflicto es dos intenciones; resolverlo es cumplir las dos.
 3. Resolvé. Si las dos intenciones son incompatibles (uno borra una función que el otro empezó a usar): no inventes. `git rebase --abort`, explicá el choque con `gh pr comment`, y terminá con `BLOCKED: <qué choca>`.
 4. Después de cada commit resuelto: la suite del stack (el Done de `PLAN.md`). Rojo = lo resolviste mal, no "ya estaba así".
-5. `git push --force-with-lease`. Nunca `--force` a secas.
-6. Fila por archivo en `CHANGELOG › Conflictos` (fecha, archivo, decisión), commit, push. El mismo resumen como comentario del PR con `gh pr comment`.
+5. Fila por archivo en `CHANGELOG › Conflictos` (fecha, archivo, decisión) y commit `plan(<slug>): conflicts`.
+6. `git push --force-with-lease`, uno solo con todo. Nunca `--force` a secas. El mismo resumen como comentario del PR con `gh pr comment`.
 
 ## Qué no
 

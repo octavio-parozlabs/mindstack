@@ -17,7 +17,7 @@ Con agentes trabajando en paralelo, la rama es la unidad de aislamiento y el com
 | Rebase, no merge, para ponerse al día | el PR queda lineal; los conflictos se resuelven commit por commit | un merge commit esconde cómo se resolvió cada conflicto |
 | Los comandos commitean lo que declaran, sin preguntar | cada `description` dice qué commitea; invocar el comando es pedirlo. Fuera de un comando, Claude muestra `git status` y propone el mensaje | un flujo que para a pedir permiso en cada `git mv` no termina nunca |
 
-Prefijos de commit: `spec(<slug>): ronda n` y `plan(<slug>): ronda n` en borrador · `plan(<slug>): pending | reopen | implement | in review | done | blocked | unblocked` movimientos de estado · `review(<slug>): round n` solo con los `REVIEW-*.md` y `CHECKLIST.md` · `feat|fix(<slug>): <título>` el único commit de código, en `fase pr` · `fix(<slug>): CI-n <qué>` arreglos de CI.
+Prefijos de commit: `spec(<slug>): ronda n` y `plan(<slug>): ronda n` en borrador · `plan(<slug>): pending | reopen | implement | in review | done | blocked | unblocked` movimientos de estado · `review(<slug>): round n` solo con los `REVIEW-*.md` y `CHECKLIST.md` · `feat|fix(<slug>): <título>` el único commit de código, en `fase pr` · `fix(<slug>): CI-n <qué>` arreglos de CI · `plan(<slug>): conflicts` las filas de `CHANGELOG › Conflictos`, antes del `--force-with-lease`.
 
 ## `.gitignore`
 

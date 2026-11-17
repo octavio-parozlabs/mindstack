@@ -1,10 +1,10 @@
 # PR: llegar a done
 
-Lo corre el orquestador (fase pr). Requiere la carpeta en `3-in-review/`, la última ronda sin crítica ni alta abierta y `CHECKLIST.md` completa. Es el único punto donde el código se commitea: hasta acá vivió en el working tree. Termina con la tarea en `4-done/`: **todo commiteado, PR abierto y CI verde. Lista para mergear.** No mergea.
+Lo corre el orquestador (fase pr). Requiere la carpeta en `3-in-review/`, cada hallazgo de la última ronda con decisión del approver, nada que arreglar abierto y `CHECKLIST.md` completa. Es el único punto donde el código se commitea: hasta acá vivió en el working tree. Termina con la tarea en `4-done/`: **todo commiteado, PR abierto y CI verde. Lista para mergear.** No mergea.
 
 ```mermaid
 flowchart TD
-    V{"última ronda limpia y\nCHECKLIST completa"} -- no --> STOP([volver a fase fix])
+    V{"approver: nada que arreglar\ny CHECKLIST completa"} -- no --> STOP([volver a fase fix])
     V -- sí --> D[Done local verde]
     D --> MV["git mv a 4-done · Cierre · PR.md"]
     MV --> CC["commits locales: plan(slug): done · feat|fix(slug): título"]
@@ -16,7 +16,7 @@ flowchart TD
     X -- CONFLICTING --> CF[conflicts.md] --> W
     X -- sí --> W["gh pr checks --watch"]
     W -- verde --> OK([4-done: listo para mergear. Fin del turno])
-    W -- "rojo, del cambio, ronda < 3" --> F["developer ci → qa → Done local\ncommit fix(slug): CI-n · push"] --> W
+    W -- "rojo, del cambio, ronda < rondas_ci" --> F["developer ci → qa → Done local\ncommit fix(slug): CI-n · push"] --> W
     W -- "rojo ajeno, o última ronda (rondas_ci)" --> BL([blocked/: orchestrate.md › Bloquear])
 ```
 
@@ -26,7 +26,7 @@ Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, o CI quedó pendi
 
 **En una cola** (`orchestrate.md › Cola`) se parte en dos: cada hija hace los pasos 1 a 4 para su tarea y termina con commit local; el padre hace del 5 en adelante una sola vez para toda la cola, con el body armado de los `PR.md` de cada tarea.
 
-1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; `CHANGELOG › Revisión` con al menos una ronda y ninguna crítica ni alta sin `corregido`; todas las líneas de `CHECKLIST.md` con `[x]`. Si no, volvé a `fix.md`.
+1. Verificá: carpeta en `todolist/3-in-review/<slug>/`; `CHANGELOG › Revisión` con al menos una ronda y cada hallazgo con decisión del approver (los `arreglar` ya corregidos); todas las líneas de `CHECKLIST.md` con `[x]`. Si no, volvé a `fix.md`.
 2. Done de `PLAN.md` pasa ahora. Si no, volvé a `fix.md` con el log como hallazgo.
 3. **La carpeta llega a done antes del push**, en el working tree:
    - `git mv todolist/3-in-review/<slug> todolist/4-done/<slug>`.
@@ -42,13 +42,13 @@ Si la carpeta ya está en `4-done/` (se retomó de `blocked/`, o CI quedó pendi
 7. `gh pr view --json mergeable`: si dice `CONFLICTING`, `conflicts.md` (se corre solo en modo orquestado; a mano, `/mindstack:rebase`). Conflicto con intenciones incompatibles → `blocked`.
 8. **CI verde es parte de done**: `gh pr checks --watch`.
    - Verde: fin. La tarea está en `4-done/` y el turno termina con el link.
-   - Rojo, y el log muestra que es del cambio: `Agent developer` con `ci <slug> <run>` → `Agent qa` sobre lo que cambió → Done local → commit `fix(<slug>): CI-n <qué>` → push → volver a mirar. La carpeta no se mueve: ya está en `4-done` y el commit del arreglo dispara CI igual.
+   - Rojo, y el log muestra que es del cambio: `Agent developer` con `ci <slug> <run>` → `Agent qa` con `testear <slug> ci <run>` sobre lo que cambió → Done local → commit `fix(<slug>): CI-n <qué>` → push → volver a mirar. La carpeta no se mueve: ya está en `4-done` y el commit del arreglo dispara CI igual.
    - Rojo por algo ajeno al cambio (infra, secreto que falta, test inestable de otro módulo), o la última ronda de CI roja (`rondas_ci`): `blocked` (`orchestrate.md › Bloquear`). Es el único caso en que la carpeta sale de `4-done`.
 
 Reglas del paso 8:
-- Cada fallo es un hallazgo `CI-n` en `CHANGELOG › Revisión` (rol `ci`), con resultado `corregido` o `bloqueado: motivo`.
+- Cada fallo es un hallazgo `CI-n` en `CHANGELOG › Revisión` (rol `ci`), con decisión `arreglar` o `bloqueado` y el motivo (la línea del log).
 - Si CI falló por algo que el Done de `PLAN.md` no corre, fila en Observaciones: "Done incompleto: CI corre X y el plan no".
-- El `developer` en modo `ci` corrige lo que el log dice, nada más. No se relanzan los revisores por un fix de CI: ya vieron el código. Si el fix toca más que el check que falló, sí: la carpeta vuelve a `3-in-review` y `review.md`, ronda nueva.
+- El `developer` en modo `ci` corrige lo que el log dice, nada más. No se relanzan los revisores por un fix de CI: ya vieron el código, y el fix toca solo lo que el log dice.
 - Tope: `rondas_ci` (`config.sh`). Si el Done local es igual a CI, varios rojos seguidos son el entorno, no el código.
 
 Terminá con el link del PR y "CI verde: listo para mergear". El merge lo hace la persona; no hay nada que correr después. La limpieza del entorno y del worktree la sugiere el aviso de sesión cuando la tarea ya está mergeada.
@@ -66,7 +66,7 @@ Un PR en GitHub no se borra: se cierra. Lo que puede desaparecer es la rama. La 
 ## Qué no
 
 - Mergear, ni con `--auto`. El merge es el único punto donde una persona ve el cambio entero.
-- Commitear algo después de abrir el PR que no sea un arreglo de CI. Cada push es una corrida más.
+- Commitear algo después de abrir el PR que no sea un arreglo de CI o la resolución de un conflicto (`conflicts.md`). Cada push es una corrida más.
 - `[skip ci]` en un commit: si el repo tiene checks obligatorios, quedan pendientes para siempre y el PR no se puede mergear.
 - Abrir un segundo PR sobre la misma rama.
 - Terminar con CI rojo o pendiente. El hook de parada no lo deja.

@@ -26,16 +26,18 @@ cola="$gitdir/mindstack-cola"
 # para no quemar tokens en un loop (config/defaults.conf, o .claude/mindstack.conf del proyecto).
 rebote() {
   local f n=0 prev= exige parar
+  # ponytail: sin config (plugin roto) el hook deja parar antes que trabar la sesión.
   exige=$("$(dirname "$0")/../scripts/config.sh" rebotes_exige_blocked); parar=$("$(dirname "$0")/../scripts/config.sh" rebotes_deja_parar)
+  [ -n "$exige" ] && [ -n "$parar" ] || exit 0
   f=$( { git rev-parse HEAD; git status --porcelain; echo "$1"; } 2>/dev/null | cksum | cut -d' ' -f1)
   { read -r n prev <"$marker.rebotes"; } 2>/dev/null
   if [ "$prev" = "$f" ]; then n=$((n + 1)); else n=1; fi
   echo "$n $f" >"$marker.rebotes"
-  if [ "$n" -ge "${parar:-10}" ]; then
+  if [ "$n" -ge "$parar" ]; then
     echo "mindstack: $n intentos de parar sin avance; se deja parar. Quedó: $1" >&2
     rm -f "$marker" "$marker.rebotes"; exit 0
   fi
-  if [ "$n" -ge "${exige:-5}" ]; then
+  if [ "$n" -ge "$exige" ]; then
     echo "mindstack: $n intentos de parar sin avance. Pasá la tarea a blocked/ con BLOCKED.md, motivo: no avanza ($1). orchestrate.md › Bloquear." >&2
   else
     echo "mindstack: $1" >&2
@@ -58,14 +60,31 @@ for m in "$gitdir"/mindstack-orchestrating/*; do
   [ "$m" != "$marker" ] && [ "${m%.rebotes}" = "$m" ] && grep -Eqs 'orchestrate[[:space:]]+hija' "$m" && exit 0
 done
 
-if compgen -G "$root/todolist/blocked/*/BLOCKED.md" >/dev/null; then salir; fi
-
-abiertas=$(find "$root"/todolist/{2-in-progress,3-in-review} -mindepth 1 -maxdepth 1 -type d -printf '%P(%h) ' 2>/dev/null | sed "s#$root/todolist/##g")
-# Pendientes: las de la cola si el padre la escribió; si no, todas las de la rama.
+# Las tareas de este turno son las de la cola (el orquestador la escribe siempre, aunque sea una).
+# Sin cola (sesión de antes de esa regla): todas las de la rama.
+bloqueadas= abiertas= hechas=
 if [ -s "$cola" ]; then
-  while read -r s; do [ -n "$s" ] && [ -d "$root/todolist/1-pending/$s" ] && abiertas+="$s(1-pending) "; done <"$cola"
+  while read -r s; do
+    [ -n "$s" ] || continue
+    if [ -f "$root/todolist/blocked/$s/BLOCKED.md" ]; then bloqueadas+="$s "
+    elif [ -d "$root/todolist/4-done/$s" ]; then hechas+="$s "
+    else
+      e=0-draft; for d in 1-pending 2-in-progress 3-in-review; do [ -d "$root/todolist/$d/$s" ] && e=$d; done
+      abiertas+="$s($e) "
+    fi
+  done <"$cola"
 else
-  abiertas+=$(find "$root"/todolist/1-pending -mindepth 1 -maxdepth 1 -type d -printf '%P(1-pending) ' 2>/dev/null)
+  compgen -G "$root/todolist/blocked/*/BLOCKED.md" >/dev/null && bloqueadas=si
+  abiertas=$(find "$root"/todolist/{1-pending,2-in-progress,3-in-review} -mindepth 1 -maxdepth 1 -type d -printf '%P(%h) ' 2>/dev/null | sed "s#$root/todolist/##g")
+fi
+
+# Una bloqueada frena la cola. Lo ya terminado se sube como PR draft antes de parar (orchestrate.md › Cola).
+# La cola queda escrita: Retomar la necesita.
+if [ -n "$bloqueadas" ]; then
+  if [ -n "$hechas" ] && command -v gh >/dev/null 2>&1 && ! gh pr view >/dev/null 2>&1; then
+    rebote "bloqueada: $bloqueadas. Antes de parar, subí lo terminado ($hechas): push y gh pr create --draft (orchestrate.md › Cola)."
+  fi
+  rm -f "$marker" "$marker.rebotes"; exit 0
 fi
 if [ -n "$abiertas" ]; then
   rebote "tareas sin terminar: $abiertas. El turno termina en 4-done con CI verde o en blocked/ con BLOCKED.md (orchestrate.md › Un solo turno)."

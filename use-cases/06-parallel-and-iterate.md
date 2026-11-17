@@ -27,7 +27,7 @@ sequenceDiagram
     U->>Wa: /mindstack:orchestrate
     U->>Wb: /mindstack:orchestrate
     par
-        Wa->>Wa: implement (loop + qa) → review ×4 → validar y fix → review → 4-done → CI verde
+        Wa->>Wa: implement (loop + qa) → review ×4 → approver y fix → review → 4-done → CI verde
         Wa->>G: PR #88
         Wa-->>U: 4-done: PR #88 listo para mergear · localhost:5231
     and

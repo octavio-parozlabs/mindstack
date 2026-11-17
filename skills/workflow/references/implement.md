@@ -44,7 +44,7 @@ Tu directorio y las tareas pendientes.
 1. Estás en la rama del PLAN (`rama:`); si no, pará y decilo. El flujo no crea ramas: la rama la abrió la persona (`claude -w`, orca o a mano).
 2. `git mv todolist/1-pending/<slug> todolist/2-in-progress/<slug>`, commit propio `plan(<slug>): implement`.
 3. Si hay `graphify-out/`: `/graphify . --update --no-viz`.
-4. Si hay `docker-compose.yml` y `$CI` está vacío: `${CLAUDE_PLUGIN_ROOT}/scripts/env-up.sh <slug> db`. Levanta solo la DB de la tarea, aislada, con copia de la tuya (`skills/workflow/references/environment.md`). Sin compose, el stack dice cómo se corre; nada se levanta todavía.
+4. Si hay `docker-compose.yml` y `$CI` está vacío: `${CLAUDE_PLUGIN_ROOT}/scripts/env-up.sh <entorno> db` (`<entorno>` = nombre de la carpeta del checkout, `basename $(git rev-parse --show-toplevel)`: uno por rama, aunque lleve una cola). Levanta solo la DB de la tarea, aislada, con copia de la tuya (`skills/workflow/references/environment.md`). Sin compose, el stack dice cómo se corre; nada se levanta todavía.
 
 ## El loop
 
@@ -58,7 +58,7 @@ mientras TODO.md tenga una línea sin [x]:
       DECISION: ...  → consensus.md → la respuesta queda en Decisiones → relanzar n
       BLOCKED: ...   → blocked/ (orchestrate.md › Bloquear)
   rol qa        → Agent qa "testear <slug> <n>" → siguiente
-  la misma n falla tres veces → blocked/, con por qué
+  la misma n falla fallos_por_tarea veces → blocked/, con por qué
 Done entero; rojo → Agent developer con el log, como una tarea más
 ```
 
@@ -79,7 +79,7 @@ Reglas dentro del loop:
 ## Al terminar
 
 - Done pasó entero: dejalo en la salida con comando y resultado.
-- Si hay compose y `$CI` vacío: `env-up.sh <slug>` levanta api y web de la rama en `localhost`, en los puertos de la tarea. Fila en `CHANGELOG › Cambios`: "entorno levantado: `http://localhost:52xx`". Sin compose: el comando del stack para levantar y la URL, en la misma fila. Es local; no se publica en ningún lado (`skills/workflow/references/environment.md`).
+- Si hay compose y `$CI` vacío: `env-up.sh <entorno>` levanta api y web de la rama en `localhost`, en los puertos de la tarea. Fila en `CHANGELOG › Cambios`: "entorno levantado: `http://localhost:52xx`". Sin compose: el comando del stack para levantar y la URL, en la misma fila. Es local; no se publica en ningún lado (`skills/workflow/references/environment.md`).
 - La carpeta se queda en `2-in-progress/`. Una línea con Done verde y la URL donde probar, **y en el mismo turno** seguí con `review.md`. La persona prueba cuando quiere; no se la espera.
 
 Lo que la persona pida después en la sesión ("el botón dice Guardar, no Enviar") se hace acá con las mismas reglas: sin commit, fila en Cambios, tests al agente `qa`.

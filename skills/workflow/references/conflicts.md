@@ -14,8 +14,8 @@ flowchart TD
     T -- rojo --> S
     T -- verde --> N{¿más commits?}
     N -- sí --> R
-    N -- no --> P[git push --force-with-lease]
-    P --> W[CHANGELOG › Conflictos: archivo, decisión]
+    N -- no --> W["CHANGELOG › Conflictos: archivo, decisión<br/>commit plan(slug): conflicts"]
+    W --> P[git push --force-with-lease]
 ```
 
 Rebase y no merge: el PR queda lineal y cada conflicto se resuelve en el commit que lo causó, con menos contexto cada vez.

@@ -5,7 +5,9 @@
 set -u
 defaults="$(dirname "$0")/../config/defaults.conf"
 proyecto="$(git rev-parse --show-toplevel 2>/dev/null)/.claude/mindstack.conf"
-valor() { local v; for f in "$proyecto" "$defaults"; do
+valor() { local v f fuentes=("$proyecto" "$defaults")
+  [[ $1 == turnos_* ]] && fuentes=("$defaults") # maxTurns vive en agents/*.md: el proyecto no lo pisa
+  for f in "${fuentes[@]}"; do
   v=$(grep -E "^$1=" "$f" 2>/dev/null | tail -1 | cut -d= -f2- | sed 's/[[:space:]]*#.*//; s/[[:space:]]*$//')
   [ -n "$v" ] && { echo "$v"; return 0; }
 done; return 1; }

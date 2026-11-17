@@ -1,6 +1,6 @@
 # Consenso: cuando el dev no puede decidir solo
 
-Un dev que adivina una ambigüedad produce código que nadie pidió. Un dev que pregunta cada ambigüedad a la persona la interrumpe veinte veces por tarea. Entre las dos cosas, esto: tres analistas independientes buscan la respuesta en lo que ya existe; si coinciden, se decide; si no, recién ahí la persona. Se usa igual en implement (una `DECISION:` del dev) y en fix (un hallazgo que el validador refuta).
+Un dev que adivina una ambigüedad produce código que nadie pidió. Un dev que pregunta cada ambigüedad a la persona la interrumpe veinte veces por tarea. Entre las dos cosas, esto: tres analistas independientes buscan la respuesta en lo que ya existe; si coinciden, se decide; si no, recién ahí la persona. Se usa igual en implement (una `DECISION:` del dev).
 
 ```mermaid
 flowchart TD

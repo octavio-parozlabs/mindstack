@@ -135,10 +135,12 @@ Cada hallazgo lleva severidad **por consecuencia, no por tamaño del fix**:
 
 | Severidad | Significa | Efecto |
 |---|---|---|
-| **crítica** | pérdida de datos, plata o acceso | bloquea el PR |
-| **alta** | bug en el camino principal | bloquea el PR |
-| **media** | bug en un camino secundario | puede quedar como deuda con vencimiento |
-| **baja** | puede quedar como deuda | deuda |
+| **crítica** | pérdida de datos, plata o acceso | orienta al approver: arreglar salvo motivo fuerte |
+| **alta** | bug en el camino principal | orienta al approver |
+| **media** | bug en un camino secundario | orienta al approver |
+| **baja** | molestia, no bug | orienta al approver |
+
+La severidad no decide sola: el `approver` decide por consecuencia (`fix.md` de `mindstack:workflow`).
 
 Lo que en otros esquemas sería `Critical` es crítica o alta según la consecuencia; `Required` es alta o media según el camino; `Optional`/`Consider` y `Nit` **no se escriben**: si no es un fallo concreto con fix, no es hallazgo. `FYI` tampoco: el contexto va en "A verificar" si hace falta, o no va.
 
@@ -150,7 +152,7 @@ Qué tests se corrieron, si pasó el build, si se probó a mano, si hay capturas
 
 ## Formato de salida: `REVIEW-code.md`
 
-Un solo archivo, se reescribe entero en cada ronda (la anterior queda en git y en `CHANGELOG.md › Revisión`). Frontmatter con rol, ronda, fecha y commit revisado. Sin veredicto, sin sección de aciertos, sin elogios, sin nits de estilo, sin "considerá". Solo hallazgos.
+Un solo archivo, se reescribe entero en cada ronda (la anterior queda en git y en `CHANGELOG.md › Revisión`). Frontmatter con rol, ronda, fecha, base y `working_tree` (el código no está commiteado). Sin veredicto, sin sección de aciertos, sin elogios, sin nits de estilo, sin "considerá". Solo hallazgos.
 
 ```markdown
 ---
@@ -189,8 +191,8 @@ Lo usa el agente `code-reviewer` dentro de `/mindstack:orchestrate (fase review)
 - Lee `SPEC.md`: lo que el SPEC dice que no se hace, o queda fuera de alcance, no es hallazgo.
 - Lee `CHANGELOG.md › Decisiones`: lo decidido con principio no se vuelve a discutir. Un principio **mal aplicado** sí es hallazgo, con la evidencia.
 - "Yo lo haría distinto" no es hallazgo. "Rompe explícito antes que implícito: el handler lee `process.env`" sí.
-- El revisor no edita código ni escribe en el CHANGELOG. El `approver` decide cada hallazgo (**arreglar**, **deuda** con vencimiento, **riesgo aceptado** o **descartado**, con motivo) y lo deja en `CHANGELOG.md › Revisión`.
-- Crítica o alta abierta → `/mindstack:orchestrate (fase fix)`. Dos rondas que no cierran son un desacuerdo, no un bug: decide la persona.
+- El revisor no edita código ni escribe en el CHANGELOG. El `approver` decide cada hallazgo (**arreglar**, **deuda** con vencimiento, **riesgo aceptado**, **descartado** o **bloqueado** si cambia la feature, con motivo) y lo deja en `CHANGELOG.md › Revisión`.
+- Cualquier hallazgo → `/mindstack:orchestrate (fase fix)`: el approver decide. Lo que no cierra en `rondas_revision` y no se negocia va a `blocked/`.
 
 ## Código muerto
 

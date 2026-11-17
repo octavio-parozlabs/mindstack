@@ -37,8 +37,8 @@ La forma de trabajo es el plugin `mindstack`. Se respeta; si algo no cierra, PR 
 
 - No cambiar el gestor de paquetes, el runner de tests, el formateador ni nada que esté en la tabla "Con qué" de una skill del stack.
 - No desactivar reglas de lint o del compilador para que pase. Arreglar la causa.
-- No modificar un test para que pase. Si el test estaba mal, decirlo y cambiarlo en un commit aparte, con fila en Decisiones.
+- No modificar un test para que pase. Si el test estaba mal, decirlo y cambiarlo con fila en Decisiones; entra en el commit de código de la fase pr.
 - No editar `SPEC.md`, `PLAN.md` ni `wireframes/` fuera de `0-draft/`. No abrir `wireframes/rendered/`: los SVG son para la persona; la fuente es el `.wireloom`. No escribir un `REVIEW-*.md` que no sea de tu rol.
 - El código de una tarea no se commitea hasta que la revisión pasa: el orquestador (fase pr) hace el único commit de código. Los borradores y los movimientos de estado sí se commitean, uno por ronda.
 - No commitear ni pushear fuera de lo que un comando del flujo declara. Nunca crear una rama por iniciativa propia. Nada de `--force`: solo el resolutor, con `--force-with-lease`, sobre la rama de la tarea.
-- No trabajar en el checkout principal: el worktree es el PR (`claude -w <slug>`), del borrador al PR, con una tarea o varias en cola. En `main` no se corre ningún comando del flujo; el aviso de sesión dice qué limpiar.
+- No trabajar en `main`: una rama por PR (`claude -w <slug>`, orca o a mano), del borrador al PR, con una tarea o varias en cola. En `main` no se corre ningún comando del flujo; el aviso de sesión dice qué limpiar.

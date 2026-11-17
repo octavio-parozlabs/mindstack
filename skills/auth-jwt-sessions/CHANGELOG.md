@@ -1,6 +1,6 @@
 # Changelog: Autenticación con JWT: access + refresh rotativo, sesiones por dispositivo en Postgres, SPA y API en subdominios
 
-Memoria del plan mientras se ejecuta. Lo escriben los agentes al terminar cada paso; nadie reescribe, solo se agrega abajo. Quién: `developer` · `tester` · `reviewer` · `fixer` · `resolver` · `person`.
+Memoria del plan mientras se ejecuta. Lo escriben los agentes al terminar cada paso; nadie reescribe, solo se agrega abajo. Quién: `developer` · `qa` · `approver` · `conflict-resolver` · `orchestrator` · `person`.
 
 ## Cambios
 
