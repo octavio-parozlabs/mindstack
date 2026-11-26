@@ -6,7 +6,7 @@ Varias tareas que dependen entre sí, o que te da igual cuánto tarden: las escr
 sequenceDiagram
     actor U as Vos
     participant O as Claude (worktree checkout-v2, padre)
-    participant H as claude -p (hija, sesión nueva)
+    participant H as hija (sesión nueva: panel de tmux o claude -p)
     participant G as git / GitHub
 
     rect rgb(255, 245, 230)
@@ -27,7 +27,7 @@ sequenceDiagram
     O->>U: ¿cuáles corro? [checkout-v2, cupones-carrito, resumen-compra]
     U-->>O: las tres, en ese orden
     O->>O: cola en el git dir
-    O->>H: claude -p "/mindstack:orchestrate hija checkout-v2" (segundo plano)
+    O->>H: "/mindstack:orchestrate hija checkout-v2" (panel de tmux o segundo plano)
     H->>H: implement → review ×4 ↔ fix → Done · commit local · 4-done
     H-->>O: fin: checkout-v2 en 4-done
     Note over O: suma una línea. Su contexto no crece
@@ -77,7 +77,7 @@ sequenceDiagram
 | | Una tarea | Cola |
 |---|---|---|
 | Worktree, rama, PR | uno | uno, para todas |
-| Quién implementa | el orquestador de tu sesión | una sesión nueva por tarea (`claude -p`), en el mismo worktree |
+| Quién implementa | el orquestador de tu sesión | una sesión nueva por tarea (panel de tmux al lado del padre si corre en tmux; si no, `claude -p`), en el mismo worktree |
 | Push | uno, en la fase pr | uno, al final de la cola (las hijas commitean local) |
 | CI | una vez | una vez, sobre todo |
 | Se bloquea | `blocked/`, PR a draft si había | la cola frena, lo hecho sube como PR draft, las siguientes quedan en `1-pending` |
@@ -85,4 +85,4 @@ sequenceDiagram
 
 ## Lo que tiene que estar
 
-Nadie mira las hijas, así que no pueden frenar a pedir permiso: la lista de `permissions.allow` que deja `/mindstack:install` tiene que cubrir `git`, `gh` y los comandos del stack. Y la sesión del padre queda abierta todo el fin de semana: si cerrás la terminal, la cola se corta donde esté, y `/mindstack:orchestrate` la retoma por las carpetas.
+Las hijas no pueden frenar a pedir permiso (en tmux las ves trabajar, pero la cola no espera a que contestes): la lista de `permissions.allow` que deja `/mindstack:install` tiene que cubrir `git`, `gh` y los comandos del stack. Y la sesión del padre queda abierta todo el fin de semana: si cerrás la terminal, la cola se corta donde esté, y `/mindstack:orchestrate` la retoma por las carpetas.

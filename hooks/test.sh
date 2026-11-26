@@ -116,6 +116,13 @@ export GH_VIEW=0 GH_RC=1
 mover 2-in-progress; marca s1 "/mindstack:orchestrate hija x"; caso "hija en curso no deja parar" 2 stop <<<"$S"
 mover 4-done; marca s1 "/mindstack:orchestrate hija x"; caso "hija en 4-done deja parar sin mirar CI" 0 stop <<<"$S"
 mover 2-in-progress; marca; echo "/mindstack:orchestrate hija x" >"$M/s2"; caso "padre con hija viva deja parar" 0 stop <<<"$S"
+# tmux falso: anota cada llamada en $TMUXLOG
+mkdir -p "$tmp/tmux"; printf '#!/usr/bin/env bash\necho "$*" >>"$TMUXLOG"\n' >"$tmp/tmux/tmux"; chmod +x "$tmp/tmux/tmux"; export TMUXLOG="$tmp/tmux.log"
+H() { env PATH="$tmp/tmux:$PATH" TMUX_PANE=%9 MINDSTACK_CANAL=mindstack-w-x bash -c 'cd "$1/repo" && "$2/orchestrate-stop.sh"' _ "$tmp" "$hooks"; }
+mover 4-done; marca s1 "/mindstack:orchestrate hija x"; rm -f "$TMUXLOG"; caso "hija en tmux en 4-done deja parar" 0 H <<<"$S"
+caso "y avisa al padre y cierra su panel"         0 bash -c 'grep -qx "wait-for -S mindstack-w-x" "$1" && grep -q "kill-pane -t .%9." "$1"' _ "$TMUXLOG" <<<""
+mover 2-in-progress; marca s1 "/mindstack:orchestrate hija x"; rm -f "$TMUXLOG"; caso "hija en tmux en curso no deja parar" 2 H <<<"$S"
+caso "y no avisa"                                1 test -f "$TMUXLOG" <<<""
 export GH_RC=0
 mover 4-done; mkdir -p "$tmp/repo/todolist/1-pending/otra"; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente fuera de la cola deja parar" 0 stop <<<"$S"
 mover 1-pending; marca; echo x >"$tmp/repo/.git/mindstack-cola"; caso "pendiente de la cola no deja parar" 2 stop <<<"$S"

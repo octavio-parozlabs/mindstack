@@ -21,6 +21,14 @@ marker="$gitdir/mindstack-orchestrating/$id"
 root=$(git rev-parse --show-toplevel)
 cola="$gitdir/mindstack-cola"
 
+# Hija interactiva en un panel de tmux (orchestrate.md › Cola): no se cierra sola. Al parar, avisa al padre
+# por su canal y cierra su panel (kill-window mataría también al padre, que está en la misma ventana). El cierre va en el servidor de tmux para que el hook termine antes.
+fin_hija() {
+  [ -n "${MINDSTACK_CANAL:-}" ] && [ -n "${TMUX_PANE:-}" ] || return 0
+  tmux wait-for -S "$MINDSTACK_CANAL"
+  tmux run-shell -b "sleep 1; tmux kill-pane -t '$TMUX_PANE'"
+}
+
 # No deja parar y le dice al modelo qué falta. Cuenta los rebotes seguidos sin avance (mismo HEAD, mismo
 # git status, mismo motivo): a los rebotes_exige_blocked le exige blocked/; a los rebotes_deja_parar deja parar
 # para no quemar tokens en un loop (config/defaults.conf, o .claude/mindstack.conf del proyecto).
@@ -35,7 +43,7 @@ rebote() {
   echo "$n $f" >"$marker.rebotes"
   if [ "$n" -ge "$parar" ]; then
     echo "mindstack: $n intentos de parar sin avance; se deja parar. Quedó: $1" >&2
-    rm -f "$marker" "$marker.rebotes"; exit 0
+    rm -f "$marker" "$marker.rebotes"; fin_hija; exit 0
   fi
   if [ "$n" -ge "$exige" ]; then
     echo "mindstack: $n intentos de parar sin avance. Pasá la tarea a blocked/ con BLOCKED.md, motivo: no avanza ($1). orchestrate.md › Bloquear." >&2
@@ -58,7 +66,7 @@ fi
 # Hija de una cola: termina con su tarea en 4-done (commit local) o en blocked/. El push y el PR son del padre.
 hija=$(sed -nE 's/.*orchestrate[[:space:]]+hija[[:space:]]+([^[:space:]]+).*/\1/p' "$marker" | head -1)
 if [ -n "$hija" ]; then
-  if [ -d "$root/todolist/4-done/$hija" ] || [ -f "$root/todolist/blocked/$hija/BLOCKED.md" ]; then rm -f "$marker" "$marker.rebotes"; exit 0; fi
+  if [ -d "$root/todolist/4-done/$hija" ] || [ -f "$root/todolist/blocked/$hija/BLOCKED.md" ]; then rm -f "$marker" "$marker.rebotes"; fin_hija; exit 0; fi
   rebote "'$hija' termina en 4-done con commit local, sin push, o en blocked/ con BLOCKED.md (orchestrate.md › Cola)."
 fi
 

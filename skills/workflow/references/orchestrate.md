@@ -88,7 +88,7 @@ Varias tareas en `1-pending/` de la misma rama, en una rama y un PR. El orquesta
 sequenceDiagram
     actor P as persona
     participant O as padre (/orchestrate)
-    participant H as hija (claude -p, mismo worktree)
+    participant H as hija (panel de tmux o claude -p, mismo worktree)
     participant G as GitHub
     P->>O: /mindstack:orchestrate [a b c]
     opt sin tareas nombradas y más de una pendiente
@@ -96,9 +96,9 @@ sequenceDiagram
     end
     O->>O: escribe la cola en git dir/mindstack-cola
     loop por cada tarea, en orden
-        O->>H: claude -p "/mindstack:orchestrate hija a" (segundo plano)
+        O->>H: "/mindstack:orchestrate hija a" (panel de tmux o segundo plano)
         H->>H: implement → review ↔ fix → pr pasos 1 a 4: commit local, a → 4-done
-        H-->>O: fin del proceso: a en 4-done o en blocked/
+        H-->>O: fin (canal de tmux o del proceso): a en 4-done o en blocked/
     end
     O->>G: UN push · gh pr create con los PR.md de la cola · CI
     G-->>O: verde → fin del turno
@@ -107,7 +107,12 @@ sequenceDiagram
 1. **Qué tareas.** En la rama default (`main`), parar: el PR necesita otra rama. `hija <slug>`: sos una hija de cola (paso 4). Si hay una cola cortada (`mindstack-cola` con tareas sin terminar), esa cola. Si no, una tarea en curso o bloqueada, esa. Si la persona nombró slugs, esos, en ese orden. Si no nombró y hay una sola pendiente, esa, sin hijas: el flujo de siempre en esta sesión (la cola se escribe igual, con una línea). Si hay varias, `AskUserQuestion` (multiSelect) con las pendientes del worktree en el orden en que llegaron a `1-pending` (`git log --diff-filter=A -- todolist/1-pending`); el orden es el de la lista, y es la precedencia: una tarea ve el código de las anteriores. Es la única pregunta del padre.
 2. **La cola, escrita, siempre**: también con una sola tarea (la pendiente, la que está en curso o la que se retoma). Un slug por línea en `$(git rev-parse --git-dir)/mindstack-cola`. El hook de parada la usa para saber qué tareas son de este turno: una bloqueada de otro turno no cuenta.
    Se escribe apenas se sabe qué corre en el turno. Las paradas de antes (en `main`, sin tarea, falta el plan) no la escriben, y el hook de parada las deja pasar. Si ya existe con tareas sin terminar (una cola cortada por un crash), se retoma esa cola, como cola.
-3. **Una hija por tarea.** `claude -p --permission-mode <el modo de esta sesión> "/mindstack:orchestrate hija <slug>"` (`auto` si la sesión corre en modo auto; si no, `acceptEdits`, y la lista de permisos de `/install` cubre `git` y `gh`) con `run_in_background`, en el directorio del worktree. Al terminar el proceso, el padre se despierta: borra los marcadores de hija que hayan quedado (`grep -l 'orchestrate hija' $(git rev-parse --git-dir)/mindstack-orchestrating/*`) y mira la carpeta de la tarea.
+3. **Una hija por tarea**, en el directorio del worktree. Flags: `--permission-mode <el modo de esta sesión>` (`auto` si la sesión corre en modo auto; si no, `acceptEdits`, y la lista de permisos de `/install` cubre `git` y `gh`) y, si `${CLAUDE_PLUGIN_ROOT}` no está bajo `~/.claude/plugins/` (el plugin se cargó con `--plugin-dir`), `--plugin-dir ${CLAUDE_PLUGIN_ROOT}`: sin él la hija arranca sin mindstack.
+   - Con `$TMUX` definida, un panel por hija en la ventana del padre, para que la persona la vea trabajar (Orca muestra solo la ventana activa). Canal: `mindstack-<worktree>-<slug>`.
+     `tmux split-window -d -h -t "$TMUX_PANE" -c <worktree> -e MINDSTACK_CANAL=<canal> "claude <flags> '/mindstack:orchestrate hija <slug>'; tmux wait-for -S <canal>"`, y `tmux wait-for <canal>` con `run_in_background`. La hija interactiva no se cierra sola: al parar en una de sus salidas, `orchestrate-stop.sh` avisa por el canal y cierra el panel. Si sale antes (crash, `/exit`), avisa el final del comando.
+   - Sin `$TMUX`: `claude -p <flags> "/mindstack:orchestrate hija <slug>"` con `run_in_background`.
+
+   Al terminar el proceso en segundo plano (`wait-for` o `claude -p`), el padre se despierta: borra los marcadores de hija que hayan quedado (`grep -l 'orchestrate hija' $(git rev-parse --git-dir)/mindstack-orchestrating/*`) y mira la carpeta de la tarea.
    - `4-done/<slug>`: siguiente de la cola.
    - `blocked/<slug>`: la cola frena (las siguientes se apoyan en su código). Las ya terminadas se suben: push y `gh pr create --draft` con sus `PR.md` y una línea "bloqueada: <slug>, ver BLOCKED.md". Fin del turno.
    - Otra (la hija murió a mitad): relanzarla una vez; si vuelve a pasar, Bloquear con `desde:` donde quedó.
